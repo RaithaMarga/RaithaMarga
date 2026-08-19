@@ -1,0 +1,50 @@
+/* ============================================
+   Impact strip
+   ============================================ */
+.impact {
+  background: var(--color-primary-dark);
+  padding: var(--space-10) 0;
+}
+
+.impact__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-6);
+}
+
+.impact__card {
+  text-align: center;
+  padding: 0 var(--space-3);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.impact__card:first-child { border-left: none; }
+
+@media (max-width: 720px) {
+  .impact__card { border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.14); padding-top: var(--space-5); }
+  .impact__card:first-child { border-top: none; padding-top: 0; }
+}
+
+.impact__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  color: var(--color-gold-light);
+  font-weight: var(--font-weight-semibold);
+}
+
+.impact__label {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-2);
+  line-height: var(--line-height-relaxed);
+}
+
+.impact__source {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: var(--space-3);
+  letter-spacing: 0.03em;
+}

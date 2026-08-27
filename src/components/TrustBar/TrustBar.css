@@ -1,0 +1,88 @@
+/* ============================================
+   Trust Bar — verification strip
+   ============================================ */
+.trustbar {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(var(--space-8) * -1);
+  padding-bottom: var(--space-10);
+}
+
+@media (max-width: 640px) {
+  .trustbar { margin-top: calc(var(--space-6) * -1); }
+}
+
+.trustbar__panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5) var(--space-8);
+  background: rgba(255, 253, 248, 0.72);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.trustbar__label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.trustbar__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  flex: 1;
+}
+
+.trustbar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink-soft);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), color var(--transition-fast);
+}
+
+.trustbar__panel.reveal--visible .trustbar__item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.trustbar__item:hover {
+  color: var(--color-primary-dark);
+}
+
+.trustbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  flex-shrink: 0;
+  transition: transform var(--transition-base), background var(--transition-base), color var(--transition-base);
+}
+
+.trustbar__item:hover .trustbar__icon {
+  transform: scale(1.1);
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trustbar__item { opacity: 1; transform: none; transition: color var(--transition-fast); }
+}

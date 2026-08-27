@@ -1,74 +1,92 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import logoMark from '../../assets/logo-mark.png';
 import './Navbar.css';
 
 const Navbar = () => {
+  const { t, language, toggleLanguage } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState('en');
+  const [scrolled, setScrolled] = useState(false);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleLanguage = () => setLanguage(prev => prev === 'en' ? 'kn' : 'en');
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const NAV_LINKS = [
+    { href: '#home', label: t.nav.home },
+    { href: '#how-it-works', label: t.nav.how },
+    { href: '#features', label: t.nav.features },
+    { href: '#trust', label: t.nav.trust },
+    { href: '#impact', label: t.nav.impact },
+  ];
+
+  const toggleMenu = () => setIsMenuOpen((v) => !v);
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <header className="navbar">
+    <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="navbar__container container">
-        {/* Logo */}
-        <a href="/" className="navbar__logo">
-          <span className="navbar__logo-icon">🌾</span>
+        <a href="#home" className="navbar__logo">
+          <span className="navbar__logo-mark">
+            <img src={logoMark} alt="RaithaMarga" width="40" height="40" />
+          </span>
           <span className="navbar__logo-text">RaithaMarga</span>
         </a>
 
-        {/* Desktop Navigation */}
-        <nav className="navbar__nav" role="navigation">
+        <nav className="navbar__nav" role="navigation" aria-label="Primary">
           <ul className="navbar__links">
-            <li><a href="/" className="navbar__link">Home</a></li>
-            <li><a href="/how-it-works" className="navbar__link">How It Works</a></li>
-            <li><a href="/farmers" className="navbar__link">For Farmers</a></li>
-            <li><a href="/buyers" className="navbar__link">For Buyers</a></li>
-            <li><a href="/trust" className="navbar__link">Trust</a></li>
-            <li><a href="/about" className="navbar__link">About</a></li>
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} className="navbar__link">{link.label}</a>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        {/* Right side actions */}
         <div className="navbar__actions">
           <button
             className="navbar__lang-toggle"
             onClick={toggleLanguage}
             aria-label="Switch language"
           >
-            {language === 'en' ? 'ಕನ್ನಡ' : 'English'}
+            <span key={language} className="navbar__lang-toggle-text">{t.nav.langToggle}</span>
           </button>
-          <a href="/login" className="navbar__btn navbar__btn--outline">Login</a>
-          <a href="/register" className="navbar__btn navbar__btn--primary">Get Started</a>
+          <a href="#login" className="navbar__btn navbar__btn--outline">{t.nav.login}</a>
+          <a href="#get-started" className="navbar__btn navbar__btn--primary">
+            <span className="navbar__btn-shine" aria-hidden="true" />
+            {t.nav.getStarted}
+          </a>
         </div>
 
-        {/* Mobile menu button */}
         <button
           className="navbar__hamburger"
           onClick={toggleMenu}
           aria-expanded={isMenuOpen}
           aria-label="Toggle navigation menu"
         >
-          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`}></span>
-          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`}></span>
-          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`}></span>
+          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`} />
+          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`} />
+          <span className={`navbar__hamburger-line ${isMenuOpen ? 'navbar__hamburger-line--open' : ''}`} />
         </button>
       </div>
 
-      {/* Mobile menu */}
       <div className={`navbar__mobile ${isMenuOpen ? 'navbar__mobile--open' : ''}`}>
         <nav className="navbar__mobile-nav">
           <ul className="navbar__mobile-links">
-            <li><a href="/" className="navbar__mobile-link" onClick={toggleMenu}>Home</a></li>
-            <li><a href="/how-it-works" className="navbar__mobile-link" onClick={toggleMenu}>How It Works</a></li>
-            <li><a href="/farmers" className="navbar__mobile-link" onClick={toggleMenu}>For Farmers</a></li>
-            <li><a href="/buyers" className="navbar__mobile-link" onClick={toggleMenu}>For Buyers</a></li>
-            <li><a href="/trust" className="navbar__mobile-link" onClick={toggleMenu}>Trust</a></li>
-            <li><a href="/about" className="navbar__mobile-link" onClick={toggleMenu}>About</a></li>
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} className="navbar__mobile-link" onClick={closeMenu}>{link.label}</a>
+              </li>
+            ))}
           </ul>
           <div className="navbar__mobile-actions">
-            <a href="/login" className="navbar__btn navbar__btn--outline navbar__btn--full">Login</a>
-            <a href="/register" className="navbar__btn navbar__btn--primary navbar__btn--full">Get Started</a>
+            <button className="navbar__lang-toggle navbar__lang-toggle--mobile" onClick={toggleLanguage}>
+              {t.nav.langToggle}
+            </button>
+            <a href="#login" className="navbar__btn navbar__btn--outline navbar__btn--full" onClick={closeMenu}>{t.nav.login}</a>
+            <a href="#get-started" className="navbar__btn navbar__btn--primary navbar__btn--full" onClick={closeMenu}>{t.nav.getStarted}</a>
           </div>
         </nav>
       </div>

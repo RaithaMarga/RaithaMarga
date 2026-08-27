@@ -1,0 +1,101 @@
+/* ============================================
+   Final CTA band
+   ============================================ */
+.final-cta {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, var(--color-primary-light) 100%);
+  padding: var(--space-12) 0;
+}
+
+.final-cta__backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.final-cta__leaf {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  animation: ctaDrift 16s ease-in-out infinite alternate;
+}
+
+.final-cta__leaf--one {
+  width: 420px;
+  height: 420px;
+  top: -180px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(240, 185, 62, 0.45), transparent 70%);
+}
+
+.final-cta__leaf--two {
+  width: 380px;
+  height: 380px;
+  bottom: -200px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 70%);
+  animation-duration: 20s;
+  animation-delay: -6s;
+}
+
+@keyframes ctaDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-24px, 30px) scale(1.08); }
+}
+
+.final-cta__panel {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.final-cta__eyebrow {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--color-gold-light);
+}
+
+.final-cta__title {
+  font-size: var(--font-size-4xl);
+  color: var(--color-white);
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .final-cta__title { font-size: var(--font-size-3xl); }
+}
+
+.final-cta__subtitle {
+  font-size: var(--font-size-lg);
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: var(--space-4);
+  line-height: var(--line-height-relaxed);
+}
+
+.final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.btn--outline-light {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--color-white);
+  background: transparent;
+}
+
+.btn--outline-light:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--color-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .final-cta__leaf { animation: none; }
+}

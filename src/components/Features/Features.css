@@ -1,67 +1,69 @@
 /* ============================================
-   Features Section
+   Features
    ============================================ */
 .features {
-  padding: var(--space-16) 0;
-  background: var(--color-white);
-}
-
-.features__header {
-  text-align: center;
-  margin-bottom: var(--space-10);
-}
-
-.features__title {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-dark);
-  margin-bottom: var(--space-4);
-}
-
-.features__subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-light);
-  max-width: 600px;
-  margin: 0 auto;
+  background: var(--color-cream-alt);
+  position: relative;
 }
 
 .features__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-5);
 }
 
 .features__card {
-  background: var(--color-white);
-  border: 1px solid var(--color-light-gray);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  text-align: left;
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+  position: relative;
 }
 
 .features__card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-gold);
 }
 
 .features__card-icon {
-  font-size: 2.5rem;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
   margin-bottom: var(--space-4);
+  transition: transform var(--transition-base), background var(--transition-base), color var(--transition-base);
+}
+
+.features__card:hover .features__card-icon {
+  transform: scale(1.1) rotate(-4deg);
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+.features__card-tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
 }
 
 .features__card-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
-  margin-bottom: var(--space-3);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-2);
 }
 
 .features__card-desc {
-  font-size: var(--font-size-base);
-  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-soft);
   line-height: var(--line-height-relaxed);
 }

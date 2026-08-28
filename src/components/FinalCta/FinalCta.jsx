@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useReveal } from '../../hooks/useReveal';
 import './FinalCta.css';
@@ -19,10 +20,10 @@ const FinalCta = () => {
           <h2 className="final-cta__title">{c.title}</h2>
           <p className="final-cta__subtitle">{c.subtitle}</p>
           <div className="final-cta__actions">
-            <a href="#get-started" className="btn btn--gold btn--animated">
+            <Link to="/farmer/dashboard" className="btn btn--gold btn--animated">
               <span className="btn__shine" aria-hidden="true" />
               {c.ctaPrimary}
-            </a>
+            </Link>
             <a href="#login" className="btn btn--outline-light btn--animated">{c.ctaSecondary}</a>
           </div>
         </div>

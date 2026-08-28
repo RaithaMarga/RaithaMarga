@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import logoSeal from '../../assets/logo-seal.png';
 import './Hero.css';
@@ -27,10 +28,10 @@ const Hero = () => {
             {h.subtitle}
           </p>
           <div className="hero__cta hero__reveal" style={{ animationDelay: '240ms' }}>
-            <a href="#get-started" className="btn btn--primary btn--animated">
+            <Link to="/farmer/dashboard" className="btn btn--primary btn--animated">
               <span className="btn__shine" aria-hidden="true" />
               {h.ctaFarmer}
-            </a>
+            </Link>
             <a href="#get-started" className="btn btn--outline btn--animated">{h.ctaBuyer}</a>
           </div>
           <div className="hero__trustline hero__reveal" style={{ animationDelay: '320ms' }}>

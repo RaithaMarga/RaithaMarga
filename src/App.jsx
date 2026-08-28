@@ -1,10 +1,42 @@
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import Home from './pages/Home';
 import { LanguageProvider } from './context/LanguageContext';
+import FarmerDashboardShell from './pages/farmer/FarmerDashboardShell';
+import Overview from './pages/farmer/Overview';
+import AddProduce from './pages/farmer/AddProduce';
+import MyListings from './pages/farmer/MyListings';
+import BuyerMatches from './pages/farmer/BuyerMatches';
+import MyDeals from './pages/farmer/MyDeals';
+import Verification from './pages/farmer/Verification';
+import Profile from './pages/farmer/Profile';
+
+// Forces AddProduce to remount whenever the :id param changes, so its
+// lazy initial state (read from context) is recomputed per listing
+// instead of needing an effect to re-sync form state.
+const EditProduceRoute = () => {
+  const { id } = useParams();
+  return <AddProduce key={id} />;
+};
 
 function App() {
   return (
     <LanguageProvider>
-      <Home />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+
+          <Route path="/farmer/dashboard" element={<FarmerDashboardShell />}>
+            <Route index element={<Overview />} />
+            <Route path="add-produce" element={<AddProduce />} />
+            <Route path="listings" element={<MyListings />} />
+            <Route path="listings/:id/edit" element={<EditProduceRoute />} />
+            <Route path="matches" element={<BuyerMatches />} />
+            <Route path="deals" element={<MyDeals />} />
+            <Route path="verification" element={<Verification />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </LanguageProvider>
   );
 }

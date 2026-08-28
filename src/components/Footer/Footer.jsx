@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import logoMark from '../../assets/logo-mark.png';
 import './Footer.css';
@@ -27,7 +28,7 @@ const Footer = () => {
           </div>
           <div className="footer__col">
             <h4 className="footer__heading">{t.footer.forYou}</h4>
-            <a href="#get-started">{t.hero.ctaFarmer}</a>
+            <Link to="/farmer/dashboard">{t.hero.ctaFarmer}</Link>
             <a href="#get-started">{t.hero.ctaBuyer}</a>
             <a href="#login">{t.nav.login}</a>
           </div>

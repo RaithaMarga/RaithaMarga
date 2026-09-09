@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import logoSeal from '../../assets/logo-seal.png';
+import AgriBackdrop from '../AgriBackdrop/AgriBackdrop';
 import './Hero.css';
 
 const Hero = () => {
@@ -9,6 +10,7 @@ const Hero = () => {
 
   return (
     <section className="hero" id="home">
+      <AgriBackdrop variant="hero" />
       <div className="hero__backdrop" aria-hidden="true">
         <span className="hero__blob hero__blob--gold" />
         <span className="hero__blob hero__blob--green" />
@@ -32,7 +34,7 @@ const Hero = () => {
               <span className="btn__shine" aria-hidden="true" />
               {h.ctaFarmer}
             </Link>
-            <a href="#get-started" className="btn btn--outline btn--animated">{h.ctaBuyer}</a>
+            <Link to="/buyer/dashboard" className="btn btn--outline btn--animated">{h.ctaBuyer}</Link>
           </div>
           <div className="hero__trustline hero__reveal" style={{ animationDelay: '320ms' }}>
             <span><strong>{h.trust1Strong}</strong> {h.trust1Rest}</span>

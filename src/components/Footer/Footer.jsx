@@ -29,7 +29,7 @@ const Footer = () => {
           <div className="footer__col">
             <h4 className="footer__heading">{t.footer.forYou}</h4>
             <Link to="/farmer/dashboard">{t.hero.ctaFarmer}</Link>
-            <a href="#get-started">{t.hero.ctaBuyer}</a>
+            <Link to="/buyer/dashboard">{t.hero.ctaBuyer}</Link>
             <a href="#login">{t.nav.login}</a>
           </div>
           <div className="footer__col">

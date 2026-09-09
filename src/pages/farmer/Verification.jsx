@@ -13,6 +13,7 @@ const Verification = () => {
   const { verification, submitForVerification } = useFarmerData();
   const [files, setFiles] = useState({});
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFile = (docId, label) => (e) => {
     const file = e.target.files?.[0];
@@ -23,14 +24,19 @@ const Verification = () => {
   const allUploaded = REQUIRED_DOCS.every((d) => files[d.id]);
 
   const handleSubmit = () => {
-    const documents = REQUIRED_DOCS.map((d) => ({
-      id: d.id,
-      label: d.label,
-      fileName: files[d.id]?.fileName || null,
-      uploadedAt: new Date().toISOString(),
-    }));
-    submitForVerification(documents);
-    setMessage('Submitted for review. Your status will update once RaithaMarga confirms your documents.');
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setTimeout(() => {
+      const documents = REQUIRED_DOCS.map((d) => ({
+        id: d.id,
+        label: d.label,
+        fileName: files[d.id]?.fileName || null,
+        uploadedAt: new Date().toISOString(),
+      }));
+      submitForVerification(documents);
+      setIsSubmitting(false);
+      setMessage('Submitted for review. Your status will update once RaithaMarga confirms your documents.');
+    }, 400);
   };
 
   return (
@@ -45,9 +51,10 @@ const Verification = () => {
 
       <div className="dash-panel" style={{ display: 'grid', gap: 'var(--space-4)' }}>
         {verification.status === 'verified' ? (
-          <p style={{ color: 'var(--color-primary-dark)', fontWeight: 600 }}>
+          <div className="dash-banner dash-banner--success">
+            <span className="dash-banner__icon" aria-hidden="true">{'\u2713'}</span>
             You're verified. Buyers can see your verified badge on every listing.
-          </p>
+          </div>
         ) : (
           <>
             <p style={{ color: 'var(--color-ink-soft)', fontSize: 'var(--font-size-sm)' }}>
@@ -81,16 +88,17 @@ const Verification = () => {
             })}
 
             {message ? (
-              <p role="status" style={{ color: 'var(--color-primary-dark)', fontSize: 'var(--font-size-sm)', fontWeight: 600 }}>
+              <div className="dash-banner dash-banner--success" role="status">
+                <span className="dash-banner__icon" aria-hidden="true">{'\u2713'}</span>
                 {message}
-              </p>
+              </div>
             ) : null}
 
             <div className="dash-form__actions">
               <button
                 type="button"
-                className="btn btn--primary"
-                disabled={!allUploaded}
+                className={`btn btn--primary${isSubmitting ? ' btn--loading' : ''}`}
+                disabled={!allUploaded || isSubmitting}
                 onClick={handleSubmit}
               >
                 Submit for Verification

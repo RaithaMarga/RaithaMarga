@@ -1,0 +1,75 @@
+/* ============================================
+   Agricultural Backdrop — original SVG illustration
+   ============================================ */
+.agri-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.agri-backdrop__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.agri-backdrop__sun {
+  animation: agriSunPulse 10s ease-in-out infinite;
+  transform-origin: 1180px 120px;
+}
+
+@keyframes agriSunPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+/* Slow, decorative drift on the crop-row bands only — never on text,
+   forms, or controls. */
+.agri-backdrop__row {
+  animation: agriRowDrift 24s ease-in-out infinite alternate;
+}
+
+.agri-backdrop__row--2 { animation-duration: 30s; animation-delay: -6s; }
+.agri-backdrop__row--3 { animation-duration: 36s; animation-delay: -12s; }
+
+@keyframes agriRowDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(18px); }
+}
+
+/* Cream gradient overlay for text legibility. Denser near the top/left
+   where hero copy sits, fading out toward the bottom-right where the
+   illustration is decorative only. */
+.agri-backdrop__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, var(--color-cream) 0%, rgba(250, 244, 227, 0.88) 32%, rgba(250, 244, 227, 0.35) 60%, rgba(250, 244, 227, 0.05) 100%),
+    linear-gradient(to top, var(--color-cream) 0%, rgba(250, 244, 227, 0) 30%);
+}
+
+/* Compact variant for empty states / smaller panels */
+.agri-backdrop--empty {
+  border-radius: var(--radius-lg);
+}
+
+.agri-backdrop--empty .agri-backdrop__overlay {
+  background:
+    linear-gradient(to top, var(--color-paper) 0%, rgba(255, 253, 248, 0.5) 55%, rgba(255, 253, 248, 0.15) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agri-backdrop__sun,
+  .agri-backdrop__row {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Keep the illustration light and out of the way on small screens
+     so it never competes with hero copy or forms. */
+  .agri-backdrop__trees { opacity: 0.35; }
+}

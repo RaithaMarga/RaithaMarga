@@ -10,6 +10,11 @@ const STATUS_META = {
   pending: { label: 'Pending Review', tone: 'gold' },
   needs_attention: { label: 'Needs Attention', tone: 'alert' },
   verified: { label: 'Verified', tone: 'success' },
+  requested: { label: 'Requested', tone: 'gold' },
+  cancelled: { label: 'Cancelled', tone: 'muted' },
+  accepted: { label: 'Accepted', tone: 'success' },
+  completed: { label: 'Completed', tone: 'primary' },
+  Pending_Verification: { label: 'Pending Verification', tone: 'gold' },
 };
 
 const StatusBadge = ({ status }) => {

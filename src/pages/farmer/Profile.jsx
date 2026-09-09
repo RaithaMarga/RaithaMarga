@@ -5,18 +5,43 @@ import '../../components/dashboard/dashboard-ui.css';
 const Profile = () => {
   const { profile, setProfile } = useFarmerData();
   const [form, setForm] = useState(profile);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [saved, setSaved] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
     setSaved(false);
+    setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+  };
+
+  const validate = () => {
+    const errors = {};
+    if (!form.name.trim()) errors.name = 'Your name is required.';
+    if (!form.phone.trim()) errors.phone = 'A phone number is required so buyers can reach you.';
+    else if (!/^[0-9+\-\s]{7,15}$/.test(form.phone.trim())) errors.phone = 'Enter a valid phone number.';
+    return errors;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setProfile(form);
-    setSaved(true);
+    if (isSubmitting) return;
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setSaved(false);
+      return;
+    }
+    setFieldErrors({});
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setProfile(form);
+      setIsSubmitting(false);
+      setSaved(true);
+    }, 350);
   };
+
+  const fieldClass = (field) => `dash-field${fieldErrors[field] ? ' dash-field--error' : ''}`;
 
   return (
     <div className="dash-page">
@@ -27,15 +52,40 @@ const Profile = () => {
         </div>
       </div>
 
-      <form className="dash-panel dash-form" onSubmit={handleSubmit}>
-        <div className="dash-form__row">
-          <div className="dash-field">
-            <label htmlFor="name">Full Name</label>
-            <input id="name" type="text" value={form.name} onChange={handleChange('name')} placeholder="e.g. Manjunath Gowda" />
+      <form className="dash-panel dash-form" onSubmit={handleSubmit} noValidate>
+        {saved && (
+          <div className="dash-banner dash-banner--success" role="status">
+            <span className="dash-banner__icon" aria-hidden="true">{'\u2713'}</span>
+            Profile saved.
           </div>
-          <div className="dash-field">
-            <label htmlFor="phone">Phone Number</label>
-            <input id="phone" type="tel" value={form.phone} onChange={handleChange('phone')} placeholder="e.g. 9876543210" />
+        )}
+
+        <div className="dash-form__row">
+          <div className={fieldClass('name')}>
+            <label htmlFor="name">Full Name <span className="dash-field__required" aria-hidden="true">*</span></label>
+            <input
+              id="name"
+              type="text"
+              value={form.name}
+              onChange={handleChange('name')}
+              placeholder="e.g. Manjunath Gowda"
+              aria-required="true"
+              aria-invalid={Boolean(fieldErrors.name)}
+            />
+            {fieldErrors.name && <span className="dash-field__error">{fieldErrors.name}</span>}
+          </div>
+          <div className={fieldClass('phone')}>
+            <label htmlFor="phone">Phone Number <span className="dash-field__required" aria-hidden="true">*</span></label>
+            <input
+              id="phone"
+              type="tel"
+              value={form.phone}
+              onChange={handleChange('phone')}
+              placeholder="e.g. 9876543210"
+              aria-required="true"
+              aria-invalid={Boolean(fieldErrors.phone)}
+            />
+            {fieldErrors.phone && <span className="dash-field__error">{fieldErrors.phone}</span>}
           </div>
         </div>
 
@@ -61,7 +111,7 @@ const Profile = () => {
           </div>
           <div className="dash-field">
             <label htmlFor="pincode">Pincode</label>
-            <input id="pincode" type="text" value={form.pincode} onChange={handleChange('pincode')} />
+            <input id="pincode" type="text" inputMode="numeric" value={form.pincode} onChange={handleChange('pincode')} />
           </div>
           <div className="dash-field">
             <label htmlFor="landSize">Land Size (acres)</label>
@@ -83,14 +133,10 @@ const Profile = () => {
           </select>
         </div>
 
-        {saved && (
-          <p role="status" style={{ color: 'var(--color-primary-dark)', fontSize: 'var(--font-size-sm)', fontWeight: 600 }}>
-            Profile saved.
-          </p>
-        )}
-
         <div className="dash-form__actions">
-          <button type="submit" className="btn btn--primary">Save Profile</button>
+          <button type="submit" className={`btn btn--primary${isSubmitting ? ' btn--loading' : ''}`} disabled={isSubmitting}>
+            Save Profile
+          </button>
         </div>
       </form>
     </div>

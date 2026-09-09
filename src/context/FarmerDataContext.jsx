@@ -1,5 +1,6 @@
 import { createContext, useContext, useCallback, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { STORAGE_KEYS } from '../data/storageKeys';
 
 const FarmerDataContext = createContext(null);
 
@@ -29,9 +30,9 @@ function makeId() {
 }
 
 export const FarmerDataProvider = ({ children }) => {
-  const [listings, setListings] = useLocalStorage('rm_farmer_listings', []);
-  const [profile, setProfile] = useLocalStorage('rm_farmer_profile', emptyProfile);
-  const [verification, setVerification] = useLocalStorage('rm_farmer_verification', emptyVerification);
+  const [listings, setListings] = useLocalStorage(STORAGE_KEYS.FARMER_LISTINGS, []);
+  const [profile, setProfile] = useLocalStorage(STORAGE_KEYS.FARMER_PROFILE, emptyProfile);
+  const [verification, setVerification] = useLocalStorage(STORAGE_KEYS.FARMER_VERIFICATION, emptyVerification);
 
   const addListing = useCallback((data, status = 'active') => {
     const listing = {
@@ -69,6 +70,32 @@ export const FarmerDataProvider = ({ children }) => {
   }, [setListings]);
 
   const getListing = useCallback((id) => listings.find((l) => l.id === id), [listings]);
+
+  // Weighing-proof photos, per the Live Photo Verification blueprint.
+  // Stored on the listing itself for now (frontend-only). Genuinely
+  // guaranteeing these weren't spoofed (fake GPS/clock) needs
+  // server-side cross-checks — see LiveCameraCapture.jsx for the full
+  // caveat. Status starts, and stays, at 'Pending_Verification' until
+  // a backend exists to confirm it; nothing here can self-promote it.
+  const addWeighingProof = useCallback((listingId, proof) => {
+    setListings((prev) =>
+      prev.map((l) =>
+        l.id === listingId
+          ? { ...l, weighingProofs: [proof, ...(l.weighingProofs || [])], updatedAt: new Date().toISOString() }
+          : l
+      )
+    );
+  }, [setListings]);
+
+  const removeWeighingProof = useCallback((listingId, proofId) => {
+    setListings((prev) =>
+      prev.map((l) =>
+        l.id === listingId
+          ? { ...l, weighingProofs: (l.weighingProofs || []).filter((p) => p.id !== proofId) }
+          : l
+      )
+    );
+  }, [setListings]);
 
   const submitForVerification = useCallback((documents) => {
     setVerification((prev) => ({
@@ -110,13 +137,15 @@ export const FarmerDataProvider = ({ children }) => {
     setListingStatus,
     deleteListing,
     getListing,
+    addWeighingProof,
+    removeWeighingProof,
     profile,
     setProfile,
     verification,
     submitForVerification,
     stats,
     LISTING_STATUSES,
-  }), [listings, addListing, updateListing, setListingStatus, deleteListing, getListing, profile, setProfile, verification, submitForVerification, stats]);
+  }), [listings, addListing, updateListing, setListingStatus, deleteListing, getListing, addWeighingProof, removeWeighingProof, profile, setProfile, verification, submitForVerification, stats]);
 
   return (
     <FarmerDataContext.Provider value={value}>

@@ -24,7 +24,7 @@ const FinalCta = () => {
               <span className="btn__shine" aria-hidden="true" />
               {c.ctaPrimary}
             </Link>
-            <a href="#login" className="btn btn--outline-light btn--animated">{c.ctaSecondary}</a>
+            <Link to="/buyer/dashboard" className="btn btn--outline-light btn--animated">{c.ctaSecondary}</Link>
           </div>
         </div>
       </div>

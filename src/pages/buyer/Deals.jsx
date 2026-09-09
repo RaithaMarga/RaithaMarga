@@ -2,13 +2,13 @@ import EmptyState from '../../components/dashboard/EmptyState';
 import '../../components/dashboard/dashboard-ui.css';
 import { IconScale } from '../../components/dashboard/icons';
 
-const MyDeals = () => {
+const Deals = () => {
   return (
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <h1 className="dash-page__title">My Deals</h1>
-          <p className="dash-page__subtitle">Track every deal from confirmation to payment.</p>
+          <h1 className="dash-page__title">Deals</h1>
+          <p className="dash-page__subtitle">Confirmed purchases, from agreement through delivery.</p>
         </div>
       </div>
 
@@ -16,11 +16,11 @@ const MyDeals = () => {
         <EmptyState
           icon={<IconScale />}
           title="No deals yet"
-          description="Once a buyer confirms interest in one of your listings, the deal will appear here with agreed quantity, price, status, and pickup or delivery details."
+          description="Once a farmer confirms one of your requests, it becomes a deal here — with agreed quantity, price, weighing proof, and pickup or delivery status."
         />
       </div>
     </div>
   );
 };
 
-export default MyDeals;
+export default Deals;

@@ -61,6 +61,11 @@
   transform: translateX(2px);
 }
 
+.dashlayout__navlink:focus-visible {
+  outline: 2px solid var(--color-gold-light);
+  outline-offset: 2px;
+}
+
 .dashlayout__navlink--active {
   background: var(--color-gold);
   color: var(--color-ink);

@@ -229,6 +229,50 @@ h1, h2, h3, h4 {
 
 .btn:active { transform: translateY(1px); }
 
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-tint), var(--shadow-md);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn--loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn--loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: currentColor;
+  color: var(--color-white);
+  animation: btnSpin 0.7s linear infinite;
+}
+
+.btn--outline.btn--loading::after,
+.btn--outline-light.btn--loading::after {
+  color: var(--color-primary);
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn--loading::after { animation-duration: 1.4s; }
+}
+
 .btn--primary {
   background: var(--color-primary);
   color: var(--color-white);

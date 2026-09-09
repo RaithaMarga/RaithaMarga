@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useFarmerData } from '../../context/FarmerDataContext';
 import EmptyState from '../../components/dashboard/EmptyState';
 import '../../components/dashboard/dashboard-ui.css';
+import { IconHandshake } from '../../components/dashboard/icons';
 
 const BuyerMatches = () => {
   const { stats } = useFarmerData();
@@ -17,7 +18,7 @@ const BuyerMatches = () => {
 
       <div className="dash-panel">
         <EmptyState
-          icon="\u21C6"
+          icon={<IconHandshake />}
           title="No buyer matches yet"
           description={
             stats.activeCount === 0

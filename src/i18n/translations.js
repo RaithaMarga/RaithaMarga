@@ -18,7 +18,9 @@ export const translations = {
       subtitle:
         'RaithaMarga connects small and marginal farmers directly with verified buyers — combining nearby produce into stronger lots, and backing every deal with photo-proof weighing and a visible buyer trust score.',
       ctaFarmer: "I'm a Farmer",
+      ctaFarmerSub: 'List your produce & find buyers',
       ctaBuyer: "I'm a Buyer",
+      ctaBuyerSub: 'Find fresh produce & trusted farmers',
       trust1Strong: '86%',
       trust1Rest: 'of Indian farmers hold under 2 hectares',
       trust2Strong: '30–50%',
@@ -30,7 +32,7 @@ export const translations = {
     how: {
       eyebrow: 'From listing to payment',
       title: 'How RaithaMarga Works',
-      subtitle: "Four steps stand between a farmer's harvest and a fair, guaranteed sale.",
+      subtitle: "Four steps stand between a farmer's harvest and a fairer, more transparent sale.",
       steps: [
         {
           title: 'List in seconds',
@@ -55,9 +57,9 @@ export const translations = {
       ],
     },
     features: {
-      eyebrow: 'Built for the ground, not the boardroom',
+      eyebrow: 'Built for real farmers',
       title: 'More Than a Marketplace',
-      subtitle: 'Five details the big platforms skip — because for a small farmer, these are exactly the details that matter.',
+      subtitle: 'Five features designed around the problems small farmers actually face.',
       items: [
         { tag: 'No more disputes', title: 'Weight Proof', description: 'Timestamped photos of the weighing scale at pickup and delivery — evidence, not arguments.' },
         { tag: 'Strength in numbers', title: 'Sell Together', description: 'Small quantities from nearby farmers are automatically combined into one lot bulk buyers actually want.' },
@@ -121,7 +123,9 @@ export const translations = {
       subtitle:
         'ರೈತಮಾರ್ಗ ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರನ್ನು ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸುತ್ತದೆ — ಹತ್ತಿರದ ಉತ್ಪನ್ನಗಳನ್ನು ಬಲಿಷ್ಠ ಲಾಟ್‌ಗಳಾಗಿ ಸಂಯೋಜಿಸಿ, ಪ್ರತಿ ಒಪ್ಪಂದವನ್ನು ಫೋಟೋ-ಪುರಾವೆ ತೂಕ ಮತ್ತು ಗೋಚರ ಖರೀದಿದಾರ ವಿಶ್ವಾಸ ಅಂಕದೊಂದಿಗೆ ಬೆಂಬಲಿಸುತ್ತದೆ.',
       ctaFarmer: 'ನಾನು ರೈತ',
+      ctaFarmerSub: 'ನಿಮ್ಮ ಉತ್ಪನ್ನ ಪಟ್ಟಿ ಮಾಡಿ ಮತ್ತು ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ',
       ctaBuyer: 'ನಾನು ಖರೀದಿದಾರ',
+      ctaBuyerSub: 'ತಾಜಾ ಉತ್ಪನ್ನ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ರೈತರನ್ನು ಹುಡುಕಿ',
       trust1Strong: '86%',
       trust1Rest: 'ಭಾರತೀಯ ರೈತರು 2 ಹೆಕ್ಟೇರ್‌ಗಿಂತ ಕಡಿಮೆ ಭೂಮಿ ಹೊಂದಿದ್ದಾರೆ',
       trust2Strong: '30–50%',
@@ -133,7 +137,7 @@ export const translations = {
     how: {
       eyebrow: 'ಪಟ್ಟಿ ಮಾಡುವುದರಿಂದ ಪಾವತಿಯವರೆಗೆ',
       title: 'ರೈತಮಾರ್ಗ ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
-      subtitle: 'ರೈತನ ಸುಗ್ಗಿ ಮತ್ತು ನ್ಯಾಯಯುತ, ಖಾತರಿಪಡಿಸಿದ ಮಾರಾಟದ ನಡುವೆ ನಾಲ್ಕು ಹಂತಗಳಿವೆ.',
+      subtitle: 'ರೈತನ ಸುಗ್ಗಿ ಮತ್ತು ಹೆಚ್ಚು ನ್ಯಾಯಯುತ, ಪಾರದರ್ಶಕ ಮಾರಾಟದ ನಡುವೆ ನಾಲ್ಕು ಹಂತಗಳಿವೆ.',
       steps: [
         {
           title: 'ಕೆಲವೇ ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಿ',
@@ -158,9 +162,9 @@ export const translations = {
       ],
     },
     features: {
-      eyebrow: 'ಬೋರ್ಡ್‌ರೂಮ್‌ಗಾಗಿ ಅಲ್ಲ, ನೆಲದ ಮಟ್ಟಕ್ಕಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ',
+      eyebrow: 'ನೈಜ ರೈತರಿಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ',
       title: 'ಕೇವಲ ಮಾರುಕಟ್ಟೆಗಿಂತ ಹೆಚ್ಚು',
-      subtitle: 'ದೊಡ್ಡ ವೇದಿಕೆಗಳು ಬಿಟ್ಟುಬಿಡುವ ಐದು ವಿವರಗಳು — ಏಕೆಂದರೆ ಸಣ್ಣ ರೈತನಿಗೆ, ಇವು ನಿಖರವಾಗಿ ಮುಖ್ಯವಾದ ವಿವರಗಳು.',
+      subtitle: 'ಸಣ್ಣ ರೈತರು ನಿಜವಾಗಿ ಎದುರಿಸುವ ಸಮಸ್ಯೆಗಳ ಸುತ್ತ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಐದು ವೈಶಿಷ್ಟ್ಯಗಳು.',
       items: [
         { tag: 'ವಿವಾದಗಳಿಲ್ಲ', title: 'ತೂಕದ ಪುರಾವೆ', description: 'ಪಿಕಪ್ ಮತ್ತು ವಿತರಣೆಯಲ್ಲಿ ತೂಕದ ಯಂತ್ರದ ಸಮಯ-ಮುದ್ರಿತ ಫೋಟೋಗಳು — ವಾದಗಳಲ್ಲ, ಪುರಾವೆ.' },
         { tag: 'ಸಂಖ್ಯೆಯಲ್ಲಿ ಶಕ್ತಿ', title: 'ಒಟ್ಟಿಗೆ ಮಾರಾಟ', description: 'ಹತ್ತಿರದ ರೈತರ ಸಣ್ಣ ಪ್ರಮಾಣಗಳು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಒಂದು ಲಾಟ್ ಆಗಿ ಸಂಯೋಜಿಸಲ್ಪಡುತ್ತವೆ, ಬೃಹತ್ ಖರೀದಿದಾರರಿಗೆ ಬೇಕಾದದ್ದು.' },

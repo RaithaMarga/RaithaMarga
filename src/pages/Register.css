@@ -1,0 +1,68 @@
+/* ============================================
+   Register — account creation styling
+   inherits from and complements Login.css
+   ============================================ */
+
+.register-page {
+  /* inherits split-panel layout from login-page */
+}
+
+.register-card-container {
+  max-width: 520px;
+}
+
+.register-card {
+  max-width: 520px;
+}
+
+.register-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.register-select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  color: var(--color-ink);
+  background: var(--color-cream);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.register-select:focus-visible {
+  outline: none;
+  background: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+}
+
+.register-terms {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.register-terms label {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-ink-soft);
+}
+
+.register-terms--error label {
+  color: var(--color-tomato);
+}
+
+@media (max-width: 600px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import logoMark from '../../assets/logo-mark.png';
 import './Navbar.css';
+
 
 const Navbar = () => {
   const { t, language, toggleLanguage } = useLanguage();
@@ -53,11 +55,13 @@ const Navbar = () => {
           >
             <span key={language} className="navbar__lang-toggle-text">{t.nav.langToggle}</span>
           </button>
-          <a href="#login" className="navbar__btn navbar__btn--outline">{t.nav.login}</a>
-          <a href="#get-started" className="navbar__btn navbar__btn--primary">
+          {/*  <a href="#login" className="navbar__btn navbar__btn--outline">{t.nav.login}</a> */}  
+
+          <Link to="/login" className="navbar__btn navbar__btn--outline">{t.nav.login}</Link>
+          <Link to="/get-started" className="navbar__btn navbar__btn--primary">
             <span className="navbar__btn-shine" aria-hidden="true" />
             {t.nav.getStarted}
-          </a>
+          </Link>
         </div>
 
         <button
@@ -85,8 +89,10 @@ const Navbar = () => {
             <button className="navbar__lang-toggle navbar__lang-toggle--mobile" onClick={toggleLanguage}>
               {t.nav.langToggle}
             </button>
-            <a href="#login" className="navbar__btn navbar__btn--outline navbar__btn--full" onClick={closeMenu}>{t.nav.login}</a>
-            <a href="#get-started" className="navbar__btn navbar__btn--primary navbar__btn--full" onClick={closeMenu}>{t.nav.getStarted}</a>
+            {/*<a href="#login" className="navbar__btn navbar__btn--outline navbar__btn--full" onClick={closeMenu}>{t.nav.login}</a>*/}
+
+            <Link to="/login" className="navbar__btn navbar__btn--outline navbar__btn--full" onClick={closeMenu}>{t.nav.login}</Link>
+            <Link to="/get-started" className="navbar__btn navbar__btn--primary navbar__btn--full" onClick={closeMenu}>{t.nav.getStarted}</Link>
           </div>
         </nav>
       </div>

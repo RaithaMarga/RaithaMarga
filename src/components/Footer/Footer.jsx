@@ -30,7 +30,7 @@ const Footer = () => {
             <h4 className="footer__heading">{t.footer.forYou}</h4>
             <Link to="/farmer/dashboard">{t.hero.ctaFarmer}</Link>
             <Link to="/buyer/dashboard">{t.hero.ctaBuyer}</Link>
-            <a href="#login">{t.nav.login}</a>
+            <Link to="/login">{t.nav.login}</Link>
           </div>
           <div className="footer__col">
             <h4 className="footer__heading">{t.footer.pilot}</h4>

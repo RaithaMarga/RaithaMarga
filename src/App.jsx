@@ -20,6 +20,10 @@ import Deals from './pages/buyer/Deals';
 import TrustVerification from './pages/buyer/TrustVerification';
 import BuyerProfile from './pages/buyer/Profile';
 
+import Login from './pages/Login';
+import Register from './pages/Register';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 // Forces AddProduce to remount whenever the :id param changes, so its
 // lazy initial state (read from context) is recomputed per listing
 // instead of needing an effect to re-sync form state.
@@ -34,6 +38,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/get-started" element={<Register />} />
 
           <Route path="/farmer/dashboard" element={<FarmerDashboardShell />}>
             <Route index element={<FarmerOverview />} />
@@ -55,6 +62,8 @@ function App() {
             <Route path="trust" element={<TrustVerification />} />
             <Route path="profile" element={<BuyerProfile />} />
           </Route>
+
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

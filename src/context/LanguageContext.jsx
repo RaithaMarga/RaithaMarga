@@ -4,7 +4,7 @@ import { translations } from '../i18n/translations';
 const LanguageContext = createContext(null);
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState('kn');
 
   const toggleLanguage = useCallback(() => {
     setLanguage((prev) => (prev === 'en' ? 'kn' : 'en'));
@@ -13,7 +13,7 @@ export const LanguageProvider = ({ children }) => {
   const t = translations[language];
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
       <div lang={language}>{children}</div>
     </LanguageContext.Provider>
   );

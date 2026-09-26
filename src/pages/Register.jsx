@@ -2,74 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { STORAGE_KEYS } from '../data/storageKeys';
-import logoMark from '../assets/logo-mark.png';
 import logoSeal from '../assets/logo-seal.png';
+import fieldBg from '../assets/login-bg-field.jpg';
+import './Login.css';
 import './Register.css';
 
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
-// Defensive fallbacks in case translations are missing
-const DEFAULT_R = {
-  panelTitle: 'Join the Direct Harvest Network',
-  panelSubtitle: 'Create your account in under 2 minutes. Eliminate middlemen, get fair prices, and trade with photo-proof weighing scale trust.',
-  eyebrow: 'New Registration',
-  title: 'Get Started with RaithaMarga',
-  subtitle: 'Select your account type and fill in your details to begin.',
-  roleFarmer: 'I am a Farmer',
-  roleBuyer: 'I am a Buyer',
-  nameLabel: 'Full Name',
-  namePlaceholder: 'e.g. Basavarajappa Gowda',
-  businessNameLabel: 'Business / Firm Name',
-  businessNamePlaceholder: 'e.g. Kolar Fresh Produce Wholesalers',
-  contactNameLabel: 'Contact Person Name',
-  contactNamePlaceholder: 'e.g. Anand Kumar',
-  phoneLabel: 'Mobile Number',
-  phonePlaceholder: '10-digit mobile number',
-  villageLabel: 'Village / Taluk',
-  villagePlaceholder: 'e.g. Malur, Kolar',
-  marketLocationLabel: 'Market Location / City',
-  marketLocationPlaceholder: 'e.g. Kolar APMC Yard',
-  cropLabel: 'Primary Crop',
-  cropTomato: 'Tomato (Kolar Pilot Crop)',
-  cropOnion: 'Onion',
-  cropPotato: 'Potato',
-  cropChilli: 'Green Chilli',
-  cropOther: 'Other Horticulture',
-  businessTypeLabel: 'Business Category',
-  businessTypeTrader: 'Wholesale Mandi Trader',
-  businessTypeProcessor: 'Food Processor / Canner',
-  businessTypeRetailer: 'Retail Chain / Supermarket',
-  businessTypeExporter: 'Exporter',
-  landSizeLabel: 'Land Holding Size',
-  landSizeSmall: 'Under 2 Hectares (Small/Marginal)',
-  landSizeMedium: '2 to 5 Hectares',
-  landSizeLarge: 'Above 5 Hectares',
-  passwordLabel: 'Set Password',
-  passwordPlaceholder: 'Minimum 4 characters',
-  confirmPasswordLabel: 'Confirm Password',
-  confirmPasswordPlaceholder: 'Re-enter password',
-  termsFarmer: 'I agree to photo-proof digital scale weighing and transparent lot pooling.',
-  termsBuyer: 'I agree to prompt payment settlements backed by digital scale verification.',
-  submitFarmer: 'Create Farmer Account',
-  submitBuyer: 'Create Buyer Account',
-  submitting: 'Creating Account...',
-  alreadyAccount: 'Already have an account?',
-  signIn: 'Sign In',
-  demoQuickFill: 'Quick Demo Registration:',
-  demoFarmer: 'Demo Farmer',
-  demoBuyer: 'Demo Buyer',
-  errorName: 'Please enter your name',
-  errorBusinessName: 'Please enter your business or firm name',
-  errorPhone: 'Please enter a valid 10-digit mobile number',
-  errorLocation: 'Please enter your village, taluk, or location',
-  errorPassword: 'Password must be at least 4 characters',
-  errorPasswordMatch: 'Passwords do not match',
-  errorTerms: 'Please accept the platform terms to continue',
-};
-
 const Register = () => {
-  const { t, language, toggleLanguage } = useLanguage();
-  const r = { ...DEFAULT_R, ...(t?.register || {}) };
+  const { t, language, setLanguage } = useLanguage();
+  const r = t?.register || {};
   const navigate = useNavigate();
 
   const [role, setRole] = useState('farmer'); // 'farmer' | 'buyer'
@@ -106,12 +48,12 @@ const Register = () => {
     setErrors({});
   };
 
-  // Quick Demo fill buttons
+  // Quick Demo Pre-fill helpers
   const fillDemoFarmer = () => {
     setRole('farmer');
-    setFarmerName('Basavarajappa Gowda');
+    setFarmerName('ಬಸವರಾಜಪ್ಪ ಗೌಡ');
     setFarmerPhone('9876543210');
-    setFarmerVillage('Malur Taluk, Kolar');
+    setFarmerVillage('ಮಾಲೂರು ತಾಲೂಕು, ಕೋಲಾರ');
     setFarmerCrop('Tomato');
     setFarmerLandSize('under_2');
     setFarmerPassword('demo123');
@@ -122,10 +64,10 @@ const Register = () => {
 
   const fillDemoBuyer = () => {
     setRole('buyer');
-    setBusinessName('Kolar Agro Fresh Wholesalers');
-    setContactName('Anand Kumar');
+    setBusinessName('ಕೋಲಾರ ಅಗ್ರೋ ಹೋಲ್‌ಸೇಲ್');
+    setContactName('ಆನಂದ್ ಕುಮಾರ್');
     setBuyerPhone('9845012345');
-    setBuyerLocation('APMC Yard, Kolar');
+    setBuyerLocation('ಎಪಿಎಂಸಿ ಯಾರ್ಡ್, ಕೋಲಾರ');
     setBusinessType('trader');
     setBuyerPassword('demo123');
     setBuyerConfirmPassword('demo123');
@@ -135,12 +77,12 @@ const Register = () => {
 
   const validateFarmer = () => {
     const nextErrors = {};
-    if (!farmerName.trim()) nextErrors.farmerName = r.errorName;
-    if (!PHONE_REGEX.test(farmerPhone.trim())) nextErrors.farmerPhone = r.errorPhone;
-    if (!farmerVillage.trim()) nextErrors.farmerVillage = r.errorLocation;
-    if (!farmerPassword || farmerPassword.length < 4) nextErrors.farmerPassword = r.errorPassword;
-    if (farmerPassword !== farmerConfirmPassword) nextErrors.farmerConfirmPassword = r.errorPasswordMatch;
-    if (!farmerTerms) nextErrors.farmerTerms = r.errorTerms;
+    if (!farmerName.trim()) nextErrors.farmerName = r.errorName || 'Please enter your name';
+    if (!PHONE_REGEX.test(farmerPhone.trim())) nextErrors.farmerPhone = r.errorPhone || 'Please enter a valid 10-digit mobile number';
+    if (!farmerVillage.trim()) nextErrors.farmerVillage = r.errorLocation || 'Please enter your location';
+    if (!farmerPassword || farmerPassword.length < 4) nextErrors.farmerPassword = r.errorPassword || 'Password must be at least 4 characters';
+    if (farmerPassword !== farmerConfirmPassword) nextErrors.farmerConfirmPassword = r.errorPasswordMatch || 'Passwords do not match';
+    if (!farmerTerms) nextErrors.farmerTerms = r.errorTerms || 'Please accept the platform terms';
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -148,13 +90,13 @@ const Register = () => {
 
   const validateBuyer = () => {
     const nextErrors = {};
-    if (!businessName.trim()) nextErrors.businessName = r.errorBusinessName;
-    if (!contactName.trim()) nextErrors.contactName = r.errorName;
-    if (!PHONE_REGEX.test(buyerPhone.trim())) nextErrors.buyerPhone = r.errorPhone;
-    if (!buyerLocation.trim()) nextErrors.buyerLocation = r.errorLocation;
-    if (!buyerPassword || buyerPassword.length < 4) nextErrors.buyerPassword = r.errorPassword;
-    if (buyerPassword !== buyerConfirmPassword) nextErrors.buyerConfirmPassword = r.errorPasswordMatch;
-    if (!buyerTerms) nextErrors.buyerTerms = r.errorTerms;
+    if (!businessName.trim()) nextErrors.businessName = r.errorBusinessName || 'Please enter business name';
+    if (!contactName.trim()) nextErrors.contactName = r.errorName || 'Please enter contact name';
+    if (!PHONE_REGEX.test(buyerPhone.trim())) nextErrors.buyerPhone = r.errorPhone || 'Please enter a valid 10-digit mobile number';
+    if (!buyerLocation.trim()) nextErrors.buyerLocation = r.errorLocation || 'Please enter your location';
+    if (!buyerPassword || buyerPassword.length < 4) nextErrors.buyerPassword = r.errorPassword || 'Password must be at least 4 characters';
+    if (buyerPassword !== buyerConfirmPassword) nextErrors.buyerConfirmPassword = r.errorPasswordMatch || 'Passwords do not match';
+    if (!buyerTerms) nextErrors.buyerTerms = r.errorTerms || 'Please accept the platform terms';
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -167,7 +109,6 @@ const Register = () => {
       if (!validateFarmer()) return;
       setIsSubmitting(true);
 
-      // Persist to localStorage matching FarmerDataContext
       try {
         const newProfile = {
           name: farmerName.trim(),
@@ -193,7 +134,6 @@ const Register = () => {
       if (!validateBuyer()) return;
       setIsSubmitting(true);
 
-      // Persist to localStorage matching BuyerDataContext
       try {
         const newProfile = {
           businessName: businessName.trim(),
@@ -216,155 +156,301 @@ const Register = () => {
 
   return (
     <div className="login-page register-page">
-      {/* ---------- Left: Brand & Trust Panel ---------- */}
+      {/* ================= LEFT: HERO BRAND PANEL ================= */}
       <div className="login-panel" aria-hidden="true">
-        <div className="login-panel__pattern" />
+        {/* Top-left decorative leaves watermark */}
+        <div className="login-panel__leaf-watermark">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M10 10C35 25 50 60 45 95C30 90 15 75 10 50Z"
+              fill="rgba(255, 255, 255, 0.08)"
+            />
+            <path
+              d="M35 15C60 20 85 45 90 80C70 82 50 70 40 50Z"
+              fill="rgba(255, 255, 255, 0.06)"
+            />
+            <path
+              d="M5 45C25 50 40 70 38 95C22 93 12 80 5 65Z"
+              fill="rgba(255, 255, 255, 0.05)"
+            />
+          </svg>
+        </div>
+
+        {/* Lower background landscape field photo */}
+        <div
+          className="login-panel__bg-field"
+          style={{ backgroundImage: `url(${fieldBg})` }}
+        />
+
+        {/* Gradient overlay to smoothly blend dark green into the field */}
+        <div className="login-panel__gradient-overlay" />
+
+        {/* Panel Content */}
         <div className="login-panel__content">
-          <Link to="/" className="login-panel__logo">
-            <img src={logoSeal} alt="RaithaMarga" width="68" height="68" />
+          <Link to="/" className="login-panel__logo" aria-label="RaithaMarga Home">
+            <img src={logoSeal} alt="RaithaMarga" width="76" height="76" />
           </Link>
 
-          <h2 className="login-panel__title">{r.panelTitle}</h2>
-          <p className="login-panel__subtitle">{r.panelSubtitle}</p>
+          <h1 className="login-panel__title">
+            {r.panelTitle || 'ರೈತರು ಮತ್ತು ಖರೀದಿದಾರರಿಗೆ ಒಂದು ವೇದಿಕೆ'}
+          </h1>
+
+          <p className="login-panel__subtitle">
+            {r.panelSubtitle || 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ಸೌಹಾರ್ದಯುತ ವ್ಯವಹಾರ.'}
+          </p>
 
           <ul className="login-panel__points">
-            {(t?.trustbar?.items || [
-              'Photo-proof weighing',
-              'Verified buyers only',
-              'Speak your own language',
-              'Fair, transparent pricing',
-            ]).map((item) => (
-              <li key={item}>
-                <span className="login-panel__check">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 13l4 4L19 7"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                {item}
-              </li>
-            ))}
+            <li>
+              <span className="login-panel__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 13l4 4L19 7"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span>{r.feature1 || 'ನ್ಯಾಯಸಮ್ಮತ ಬೆಲೆಗಳು'}</span>
+            </li>
+            <li>
+              <span className="login-panel__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 13l4 4L19 7"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span>{r.feature2 || 'ಪಾರದರ್ಶಕ ವ್ಯವಹಾರಗಳು'}</span>
+            </li>
+            <li>
+              <span className="login-panel__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 13l4 4L19 7"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span>{r.feature3 || 'ರೈತರಿಗೆ ಸಬಲೀಕರಣ'}</span>
+            </li>
           </ul>
 
-          <div className="login-panel__stat">
-            <strong>{t?.hero?.trust1Strong || '86%'}</strong>
-            <span>{t?.hero?.trust1Rest || 'of Indian farmers hold under 2 hectares'}</span>
+          {/* Slanted cursive script text at bottom left */}
+          <div className="login-panel__script">
+            <span>{r.scriptText1 || "Farmer's Path"}</span>
+            <span>{r.scriptText2 || 'to a Better Tomorrow'}</span>
           </div>
         </div>
       </div>
 
-      {/* ---------- Right: Registration Form ---------- */}
+      {/* ================= RIGHT: REGISTRATION FORM SIDE ================= */}
       <div className="login-form-side">
-        <div className="login-form-side__header">
-          <Link to="/" className="login-form-side__logo">
-            <img src={logoMark} alt="RaithaMarga" width="36" height="36" />
-            <span>RaithaMarga</span>
+        {/* Top bar with home button and language switcher */}
+        <header className="login-topbar">
+          <Link to="/" className="login-home-btn" aria-label="Go to Home">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span>{language === 'kn' ? 'ಮುಖಪುಟ' : 'Home'}</span>
           </Link>
-          <button
-            type="button"
-            className="login-lang-toggle"
-            onClick={toggleLanguage}
-            aria-label="Switch language"
-          >
-            <span key={language}>{t?.nav?.langToggle || 'ಕನ್ನಡ'}</span>
-          </button>
-        </div>
 
+          <div className="login-lang-switch">
+            <button
+              type="button"
+              className={`login-lang-pill ${language === 'kn' ? 'login-lang-pill--active' : ''}`}
+              onClick={() => setLanguage('kn')}
+              aria-label="Switch to Kannada"
+            >
+              <svg
+                className="login-lang-globe"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <span>ಕನ್ನಡ</span>
+              <svg
+                className="login-lang-chevron"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className={`login-lang-link ${language === 'en' ? 'login-lang-link--active' : ''}`}
+              onClick={() => setLanguage('en')}
+            >
+              English
+            </button>
+          </div>
+        </header>
+
+        {/* Form Center Wrapper */}
         <div className="login-form-wrap">
           <div className="login-card-container register-card-container">
-            {/* Quick Demo Registration Chips */}
-            <div className="login-demo-bar">
-              <span className="login-demo-label">{r.demoQuickFill}</span>
-              <div className="login-demo-chips">
-                <button
-                  type="button"
-                  className="login-demo-chip"
-                  onClick={fillDemoFarmer}
+            {/* Role Selector Pill Bar */}
+            <div className="login-role-bar">
+              <div className="login-role-bar__label">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  🌾 {r.demoFarmer}
-                </button>
-                <button
-                  type="button"
-                  className="login-demo-chip"
-                  onClick={fillDemoBuyer}
-                >
-                  🏢 {r.demoBuyer}
-                </button>
-              </div>
-            </div>
-
-            <form className="login-card register-card" onSubmit={handleSubmit} noValidate>
-              <div className="login-card__heading-group">
-                <span className="eyebrow">{r.eyebrow}</span>
-                <h1 className="login-card__title">{r.title}</h1>
-                <p className="login-card__subtitle">{r.subtitle}</p>
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" y1="8" x2="19" y2="14" />
+                  <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+                <span>{r.selectRole || 'ನಿಮ್ಮ ಪಾತ್ರ ಆಯ್ಕೆಮಾಡಿ'}</span>
               </div>
 
-              {/* Role Selection: Farmer vs Buyer */}
-              <div className="login-role" role="radiogroup" aria-label="Account Role">
+              <div className="login-role-bar__pills" role="radiogroup" aria-label={r.selectRole || 'Select Role'}>
                 <button
                   type="button"
                   role="radio"
                   aria-checked={role === 'farmer'}
-                  className={`login-role__btn ${role === 'farmer' ? 'login-role__btn--active' : ''}`}
+                  className={`login-role-pill ${role === 'farmer' ? 'login-role-pill--active' : ''}`}
                   onClick={() => switchRole('farmer')}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.6" />
-                    <path d="M5 20c0-4.4 3.1-7.5 7-7.5s7 3.1 7 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                   </svg>
-                  {r.roleFarmer}
+                  <span>{r.roleFarmer || 'ರೈತ'}</span>
                 </button>
+
                 <button
                   type="button"
                   role="radio"
                   aria-checked={role === 'buyer'}
-                  className={`login-role__btn ${role === 'buyer' ? 'login-role__btn--active' : ''}`}
+                  className={`login-role-pill ${role === 'buyer' ? 'login-role-pill--active' : ''}`}
                   onClick={() => switchRole('buyer')}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M4 9 5 4h14l1 5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinejoin="round" />
-                    <path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9" stroke="currentColor" strokeWidth="1.6" fill="none" />
-                    <path d="M9 13a3 3 0 0 0 6 0" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                   </svg>
-                  {r.roleBuyer}
+                  <span>{r.roleBuyer || 'ಖರೀದಿದಾರ'}</span>
                 </button>
               </div>
+            </div>
 
-              {/* ========== FARMER FORM FIELDS ========== */}
-              {role === 'farmer' && (
-                <>
-                  <div className={`login-field ${errors.farmerName ? 'login-field--error' : ''}`}>
-                    <label htmlFor="reg-farmer-name">{r.nameLabel}</label>
-                    <input
-                      id="reg-farmer-name"
-                      type="text"
-                      autoComplete="name"
-                      placeholder={r.namePlaceholder}
-                      value={farmerName}
-                      onChange={(e) => {
-                        setFarmerName(e.target.value);
-                        clearError('farmerName');
-                      }}
-                    />
-                    {errors.farmerName && <span className="login-field__error">{errors.farmerName}</span>}
-                  </div>
+            {/* Form Heading */}
+            <div className="login-heading">
+              <h2 className="login-title">
+                {role === 'farmer'
+                  ? (r.farmerTitle || 'ರೈತ ನೋಂದಣಿ')
+                  : (r.buyerTitle || 'ಖರೀದಿದಾರ ನೋಂದಣಿ')}
+              </h2>
+              <p className="login-subtitle">
+                {role === 'farmer'
+                  ? (r.farmerSubtitle || 'ಹೊಸ ರೈತ ಖಾತೆ ರಚಿಸಿ ಬೆಳೆ ನೇರವಾಗಿ ಮಾರಾಟ ಮಾಡಿ.')
+                  : (r.buyerSubtitle || 'ಹೊಸ ಖರೀದಿದಾರ ಖಾತೆ ರಚಿಸಿ ಗುಣಮಟ್ಟದ ಬೆಳೆ ಖರೀದಿಸಿ.')}
+              </p>
+            </div>
 
-                  <div className={`login-field ${errors.farmerPhone ? 'login-field--error' : ''}`}>
-                    <label htmlFor="reg-farmer-phone">{r.phoneLabel}</label>
-                    <div className="login-field__phone">
-                      <span className="login-field__prefix">+91</span>
+            {/* Quick Demo Pre-fill Bar */}
+            <div className="register-demo-bar">
+              <span className="register-demo-label">{r.demoQuickFill || 'ತ್ವರಿತ ಡೆಮೊ ಭರ್ತಿ:'}</span>
+              <button
+                type="button"
+                className="register-demo-btn"
+                onClick={role === 'farmer' ? fillDemoFarmer : fillDemoBuyer}
+              >
+                {role === 'farmer' ? `🌾 ${r.demoFarmer || 'ಡೆಮೊ ರೈತ ವಿವರ ಭರ್ತಿ'}` : `🏢 ${r.demoBuyer || 'ಡೆಮೊ ಖರೀದಿದಾರ ವಿವರ ಭರ್ತಿ'}`}
+              </button>
+            </div>
+
+            {/* Registration Card Form */}
+            <div className="login-card register-card">
+              <form onSubmit={handleSubmit} noValidate>
+                {/* ========== FARMER FORM FIELDS ========== */}
+                {role === 'farmer' && (
+                  <>
+                    {/* Full Name */}
+                    <div className={`login-input-row ${errors.farmerName ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-farmer-phone"
+                        type="text"
+                        autoComplete="name"
+                        placeholder={r.namePlaceholder || 'ಪೂರ್ಣ ಹೆಸರು (ಉದಾ: ಬಸವರಾಜಪ್ಪ ಗೌಡ)'}
+                        value={farmerName}
+                        onChange={(e) => {
+                          setFarmerName(e.target.value);
+                          clearError('farmerName');
+                        }}
+                      />
+                    </div>
+                    {errors.farmerName && <span className="login-error-msg">{errors.farmerName}</span>}
+
+                    {/* Phone Number */}
+                    <div className={`login-input-row ${errors.farmerPhone ? 'login-input-row--error' : ''}`}>
+                      <div className="login-phone-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        <span className="login-country-text">+91</span>
+                        <svg className="login-prefix-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
+                      <input
                         type="tel"
                         inputMode="numeric"
                         autoComplete="tel"
-                        placeholder={r.phonePlaceholder}
+                        placeholder={r.phonePlaceholder || '10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ'}
                         value={farmerPhone}
                         maxLength={10}
                         onChange={(e) => {
@@ -373,264 +459,382 @@ const Register = () => {
                         }}
                       />
                     </div>
-                    {errors.farmerPhone && <span className="login-field__error">{errors.farmerPhone}</span>}
-                  </div>
+                    {errors.farmerPhone && <span className="login-error-msg">{errors.farmerPhone}</span>}
 
-                  <div className="register-grid">
-                    <div className={`login-field ${errors.farmerVillage ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-farmer-village">{r.villageLabel}</label>
+                    {/* Location */}
+                    <div className={`login-input-row ${errors.farmerVillage ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-farmer-village"
                         type="text"
-                        placeholder={r.villagePlaceholder}
+                        placeholder={r.villagePlaceholder || 'ಗ್ರಾಮ / ತಾಲೂಕು (ಉದಾ: ಮಾಲೂರು, ಕೋಲಾರ)'}
                         value={farmerVillage}
                         onChange={(e) => {
                           setFarmerVillage(e.target.value);
                           clearError('farmerVillage');
                         }}
                       />
-                      {errors.farmerVillage && <span className="login-field__error">{errors.farmerVillage}</span>}
                     </div>
+                    {errors.farmerVillage && <span className="login-error-msg">{errors.farmerVillage}</span>}
 
-                    <div className="login-field">
-                      <label htmlFor="reg-farmer-crop">{r.cropLabel}</label>
+                    {/* Crop Selection */}
+                    <div className="login-input-row">
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <select
-                        id="reg-farmer-crop"
-                        className="register-select"
+                        className="register-clean-select"
                         value={farmerCrop}
                         onChange={(e) => setFarmerCrop(e.target.value)}
+                        aria-label={r.cropLabel}
                       >
-                        <option value="Tomato">{r.cropTomato}</option>
-                        <option value="Onion">{r.cropOnion}</option>
-                        <option value="Potato">{r.cropPotato}</option>
-                        <option value="Chilli">{r.cropChilli}</option>
-                        <option value="Other">{r.cropOther}</option>
+                        <option value="Tomato">{r.cropTomato || 'ಟೊಮೆಟೊ (ಕೋಲಾರ ಪೈಲಟ್ ಬೆಳೆ)'}</option>
+                        <option value="Onion">{r.cropOnion || 'ಈರುಳ್ಳಿ'}</option>
+                        <option value="Potato">{r.cropPotato || 'ಆಲೂಗಡ್ಡೆ'}</option>
+                        <option value="Chilli">{r.cropChilli || 'ಹಸಿರು ಮೆಣಸಿನಕಾಯಿ'}</option>
+                        <option value="Other">{r.cropOther || 'ಇತರ ತೋಟಗಾರಿಕಾ ಬೆಳೆಗಳು'}</option>
                       </select>
                     </div>
-                  </div>
 
-                  <div className="login-field">
-                    <label htmlFor="reg-farmer-land">{r.landSizeLabel}</label>
-                    <select
-                      id="reg-farmer-land"
-                      className="register-select"
-                      value={farmerLandSize}
-                      onChange={(e) => setFarmerLandSize(e.target.value)}
-                    >
-                      <option value="under_2">{r.landSizeSmall}</option>
-                      <option value="2_to_5">{r.landSizeMedium}</option>
-                      <option value="above_5">{r.landSizeLarge}</option>
-                    </select>
-                  </div>
+                    {/* Land Size Select */}
+                    <div className="login-input-row">
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                          <line x1="3" y1="9" x2="21" y2="9" />
+                          <line x1="9" y1="21" x2="9" y2="9" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
+                      <select
+                        className="register-clean-select"
+                        value={farmerLandSize}
+                        onChange={(e) => setFarmerLandSize(e.target.value)}
+                        aria-label={r.landSizeLabel}
+                      >
+                        <option value="under_2">{r.landSizeSmall || '2 ಹೆಕ್ಟೇರ್‌ಗಿಂತ ಕಡಿಮೆ (ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ)'}</option>
+                        <option value="2_to_5">{r.landSizeMedium || '2 ರಿಂದ 5 ಹೆಕ್ಟೇರ್'}</option>
+                        <option value="above_5">{r.landSizeLarge || '5 ಹೆಕ್ಟೇರ್‌ಗಿಂತ ಹೆಚ್ಚು'}</option>
+                      </select>
+                    </div>
 
-                  <div className="register-grid">
-                    <div className={`login-field ${errors.farmerPassword ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-farmer-pw">{r.passwordLabel}</label>
+                    {/* Set Password */}
+                    <div className={`login-input-row ${errors.farmerPassword ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-farmer-pw"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder={r.passwordPlaceholder}
+                        placeholder={r.passwordPlaceholder || 'ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಸಿ (ಕನಿಷ್ಠ 4 ಅಕ್ಷರಗಳು)'}
                         value={farmerPassword}
                         onChange={(e) => {
                           setFarmerPassword(e.target.value);
                           clearError('farmerPassword');
                         }}
                       />
-                      {errors.farmerPassword && <span className="login-field__error">{errors.farmerPassword}</span>}
                     </div>
+                    {errors.farmerPassword && <span className="login-error-msg">{errors.farmerPassword}</span>}
 
-                    <div className={`login-field ${errors.farmerConfirmPassword ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-farmer-cpw">{r.confirmPasswordLabel}</label>
+                    {/* Confirm Password */}
+                    <div className={`login-input-row ${errors.farmerConfirmPassword ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-farmer-cpw"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder={r.confirmPasswordPlaceholder}
+                        placeholder={r.confirmPasswordPlaceholder || 'ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ'}
                         value={farmerConfirmPassword}
                         onChange={(e) => {
                           setFarmerConfirmPassword(e.target.value);
                           clearError('farmerConfirmPassword');
                         }}
                       />
-                      {errors.farmerConfirmPassword && <span className="login-field__error">{errors.farmerConfirmPassword}</span>}
+                      <button
+                        type="button"
+                        className="login-eye-btn"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Toggle password"
+                      >
+                        {showPassword ? '🙈' : '👁'}
+                      </button>
                     </div>
-                  </div>
+                    {errors.farmerConfirmPassword && <span className="login-error-msg">{errors.farmerConfirmPassword}</span>}
 
-                  <div className={`register-terms ${errors.farmerTerms ? 'register-terms--error' : ''}`}>
-                    <label className="login-remember">
+                    {/* Terms Checkbox */}
+                    <div className="register-terms-row">
+                      <label className="login-remember-wrap">
+                        <input
+                          type="checkbox"
+                          checked={farmerTerms}
+                          onChange={(e) => {
+                            setFarmerTerms(e.target.checked);
+                            clearError('farmerTerms');
+                          }}
+                        />
+                        <span className="login-checkbox-box">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </span>
+                        <span className="register-terms-text">{r.termsFarmer || 'ನಾನು ಡಿಜಿಟಲ್ ತೂಕದ ಫೋಟೋ ಪುರಾವೆ ಮತ್ತು ಪಾರದರ್ಶಕ ನಿಯಮಗಳಿಗೆ ಒಪ್ಪುತ್ತೇನೆ.'}</span>
+                      </label>
+                      {errors.farmerTerms && <span className="login-error-msg">{errors.farmerTerms}</span>}
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className={`login-submit-btn ${isSubmitting ? 'login-submit-btn--loading' : ''}`}
+                      disabled={isSubmitting}
+                      style={{ marginTop: '16px' }}
+                    >
+                      <svg className="login-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                      </svg>
+                      <span>{isSubmitting ? (r.submitting || 'ಖಾತೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...') : (r.submitFarmer || 'ರೈತ ಖಾತೆ ರಚಿಸಿ')}</span>
+                    </button>
+                  </>
+                )}
+
+                {/* ========== BUYER FORM FIELDS ========== */}
+                {role === 'buyer' && (
+                  <>
+                    {/* Business / Firm Name */}
+                    <div className={`login-input-row ${errors.businessName ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        type="checkbox"
-                        checked={farmerTerms}
+                        type="text"
+                        placeholder={r.businessNamePlaceholder || 'ವ್ಯಾಪಾರ / ಸಂಸ್ಥೆಯ ಹೆಸರು (ಉದಾ: ಕೋಲಾರ ಅಗ್ರೋ ಹೋಲ್‌ಸೇಲ್)'}
+                        value={businessName}
                         onChange={(e) => {
-                          setFarmerTerms(e.target.checked);
-                          clearError('farmerTerms');
+                          setBusinessName(e.target.value);
+                          clearError('businessName');
                         }}
                       />
-                      <span>{r.termsFarmer}</span>
-                    </label>
-                    {errors.farmerTerms && <span className="login-field__error">{errors.farmerTerms}</span>}
-                  </div>
+                    </div>
+                    {errors.businessName && <span className="login-error-msg">{errors.businessName}</span>}
 
-                  <button
-                    type="submit"
-                    className={`btn btn--primary btn--animated login-submit ${isSubmitting ? 'btn--loading' : ''}`}
-                    disabled={isSubmitting}
-                  >
-                    <span className="btn__shine" aria-hidden="true" />
-                    {isSubmitting ? r.submitting : r.submitFarmer}
-                  </button>
-                </>
-              )}
-
-              {/* ========== BUYER FORM FIELDS ========== */}
-              {role === 'buyer' && (
-                <>
-                  <div className={`login-field ${errors.businessName ? 'login-field--error' : ''}`}>
-                    <label htmlFor="reg-buyer-business">{r.businessNameLabel}</label>
-                    <input
-                      id="reg-buyer-business"
-                      type="text"
-                      placeholder={r.businessNamePlaceholder}
-                      value={businessName}
-                      onChange={(e) => {
-                        setBusinessName(e.target.value);
-                        clearError('businessName');
-                      }}
-                    />
-                    {errors.businessName && <span className="login-field__error">{errors.businessName}</span>}
-                  </div>
-
-                  <div className="register-grid">
-                    <div className={`login-field ${errors.contactName ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-buyer-contact">{r.contactNameLabel}</label>
+                    {/* Contact Person Name */}
+                    <div className={`login-input-row ${errors.contactName ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-buyer-contact"
                         type="text"
-                        autoComplete="name"
-                        placeholder={r.contactNamePlaceholder}
+                        placeholder={r.contactNamePlaceholder || 'ಸಂಪರ್ಕ ವ್ಯಕ್ತಿ ಹೆಸರು (ಉದಾ: ಆನಂದ್ ಕುಮಾರ್)'}
                         value={contactName}
                         onChange={(e) => {
                           setContactName(e.target.value);
                           clearError('contactName');
                         }}
                       />
-                      {errors.contactName && <span className="login-field__error">{errors.contactName}</span>}
                     </div>
+                    {errors.contactName && <span className="login-error-msg">{errors.contactName}</span>}
 
-                    <div className={`login-field ${errors.buyerPhone ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-buyer-phone">{r.phoneLabel}</label>
-                      <div className="login-field__phone">
-                        <span className="login-field__prefix">+91</span>
-                        <input
-                          id="reg-buyer-phone"
-                          type="tel"
-                          inputMode="numeric"
-                          placeholder={r.phonePlaceholder}
-                          value={buyerPhone}
-                          maxLength={10}
-                          onChange={(e) => {
-                            setBuyerPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
-                            clearError('buyerPhone');
-                          }}
-                        />
+                    {/* Buyer Mobile Phone Number */}
+                    <div className={`login-input-row ${errors.buyerPhone ? 'login-input-row--error' : ''}`}>
+                      <div className="login-phone-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        <span className="login-country-text">+91</span>
+                        <svg className="login-prefix-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
                       </div>
-                      {errors.buyerPhone && <span className="login-field__error">{errors.buyerPhone}</span>}
-                    </div>
-                  </div>
-
-                  <div className="register-grid">
-                    <div className={`login-field ${errors.buyerLocation ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-buyer-location">{r.marketLocationLabel}</label>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-buyer-location"
+                        type="tel"
+                        inputMode="numeric"
+                        placeholder={r.phonePlaceholder || '10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ'}
+                        value={buyerPhone}
+                        maxLength={10}
+                        onChange={(e) => {
+                          setBuyerPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
+                          clearError('buyerPhone');
+                        }}
+                      />
+                    </div>
+                    {errors.buyerPhone && <span className="login-error-msg">{errors.buyerPhone}</span>}
+
+                    {/* Market Location / City */}
+                    <div className={`login-input-row ${errors.buyerLocation ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
+                      <input
                         type="text"
-                        placeholder={r.marketLocationPlaceholder}
+                        placeholder={r.marketLocationPlaceholder || 'ಮಾರುಕಟ್ಟೆ ಸ್ಥಳ / ನಗರ (ಉದಾ: ಕೋಲಾರ ಎಪಿಎಂಸಿ ಯಾರ್ಡ್)'}
                         value={buyerLocation}
                         onChange={(e) => {
                           setBuyerLocation(e.target.value);
                           clearError('buyerLocation');
                         }}
                       />
-                      {errors.buyerLocation && <span className="login-field__error">{errors.buyerLocation}</span>}
                     </div>
+                    {errors.buyerLocation && <span className="login-error-msg">{errors.buyerLocation}</span>}
 
-                    <div className="login-field">
-                      <label htmlFor="reg-buyer-type">{r.businessTypeLabel}</label>
+                    {/* Business Category Select */}
+                    <div className="login-input-row">
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                          <line x1="7" y1="7" x2="7.01" y2="7" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <select
-                        id="reg-buyer-type"
-                        className="register-select"
+                        className="register-clean-select"
                         value={businessType}
                         onChange={(e) => setBusinessType(e.target.value)}
+                        aria-label={r.businessTypeLabel}
                       >
-                        <option value="trader">{r.businessTypeTrader}</option>
-                        <option value="processor">{r.businessTypeProcessor}</option>
-                        <option value="retailer">{r.businessTypeRetailer}</option>
-                        <option value="exporter">{r.businessTypeExporter}</option>
+                        <option value="trader">{r.businessTypeTrader || 'ಹೋಲ್‌ಸೇಲ್ ಮಂಡಿ ವ್ಯಾಪಾರಿ'}</option>
+                        <option value="processor">{r.businessTypeProcessor || 'ಆಹಾರ ಸಂಸ್ಕರಣೆದಾರರು'}</option>
+                        <option value="retailer">{r.businessTypeRetailer || 'ಚಿಲ್ಲರೆ ಸರಪಳಿ / ಸೂಪರ್‌ಮಾರ್ಕೆಟ್'}</option>
+                        <option value="exporter">{r.businessTypeExporter || 'ರಫ್ತುದಾರರು'}</option>
                       </select>
                     </div>
-                  </div>
 
-                  <div className="register-grid">
-                    <div className={`login-field ${errors.buyerPassword ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-buyer-pw">{r.passwordLabel}</label>
+                    {/* Buyer Set Password */}
+                    <div className={`login-input-row ${errors.buyerPassword ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-buyer-pw"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder={r.passwordPlaceholder}
+                        placeholder={r.passwordPlaceholder || 'ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಸಿ (ಕನಿಷ್ಠ 4 ಅಕ್ಷರಗಳು)'}
                         value={buyerPassword}
                         onChange={(e) => {
                           setBuyerPassword(e.target.value);
                           clearError('buyerPassword');
                         }}
                       />
-                      {errors.buyerPassword && <span className="login-field__error">{errors.buyerPassword}</span>}
                     </div>
+                    {errors.buyerPassword && <span className="login-error-msg">{errors.buyerPassword}</span>}
 
-                    <div className={`login-field ${errors.buyerConfirmPassword ? 'login-field--error' : ''}`}>
-                      <label htmlFor="reg-buyer-cpw">{r.confirmPasswordLabel}</label>
+                    {/* Buyer Confirm Password */}
+                    <div className={`login-input-row ${errors.buyerConfirmPassword ? 'login-input-row--error' : ''}`}>
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
                       <input
-                        id="reg-buyer-cpw"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder={r.confirmPasswordPlaceholder}
+                        placeholder={r.confirmPasswordPlaceholder || 'ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ'}
                         value={buyerConfirmPassword}
                         onChange={(e) => {
                           setBuyerConfirmPassword(e.target.value);
                           clearError('buyerConfirmPassword');
                         }}
                       />
-                      {errors.buyerConfirmPassword && <span className="login-field__error">{errors.buyerConfirmPassword}</span>}
+                      <button
+                        type="button"
+                        className="login-eye-btn"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Toggle password"
+                      >
+                        {showPassword ? '🙈' : '👁'}
+                      </button>
                     </div>
-                  </div>
+                    {errors.buyerConfirmPassword && <span className="login-error-msg">{errors.buyerConfirmPassword}</span>}
 
-                  <div className={`register-terms ${errors.buyerTerms ? 'register-terms--error' : ''}`}>
-                    <label className="login-remember">
-                      <input
-                        type="checkbox"
-                        checked={buyerTerms}
-                        onChange={(e) => {
-                          setBuyerTerms(e.target.checked);
-                          clearError('buyerTerms');
-                        }}
-                      />
-                      <span>{r.termsBuyer}</span>
-                    </label>
-                    {errors.buyerTerms && <span className="login-field__error">{errors.buyerTerms}</span>}
-                  </div>
+                    {/* Terms Checkbox */}
+                    <div className="register-terms-row">
+                      <label className="login-remember-wrap">
+                        <input
+                          type="checkbox"
+                          checked={buyerTerms}
+                          onChange={(e) => {
+                            setBuyerTerms(e.target.checked);
+                            clearError('buyerTerms');
+                          }}
+                        />
+                        <span className="login-checkbox-box">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </span>
+                        <span className="register-terms-text">{r.termsBuyer || 'ನಾನು ಡಿಜಿಟಲ್ ತೂಕದ ಪರಿಶೀಲನೆಯೊಂದಿಗೆ ಸಕಾಲಿಕ ಪಾವತಿಗೆ ಒಪ್ಪುತ್ತೇನೆ.'}</span>
+                      </label>
+                      {errors.buyerTerms && <span className="login-error-msg">{errors.buyerTerms}</span>}
+                    </div>
 
-                  <button
-                    type="submit"
-                    className={`btn btn--primary btn--animated login-submit ${isSubmitting ? 'btn--loading' : ''}`}
-                    disabled={isSubmitting}
-                  >
-                    <span className="btn__shine" aria-hidden="true" />
-                    {isSubmitting ? r.submitting : r.submitBuyer}
-                  </button>
-                </>
-              )}
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className={`login-submit-btn ${isSubmitting ? 'login-submit-btn--loading' : ''}`}
+                      disabled={isSubmitting}
+                      style={{ marginTop: '16px' }}
+                    >
+                      <svg className="login-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                      </svg>
+                      <span>{isSubmitting ? (r.submitting || 'ಖಾತೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...') : (r.submitBuyer || 'ಖರೀದಿದಾರ ಖಾತೆ ರಚಿಸಿ')}</span>
+                    </button>
+                  </>
+                )}
 
-              <p className="login-card__footer">
-                {r.alreadyAccount} <Link to="/login">{r.signIn}</Link>
-              </p>
-            </form>
+                {/* Notice Banner */}
+                <div className="login-notice" style={{ marginTop: '18px' }}>
+                  <svg className="login-notice-leaf" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z" />
+                  </svg>
+                  <p className="login-notice-text">
+                    {r.regNotice || 'ಕರ್ನಾಟಕದ ನೇರ ಸುಗ್ಗಿ ಜಾಲಕ್ಕೆ ಸೇರಿ. ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ, ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ನ್ಯಾಯಯುತ ವ್ಯಾಪಾರ.'}
+                  </p>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer Link */}
+            <div className="login-footer">
+              <span className="login-footer-text">{r.alreadyAccount || 'ಈಗಾಗಲೇ ಖಾತೆ ಹೊಂದಿದ್ದೀರಾ?'}</span>{' '}
+              <Link to="/login" className="login-footer-link">
+                {r.signIn || 'ಇಲ್ಲಿ ಸೈನ್ ಇನ್ ಮಾಡಿ →'}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -639,4 +843,3 @@ const Register = () => {
 };
 
 export default Register;
-

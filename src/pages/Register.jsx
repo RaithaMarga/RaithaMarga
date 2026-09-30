@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { STORAGE_KEYS } from '../data/storageKeys';
+import { CROP_CATEGORIES } from '../data/crops';
 import logoSeal from '../assets/logo-seal.png';
 import fieldBg from '../assets/login-bg-field.jpg';
 import './Login.css';
@@ -20,7 +21,8 @@ const Register = () => {
   const [farmerName, setFarmerName] = useState('');
   const [farmerPhone, setFarmerPhone] = useState('');
   const [farmerVillage, setFarmerVillage] = useState('');
-  const [farmerCrop, setFarmerCrop] = useState('Tomato');
+  const [farmerCropType, setFarmerCropType] = useState('vegetables');
+  const [farmerCropName, setFarmerCropName] = useState('Tomato');
   const [farmerLandSize, setFarmerLandSize] = useState('under_2');
   const [farmerPassword, setFarmerPassword] = useState('');
   const [farmerConfirmPassword, setFarmerConfirmPassword] = useState('');
@@ -39,6 +41,19 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [cropSearchText, setCropSearchText] = useState('');
+  const selectedCropCategory = CROP_CATEGORIES.find(({ value }) => value === farmerCropType);
+  const visibleCropOptions = useMemo(() => {
+    const query = cropSearchText.trim().toLowerCase();
+    const crops = selectedCropCategory?.crops ?? [];
+
+    if (!query) return crops;
+
+    return crops.filter((crop) => {
+      const haystack = `${crop.value} ${crop.label}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [cropSearchText, selectedCropCategory]);
 
   const clearError = (field) =>
     setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
@@ -54,7 +69,8 @@ const Register = () => {
     setFarmerName('ಬಸವರಾಜಪ್ಪ ಗೌಡ');
     setFarmerPhone('9876543210');
     setFarmerVillage('ಮಾಲೂರು ತಾಲೂಕು, ಕೋಲಾರ');
-    setFarmerCrop('Tomato');
+    setFarmerCropType('vegetables');
+    setFarmerCropName('Tomato');
     setFarmerLandSize('under_2');
     setFarmerPassword('demo123');
     setFarmerConfirmPassword('demo123');
@@ -119,7 +135,9 @@ const Register = () => {
           state: 'Karnataka',
           pincode: '563101',
           landSizeAcres: farmerLandSize === 'under_2' ? '1.5' : '3.5',
-          preferredCrops: farmerCrop,
+          cropType: farmerCropType,
+          cropName: farmerCropName,
+          preferredCrops: farmerCropName,
           contactPreference: 'call',
         };
         localStorage.setItem(STORAGE_KEYS.FARMER_PROFILE, JSON.stringify(newProfile));
@@ -482,7 +500,7 @@ const Register = () => {
                     </div>
                     {errors.farmerVillage && <span className="login-error-msg">{errors.farmerVillage}</span>}
 
-                    {/* Crop Selection */}
+                    {/* Crop Category and Selection */}
                     <div className="login-input-row">
                       <div className="login-lock-prefix">
                         <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -492,15 +510,61 @@ const Register = () => {
                       <span className="login-input-sep" />
                       <select
                         className="register-clean-select"
-                        value={farmerCrop}
-                        onChange={(e) => setFarmerCrop(e.target.value)}
-                        aria-label={r.cropLabel}
+                        value={farmerCropType}
+                        onChange={(e) => {
+                          const nextCategory = CROP_CATEGORIES.find(({ value }) => value === e.target.value);
+                          setFarmerCropType(e.target.value);
+                          setCropSearchText('');
+                          setFarmerCropName(nextCategory.crops[0].value);
+                        }}
+                        aria-label="Select crop category"
                       >
-                        <option value="Tomato">{r.cropTomato || 'ಟೊಮೆಟೊ (ಕೋಲಾರ ಪೈಲಟ್ ಬೆಳೆ)'}</option>
-                        <option value="Onion">{r.cropOnion || 'ಈರುಳ್ಳಿ'}</option>
-                        <option value="Potato">{r.cropPotato || 'ಆಲೂಗಡ್ಡೆ'}</option>
-                        <option value="Chilli">{r.cropChilli || 'ಹಸಿರು ಮೆಣಸಿನಕಾಯಿ'}</option>
-                        <option value="Other">{r.cropOther || 'ಇತರ ತೋಟಗಾರಿಕಾ ಬೆಳೆಗಳು'}</option>
+                        {CROP_CATEGORIES.map((category) => (
+                          <option key={category.value} value={category.value}>{category.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="register-crop-search">
+                      <div className="login-input-row">
+                        <div className="login-lock-prefix">
+                          <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="M21 21l-4.35-4.35" />
+                          </svg>
+                        </div>
+                        <span className="login-input-sep" />
+                        <input
+                          type="text"
+                          className="register-search-input"
+                          placeholder={language === 'kn' ? 'ಬೆಳೆ ಹುಡುಕಿ...' : 'Search crop...'}
+                          value={cropSearchText}
+                          onChange={(e) => setCropSearchText(e.target.value)}
+                          aria-label={language === 'kn' ? 'ಬೆಳೆ ಹುಡುಕಿ' : 'Search crop'}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="login-input-row">
+                      <div className="login-lock-prefix">
+                        <svg className="login-input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                      </div>
+                      <span className="login-input-sep" />
+                      <select
+                        className="register-clean-select"
+                        value={farmerCropName}
+                        onChange={(e) => setFarmerCropName(e.target.value)}
+                        aria-label="Select crop"
+                      >
+                        {visibleCropOptions.length > 0 ? (
+                          visibleCropOptions.map((crop) => (
+                            <option key={crop.value} value={crop.value}>{crop.label}</option>
+                          ))
+                        ) : (
+                          <option value="">{language === 'kn' ? 'ಬೆಳೆ ಕಂಡುಬಂದಿಲ್ಲ' : 'No crop found'}</option>
+                        )}
                       </select>
                     </div>
 

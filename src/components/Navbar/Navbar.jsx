@@ -22,6 +22,7 @@ const Navbar = () => {
     { href: '#features', label: t.nav.features },
     { href: '#trust', label: t.nav.trust },
     { href: '#impact', label: t.nav.impact },
+    { href: '#contact', label: t.nav.contact },
   ];
 
   const toggleMenu = () => setIsMenuOpen((v) => !v);

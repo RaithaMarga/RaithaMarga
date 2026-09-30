@@ -80,6 +80,28 @@
   padding: 8px;
 }
 
+.register-crop-search {
+  margin-bottom: 10px;
+}
+
+.register-search-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.94rem;
+  color: #1E2922;
+  outline: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+.register-search-input::placeholder {
+  color: #627263;
+}
+
 /* Terms checkbox row */
 .register-terms-row {
   margin: 14px 0 6px;

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuyerData } from '../../context/BuyerDataContext';
 import { useFarmerListings } from '../../hooks/useSharedFarmerData';
@@ -5,10 +6,29 @@ import StatCard from '../../components/dashboard/StatCard';
 import { IconBasket, IconHandshake, IconScale, IconShieldCheck } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const Overview = () => {
   const { profile, stats } = useBuyerData();
   const listings = useFarmerListings();
   const activeCount = listings.filter((l) => l.status === 'active').length;
+
+  const [activeDealsCount, setActiveDealsCount] = useState(0);
+  const [completedDealsCount, setCompletedDealsCount] = useState(0);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/deals`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.deals) {
+          const active = data.deals.filter(d => d.status !== 'completed' && d.status !== 'cancelled').length;
+          const completed = data.deals.filter(d => d.status === 'completed').length;
+          setActiveDealsCount(active);
+          setCompletedDealsCount(completed);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="dash-page">
@@ -37,8 +57,20 @@ const Overview = () => {
           caption="awaiting farmer response"
           accent="gold"
         />
-        <StatCard icon={<IconScale />} label="Active Deals" value={0} caption="Deal lifecycle coming soon" accent="primary" />
-        <StatCard icon={<IconShieldCheck />} label="Completed Purchases" value={0} caption="Deal lifecycle coming soon" accent="tomato" />
+        <StatCard
+          icon={<IconScale />}
+          label="Active Deals"
+          value={activeDealsCount}
+          caption={activeDealsCount ? `${activeDealsCount} orders in progress` : 'No active trades'}
+          accent="primary"
+        />
+        <StatCard
+          icon={<IconShieldCheck />}
+          label="Completed Purchases"
+          value={completedDealsCount}
+          caption={completedDealsCount ? `${completedDealsCount} settled orders` : 'No completed trades yet'}
+          accent="tomato"
+        />
       </div>
 
       <div className="dash-panel">

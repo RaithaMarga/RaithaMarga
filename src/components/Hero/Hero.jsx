@@ -22,7 +22,7 @@ const Hero = () => {
             {h.subtitle}
           </p>
           <div className="hero__cta hero__reveal" style={{ animationDelay: '240ms' }}>
-            <Link to="/farmer/dashboard" className="btn btn--primary btn--animated hero__cta-btn">
+            <Link to="/login?role=farmer" className="btn btn--primary btn--animated hero__cta-btn">
               <span className="btn__shine" aria-hidden="true" />
               <span className="hero__cta-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -35,7 +35,7 @@ const Hero = () => {
                 <span className="hero__cta-sub">{h.ctaFarmerSub} &rarr;</span>
               </span>
             </Link>
-            <Link to="/buyer/dashboard" className="btn btn--outline btn--animated hero__cta-btn">
+            <Link to="/login?role=buyer" className="btn btn--outline btn--animated hero__cta-btn">
               <span className="hero__cta-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M4 9 5 4h14l1 5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinejoin="round" />

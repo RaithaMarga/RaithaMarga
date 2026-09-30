@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import Home from './pages/Home';
 import { LanguageProvider } from './context/LanguageContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import FarmerDashboardShell from './pages/farmer/FarmerDashboardShell';
 import FarmerOverview from './pages/farmer/Overview';
@@ -35,37 +37,55 @@ const EditProduceRoute = () => {
 function App() {
   return (
     <LanguageProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/get-started" element={<Register />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/get-started" element={<Register />} />
 
-          <Route path="/farmer/dashboard" element={<FarmerDashboardShell />}>
-            <Route index element={<FarmerOverview />} />
-            <Route path="add-produce" element={<AddProduce />} />
-            <Route path="listings" element={<MyListings />} />
-            <Route path="listings/:id/edit" element={<EditProduceRoute />} />
-            <Route path="matches" element={<BuyerMatches />} />
-            <Route path="deals" element={<MyDeals />} />
-            <Route path="verification" element={<FarmerVerification />} />
-            <Route path="profile" element={<FarmerProfile />} />
-          </Route>
+            {/* Guarded Farmer Dashboard */}
+            <Route
+              path="/farmer/dashboard"
+              element={
+                <ProtectedRoute allowedRole="farmer">
+                  <FarmerDashboardShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<FarmerOverview />} />
+              <Route path="add-produce" element={<AddProduce />} />
+              <Route path="listings" element={<MyListings />} />
+              <Route path="listings/:id/edit" element={<EditProduceRoute />} />
+              <Route path="matches" element={<BuyerMatches />} />
+              <Route path="deals" element={<MyDeals />} />
+              <Route path="verification" element={<FarmerVerification />} />
+              <Route path="profile" element={<FarmerProfile />} />
+            </Route>
 
-          <Route path="/buyer/dashboard" element={<BuyerDashboardShell />}>
-            <Route index element={<BuyerOverview />} />
-            <Route path="browse" element={<BrowseProduce />} />
-            <Route path="recommended" element={<RecommendedMatches />} />
-            <Route path="requests" element={<RequestsOrders />} />
-            <Route path="deals" element={<Deals />} />
-            <Route path="trust" element={<TrustVerification />} />
-            <Route path="profile" element={<BuyerProfile />} />
-          </Route>
+            {/* Guarded Buyer Dashboard */}
+            <Route
+              path="/buyer/dashboard"
+              element={
+                <ProtectedRoute allowedRole="buyer">
+                  <BuyerDashboardShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<BuyerOverview />} />
+              <Route path="browse" element={<BrowseProduce />} />
+              <Route path="recommended" element={<RecommendedMatches />} />
+              <Route path="requests" element={<RequestsOrders />} />
+              <Route path="deals" element={<Deals />} />
+              <Route path="trust" element={<TrustVerification />} />
+              <Route path="profile" element={<BuyerProfile />} />
+            </Route>
 
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        </Routes>
-      </BrowserRouter>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

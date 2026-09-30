@@ -34,11 +34,24 @@ const Profile = () => {
     }
     setFieldErrors({});
     setIsSubmitting(true);
-    setTimeout(() => {
-      setProfile(form);
-      setIsSubmitting(false);
-      setSaved(true);
-    }, 350);
+
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_BASE}/farmers/${form.phone || 'farmer-kolar-1'}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    })
+      .then(() => {
+        setProfile(form);
+        setIsSubmitting(false);
+        setSaved(true);
+      })
+      .catch((err) => {
+        console.warn('Backend profile update note:', err);
+        setProfile(form);
+        setIsSubmitting(false);
+        setSaved(true);
+      });
   };
 
   const fieldClass = (field) => `dash-field${fieldErrors[field] ? ' dash-field--error' : ''}`;

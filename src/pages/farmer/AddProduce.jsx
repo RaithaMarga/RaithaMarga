@@ -16,11 +16,25 @@ const emptyForm = {
   availabilityDate: '',
 };
 
-function fileToDataUrl(file) {
+// Shrinks each photo (max 800px, JPEG ~0.6 quality => roughly 50-120 KB) so the
+// listing fits within the API request limit and Firestore's 1 MB document limit.
+function fileToDataUrl(file, maxSize = 800, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
     reader.readAsDataURL(file);
   });
 }
@@ -61,7 +75,7 @@ const AddProduce = () => {
   };
 
   const handlePhotoChange = async (e) => {
-    const files = Array.from(e.target.files || []).slice(0, 4);
+    const files = Array.from(e.target.files || []).slice(0, 3);
     try {
       const dataUrls = await Promise.all(files.map(fileToDataUrl));
       setPhotos(dataUrls);

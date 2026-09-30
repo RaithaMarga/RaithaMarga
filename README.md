@@ -4,39 +4,26 @@
 
 RaithaMarga is a farmer-to-buyer agri-marketplace for Karnataka. It pools smallholder harvests, gives buyers verified, GPS/timestamp-proofed listings, and cuts out unnecessary middlemen — without needing expensive physical infrastructure.
 
-This repository is the **frontend**. There is currently **no backend, database, or authentication** — see [Project Status](#project-status) below for exactly what that means in practice.
-
----
+This repository contains the React marketplace frontend. It connects to the local CRM/API at `http://localhost:5000/api`. The CRM/backend currently lives in the sibling `raithamarga-crm` folder.
 
 ## Project Status
 
-This is an honest snapshot, not marketing copy. Update this table as things change.
+This is a development demo. The farmer and buyer dashboards, login screens, route guards, matching screens, deal trackers, and camera capture are implemented. The frontend integrates with the CRM API, and authenticated Firebase Admin access in the backend has been verified with cloud write/readback checks.
 
-| Area | Status |
-|---|---|
-| Public landing page | ✅ Built — hero, trust bar, how-it-works, features, impact stats, final CTA, footer, Kannada toggle |
-| Farmer Dashboard | ✅ Built — Overview, Add Produce, My Listings, Verification, Profile all fully functional |
-| Buyer Dashboard | ✅ Built — Overview, Browse Produce (with filters), Requests/Orders, Trust & Verification, Profile all fully functional |
-| Weighing Proof camera | ✅ Built — live in-app camera capture, GPS + timestamp watermark, auto-compression. See [caveats](#weighing-proof-camera-caveats) below |
-| Farmer ↔ Buyer matching | ❌ Not built — "Buyer Matches" / "Recommended Matches" pages show honest empty states |
-| Deal lifecycle (confirm → pickup → complete) | ❌ Not built — "My Deals" / "Deals" pages show honest empty states |
-| Authentication / login | ❌ Not built — both dashboards are currently open, unprotected routes |
-| Backend / API / database | ❌ Not built — all data lives in the browser's `localStorage`, per device |
-| "List Without Typing" (missed-call/voice listing) | ❌ Marketing copy only, not implemented — needs telephony/IVR integration, a backend-heavy feature for later |
+A browser test created a labelled 10-quintal tomato order at Rs.2,500 per quintal, displayed it in the buyer Deals page and CRM, and verified the Rs.25,000 deal directly in Firestore.
 
-### What "no backend" actually means for you right now
+Important remaining work:
 
-Every piece of data (listings, profiles, requests, weighing photos) is stored in the visitor's own browser via `localStorage`. This means:
+- Password validation, API role checks, and record ownership are not yet secure. Login includes a local demo fallback.
+- Some screens still use shared browser storage. Fresh buyers may not see listings from other devices; merging local and server records can duplicate listing cards.
+- Some frontend actions show success before validating the API response.
+- The backend reads local JSON and mirrors writes to Firestore; it is not yet a transactional Firestore source of truth.
+- Real proof upload/admin review, correct partial-sale inventory, matching formula alignment, and full browser regression tests remain pending.
+- Voice/missed-call listings and lot pooling are not implemented.
 
-- A farmer's listing is only visible **on that same browser/device** — a buyer on a different phone or laptop will not see it
-- Farmer and Buyer dashboards *do* sync live with each other **if opened in two tabs of the same browser** (useful for demos)
-- Nothing here should be presented to real farmers/buyers as a live, working two-sided marketplace yet — it's a demo/pilot tool until a backend exists
+Do not treat this development demo as a production marketplace.
 
-### Weighing Proof camera caveats
-
-The live camera capture genuinely prevents gallery uploads (it's a real video stream, not a file picker) and genuinely watermarks GPS/timestamp/Lot ID onto the photo. What it **cannot** do without a backend: verify the GPS/clock weren't spoofed before the browser read them. Status is created as, and stays, `Pending_Verification` — nothing in the frontend can promote it to "Verified."
-
----
+Keep all private server credentials outside the repository and outside the frontend. `.env`, audit outputs, local data, and Firebase Admin key filenames are ignored. `.env.example` contains placeholders only.
 
 ## Tech Stack
 
@@ -101,7 +88,7 @@ src/
 | `/buyer/dashboard/trust` | Trust & Verification |
 | `/buyer/dashboard/profile` | Buyer Profile |
 
-None of these routes are currently protected — anyone with the link can open any dashboard.
+Farmer and buyer routes have frontend role guards. Server authorization still needs completion; the frontend guard alone does not secure the API.
 
 ## Deployment
 
@@ -111,21 +98,10 @@ On Vercel's free (Hobby) plan, your production URL is publicly reachable once de
 
 ## Roadmap
 
-Recommended build order for what's left, based on the project's own MVP guide:
+1. Enforce password validation, authenticated sessions, API roles, and record ownership.
+2. Make Firestore the authoritative data store with reliable errors and atomic inventory/deal writes.
+3. Connect all frontend reads and writes to authenticated users and handle API failures.
+4. Complete real proof upload/admin verification, partial-sale inventory, and matching correctness.
+5. Run multi-device/browser checks and security regression tests before deployment.
 
-1. **Authentication** — login/signup, role selection, protected routes
-2. **Backend + database** — so data exists outside a single browser
-3. **Farmer ↔ Buyer matching** — deterministic, rule-based first (not ML)
-4. **Deal lifecycle** — Listed → Matched → Interested → Confirmed → Weighed → Delivered → Completed
-5. **Real verification** — a backend/admin flow that can actually flip a status to "Verified"
-6. Advanced features (voice/missed-call listing creation, lot pooling across farmers, payments) — after the core loop above is proven
-
-## Known Issues
-
-- 5 pre-existing/consistent-convention ESLint warnings remain (documented in commit history) — none block functionality
-- No automated tests yet
-- Not verified on physical iOS devices (camera capture in particular)
-
----
-
-*Keep this README updated as features move from "not built" to "built" — it's meant to stay accurate, not aspirational.*
+No private key, local database, or audit screenshot should be committed.

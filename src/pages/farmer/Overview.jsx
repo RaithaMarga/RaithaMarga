@@ -1,11 +1,37 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useFarmerData } from '../../context/FarmerDataContext';
 import StatCard from '../../components/dashboard/StatCard';
 import { IconField, IconScale, IconHandshake, IconClock } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
 
+const API_BASE = 'http://localhost:5000/api';
+
 const Overview = () => {
   const { stats, profile } = useFarmerData();
+  const [matchCount, setMatchCount] = useState(0);
+  const [pendingDealsCount, setPendingDealsCount] = useState(0);
+
+  useEffect(() => {
+    // Fetch live matches count
+    fetch(`${API_BASE}/matches`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.matches) setMatchCount(data.matches.length);
+      })
+      .catch(() => {});
+
+    // Fetch active deals count
+    fetch(`${API_BASE}/deals`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.deals) {
+          const active = data.deals.filter(d => d.status !== 'completed' && d.status !== 'cancelled').length;
+          setPendingDealsCount(active);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const quantityEntries = Object.entries(stats.quantityByUnit);
   const quantityDisplay = quantityEntries.length
@@ -35,8 +61,20 @@ const Overview = () => {
           caption={quantityEntries.length ? 'across active listings' : 'No active quantity yet'}
           accent="gold"
         />
-        <StatCard icon={<IconHandshake />} label="Buyer Matches" value={0} caption="Matching launches soon" accent="primary" />
-        <StatCard icon={<IconClock />} label="Pending Deals" value={0} caption="No deals in progress yet" accent="tomato" />
+        <StatCard
+          icon={<IconHandshake />}
+          label="Buyer Matches"
+          value={matchCount}
+          caption={matchCount ? `${matchCount} buyers interested` : 'No matches yet'}
+          accent="primary"
+        />
+        <StatCard
+          icon={<IconClock />}
+          label="Pending Deals"
+          value={pendingDealsCount}
+          caption={pendingDealsCount ? `${pendingDealsCount} in progress` : 'No active trades'}
+          accent="tomato"
+        />
       </div>
 
       <div className="dash-panel">

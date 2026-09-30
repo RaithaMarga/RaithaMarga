@@ -20,11 +20,11 @@ const FinalCta = () => {
           <h2 className="final-cta__title">{c.title}</h2>
           <p className="final-cta__subtitle">{c.subtitle}</p>
           <div className="final-cta__actions">
-            <Link to="/farmer/dashboard" className="btn btn--gold btn--animated">
+            <Link to="/login?role=farmer" className="btn btn--gold btn--animated">
               <span className="btn__shine" aria-hidden="true" />
               {c.ctaPrimary}
             </Link>
-            <Link to="/buyer/dashboard" className="btn btn--outline-light btn--animated">{c.ctaSecondary}</Link>
+            <Link to="/login?role=buyer" className="btn btn--outline-light btn--animated">{c.ctaSecondary}</Link>
           </div>
         </div>
       </div>

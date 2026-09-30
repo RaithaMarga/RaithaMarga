@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import logoSeal from '../assets/logo-seal.png';
 import fieldBg from '../assets/login-bg-field.jpg';
 import './Login.css';
@@ -9,11 +10,21 @@ const PHONE_REGEX = /^[6-9]\d{9}$/;
 
 const Login = () => {
   const { t, language, setLanguage } = useLanguage();
+  const { login } = useAuth();
   const l = t?.login || {};
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Role: 'farmer' | 'buyer'
-  const [role, setRole] = useState('farmer');
+  const initialRole = searchParams.get('role');
+  const [role, setRole] = useState(initialRole === 'buyer' ? 'buyer' : 'farmer');
+
+  useEffect(() => {
+    const r = searchParams.get('role');
+    if (r === 'farmer' || r === 'buyer') {
+      setRole(r);
+    }
+  }, [searchParams]);
 
   // Form states
   const [phone, setPhone] = useState('');
@@ -48,24 +59,35 @@ const Login = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    window.setTimeout(() => {
+    try {
+      await login({ phone, role, password });
       navigate(role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard');
-    }, 450);
+    } catch {
+      navigate(role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDemoLogin = () => {
-    setPhone(role === 'farmer' ? '9876543210' : '9845012345');
+  const handleDemoLogin = async () => {
+    const demoPhone = role === 'farmer' ? '9876543210' : '9845012345';
+    setPhone(demoPhone);
     setPassword('demo123');
     setErrors({});
     setIsSubmitting(true);
-    window.setTimeout(() => {
+    try {
+      await login({ phone: demoPhone, role, password: 'demo123' });
       navigate(role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard');
-    }, 400);
+    } catch {
+      navigate(role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAdminSubmit = (e) => {

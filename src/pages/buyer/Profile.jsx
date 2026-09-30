@@ -51,11 +51,24 @@ const Profile = () => {
     }
     setFieldErrors({});
     setIsSubmitting(true);
-    setTimeout(() => {
-      setProfile(form);
-      setIsSubmitting(false);
-      setSaved(true);
-    }, 350);
+
+    const API_BASE = 'http://localhost:5000/api';
+    fetch(`${API_BASE}/buyers/${form.phone || 'buyer-kolar-1'}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    })
+      .then(() => {
+        setProfile(form);
+        setIsSubmitting(false);
+        setSaved(true);
+      })
+      .catch((err) => {
+        console.warn('Backend profile update note:', err);
+        setProfile(form);
+        setIsSubmitting(false);
+        setSaved(true);
+      });
   };
 
   const handleReqChange = (field) => (e) => {

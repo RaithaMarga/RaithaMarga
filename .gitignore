@@ -35,5 +35,5 @@ tmp/
 output/
 *firebase-adminsdk*.json
 credentials/
-data/
+/data/
 uploads/

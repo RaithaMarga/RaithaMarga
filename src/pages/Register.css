@@ -1,0 +1,131 @@
+/* ============================================
+   RaithaMarga Registration / Get Started
+   Complements and matches Login design system
+   ============================================ */
+
+.register-card-container {
+  width: 100%;
+  max-width: 460px !important;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Quick Demo Pre-fill Bar */
+.register-demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 8px 14px;
+  background: #F3EFE6;
+  border: 1px dashed #D5CCA8;
+  border-radius: 9px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.register-demo-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #174229;
+  white-space: nowrap;
+}
+
+.register-demo-btn {
+  background: #FFFFFF;
+  border: 1px solid #174229;
+  color: #174229;
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.register-demo-btn:hover {
+  background: #174229;
+  color: #FFFFFF;
+}
+
+/* Clean transparent select that fits into login-input-row */
+.register-clean-select {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.94rem;
+  color: #1E2922;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.register-clean-select option {
+  background: #FFFFFF;
+  color: #1E2922;
+  padding: 8px;
+}
+
+.register-crop-search {
+  margin-bottom: 10px;
+}
+
+.register-search-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.94rem;
+  color: #1E2922;
+  outline: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+.register-search-input::placeholder {
+  color: #627263;
+}
+
+/* Terms checkbox row */
+.register-terms-row {
+  margin: 14px 0 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.register-terms-text {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #26382D;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+@media (max-width: 600px) {
+  .register-demo-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .register-demo-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -1,0 +1,104 @@
+/* ============================================
+   Features — "More Than a Marketplace"
+   ============================================ */
+.features {
+  background: var(--color-cream-alt);
+  position: relative;
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.features__grid--second-row {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 66.6%;
+  margin: var(--space-6) auto 0;
+}
+
+.features__card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.features__card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-gold);
+}
+
+.features__card-media {
+  width: 100%;
+  height: 200px;
+  background: var(--color-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.features__card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform var(--transition-slow);
+}
+
+.features__card:hover .features__card-media img {
+  transform: scale(1.04);
+}
+
+.features__card-body {
+  padding: var(--space-6);
+}
+
+.features__card-tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.features__card-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-2);
+}
+
+.features__card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-soft);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------- Tablet: 2 per row ---------- */
+@media (max-width: 900px) {
+  .features__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .features__grid--second-row {
+    max-width: 100%;
+  }
+}
+
+/* ---------- Mobile: 1 per row ---------- */
+@media (max-width: 560px) {
+  .features__grid,
+  .features__grid--second-row {
+    grid-template-columns: 1fr;
+  }
+  .features__card-media { height: 180px; }
+}

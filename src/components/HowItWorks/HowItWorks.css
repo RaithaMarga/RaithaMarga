@@ -1,0 +1,83 @@
+/* ============================================
+   How It Works — horizontal icon row
+   ============================================ */
+.how {
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 0%, rgba(27, 94, 55, 0.05), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(27, 94, 55, 0.04), transparent 70%),
+    var(--color-cream);
+  padding: var(--space-8) 0;
+}
+
+.how .section__header {
+  margin-bottom: var(--space-3);
+}
+
+.how .section__subtitle {
+  margin-bottom: 0;
+}
+
+.how__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.how__step-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.how__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 210px;
+  padding: 0 var(--space-1);
+}
+
+.how__step-icon {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  margin-bottom: var(--space-2);
+  transition: transform var(--transition-base);
+}
+
+.how__step:hover .how__step-icon {
+  transform: scale(1.05);
+}
+
+.how__step-title {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-1);
+}
+
+.how__step-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-soft);
+  line-height: var(--line-height-normal);
+}
+
+.how__step-arrow {
+  flex-shrink: 0;
+  margin-top: 46px;
+  opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  .how__step-wrap {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .how__step { width: 100%; max-width: 320px; }
+  .how__step-arrow {
+    transform: rotate(90deg);
+    margin: var(--space-1) 0;
+  }
+}

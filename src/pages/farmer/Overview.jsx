@@ -1,0 +1,97 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useFarmerData } from '../../context/FarmerDataContext';
+import { apiRequest } from '../../lib/api';
+import { fromApiDeal } from '../../lib/marketplace';
+import StatCard from '../../components/dashboard/StatCard';
+import { IconField, IconScale, IconHandshake, IconClock } from '../../components/dashboard/icons';
+import '../../components/dashboard/dashboard-ui.css';
+
+const Overview = () => {
+  const { stats, profile, listingsError } = useFarmerData();
+  const [matchCount, setMatchCount] = useState(0);
+  const [pendingDealsCount, setPendingDealsCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([apiRequest('/matches'), apiRequest('/deals')])
+      .then(([matches, deals]) => {
+        if (!active) return;
+        setMatchCount(matches.length);
+        setPendingDealsCount(deals.map(fromApiDeal).filter((deal) =>
+          !['completed', 'cancelled', 'failed'].includes(deal.status)).length);
+      })
+      .catch((error) => console.error('Could not load farmer dashboard totals:', error));
+    return () => { active = false; };
+  }, []);
+
+  const quantityEntries = Object.entries(stats.quantityByUnit);
+  const quantityDisplay = quantityEntries.length
+    ? quantityEntries.map(([unit, qty]) => `${qty} ${unit}`).join(' \u2022 ')
+    : '0';
+
+  return (
+    <div className="dash-page">
+      <div className="dash-page__header">
+        <div>
+          <h1 className="dash-page__title">
+            {profile.name ? `Welcome back, ${profile.name.split(' ')[0]}` : 'Welcome to your dashboard'}
+          </h1>
+          <p className="dash-page__subtitle">Here's what's happening with your listings today.</p>
+        </div>
+        {listingsError && <div className="dash-banner dash-banner--error" role="alert">{listingsError}</div>}
+        <Link to="/farmer/dashboard/add-produce" className="btn btn--primary btn--sm">
+          + Add Produce
+        </Link>
+      </div>
+
+      <div className="stat-grid">
+        <StatCard icon={<IconField />} label="Active Listings" value={stats.activeCount} accent="primary" />
+        <StatCard
+          icon={<IconScale />}
+          label="Available Quantity"
+          value={quantityDisplay}
+          caption={quantityEntries.length ? 'across active listings' : 'No active quantity yet'}
+          accent="gold"
+        />
+        <StatCard
+          icon={<IconHandshake />}
+          label="Buyer Matches"
+          value={matchCount}
+          caption={matchCount ? `${matchCount} buyers interested` : 'No matches yet'}
+          accent="primary"
+        />
+        <StatCard
+          icon={<IconClock />}
+          label="Pending Deals"
+          value={pendingDealsCount}
+          caption={pendingDealsCount ? `${pendingDealsCount} in progress` : 'No active trades'}
+          accent="tomato"
+        />
+      </div>
+
+      <div className="dash-panel">
+        <h2 className="dash-panel__heading">Listing snapshot</h2>
+        <p className="dash-panel__intro">
+          {stats.totalListings} total {'\u2022'} {stats.draftCount} draft {'\u2022'} {stats.activeCount} active {'\u2022'}{' '}
+          {stats.matchedCount} matched {'\u2022'} {stats.soldCount} sold
+        </p>
+        {stats.totalListings === 0 ? (
+          <p style={{ color: 'var(--color-ink-soft)', fontSize: 'var(--font-size-sm)' }}>
+            You haven't listed any produce yet.{' '}
+            <Link to="/farmer/dashboard/add-produce" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
+              Add your first listing
+            </Link>{' '}
+            to start appearing in buyer searches.
+          </p>
+        ) : (
+          <Link to="/farmer/dashboard/listings" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: 'var(--font-size-sm)' }}>
+            View all listings →
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Overview;

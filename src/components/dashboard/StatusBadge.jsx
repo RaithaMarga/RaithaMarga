@@ -19,10 +19,14 @@ const STATUS_META = {
   accepted: { label: 'Accepted', tone: 'success' },
   completed: { label: 'Completed', tone: 'primary' },
   Pending_Verification: { label: 'Pending Verification', tone: 'gold' },
+  disabled: { label: 'Disabled', tone: 'alert' },
+  rejected: { label: 'Rejected', tone: 'alert' },
+  pending_verification: { label: 'Pending Verification', tone: 'gold' },
 };
 
 const StatusBadge = ({ status }) => {
-  const meta = STATUS_META[status] || { label: status, tone: 'neutral' };
+  const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : status;
+  const meta = STATUS_META[normalizedStatus] || STATUS_META[status] || { label: status, tone: 'neutral' };
   return <span className={`status-badge status-badge--${meta.tone}`}>{meta.label}</span>;
 };
 

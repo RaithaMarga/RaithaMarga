@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
@@ -25,6 +25,12 @@ import BuyerProfile from './pages/buyer/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDashboardShell from './pages/admin/AdminDashboardShell';
+import AdminVerifications from './pages/admin/AdminVerifications';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminMarketplace from './pages/admin/AdminMarketplace';
+import AdminAudit from './pages/admin/AdminAudit';
+import { AdminDataProvider } from './context/AdminDataContext';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
 // lazy initial state (read from context) is recomputed per listing
@@ -83,13 +89,22 @@ function App() {
             </Route>
 
             <Route
-              path="/admin/dashboard"
+              path="/admin"
               element={
                 <ProtectedRoute allowedRole="admin">
-                  <AdminDashboard />
+                  <AdminDataProvider>
+                    <AdminDashboardShell />
+                  </AdminDataProvider>
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="verifications" element={<AdminVerifications />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="marketplace" element={<AdminMarketplace />} />
+              <Route path="audit" element={<AdminAudit />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link } from 'react-router-dom';
 import logoMark from '../../assets/logo-mark.png';
 import './DashboardLayout.css';
 
-const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) => {
+const DashboardLayout = ({ role, navItems, profileName, profileEmail, verificationStatus }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -70,7 +70,12 @@ const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) =>
             <span className="dashlayout__avatar" aria-hidden="true">
               {(profileName || 'F').trim().charAt(0).toUpperCase()}
             </span>
-            <span className="dashlayout__name">{profileName || 'Your farm'}</span>
+            <span className="dashlayout__identity-text">
+              <span className="dashlayout__name">{profileName || 'Your farm'}</span>
+              {profileEmail && profileEmail !== profileName ? (
+                <span className="dashlayout__email">{profileEmail}</span>
+              ) : null}
+            </span>
           </div>
         </header>
 

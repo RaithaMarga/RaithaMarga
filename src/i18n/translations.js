@@ -17,17 +17,18 @@ export const translations = {
       titleLine2: 'Sell Together.',
       titleLine3: 'Sell with Trust.',
       subtitle:
-        'RaithaMarga connects small and marginal farmers directly with verified buyers — combining nearby produce into stronger lots, and backing every deal with photo-proof weighing and a visible buyer trust score.',
+        'RaithaMarga connects small and marginal farmers directly with verified buyers — combining nearby produce into stronger lots, and backing every deal with a visible buyer trust score.',
       ctaFarmer: "I'm a Farmer",
       ctaFarmerSub: 'List your produce & find buyers',
       ctaBuyer: "I'm a Buyer",
       ctaBuyerSub: 'Find fresh produce & trusted farmers',
+      ctaWhatsapp: 'Not comfortable with websites? Sell on WhatsApp \u2192',
       trust1Strong: '86%',
       trust1Rest: 'of Indian farmers hold under 2 hectares',
       trust2Strong: '30–50%',
       trust2Rest: 'of value often lost to middlemen',
       flowFarmer: 'Farmer lists',
-      flowMarket: 'Weighed & matched',
+      flowMarket: 'Matched',
       flowBuyer: 'Verified buyer',
     },
     how: {
@@ -38,7 +39,7 @@ export const translations = {
         {
           title: 'List in seconds',
           description:
-            'Add crop, quantity and your expected price with a photo — or just give a missed call and speak it in your language.',
+            'Add crop, quantity and your expected price on the website — or just send the details on WhatsApp and our team will list it for you.',
         },
         {
           title: 'Get combined & matched',
@@ -51,10 +52,33 @@ export const translations = {
             'See the buyer\u2019s trust score and today\u2019s fair price range before you agree — no guessing, no pressure.',
         },
         {
-          title: 'Weigh, deliver, get paid',
+          title: 'Deliver & get paid',
           description:
-            'Pickup and delivery are backed by photo-proof weighing, with payment tracked at every stage until it\u2019s in your hands.',
+            'Pickup and delivery are coordinated by our team, with payment tracked at every stage until it\u2019s in your hands.',
         },
+      ],
+    },
+    sell: {
+      eyebrow: 'No website? No problem',
+      title: 'Sell on WhatsApp',
+      subtitle:
+        'Not comfortable with websites? Just send us your produce details on WhatsApp. Our team will create your account, list your produce and call you when a buyer is interested.',
+      steps: [
+        { title: 'Tap the button', description: 'WhatsApp opens with a ready message \u2014 nothing to type from scratch.' },
+        { title: 'Send your details', description: 'Fill in your name, phone, produce, kg available and expected price \u2014 or send a voice note in Kannada.' },
+        { title: 'We do the rest', description: 'Our team lists your produce and tells you on WhatsApp when a buyer is interested.' },
+      ],
+      button: 'Send details on WhatsApp',
+      numberLabel: 'Our WhatsApp number',
+      detailsTitle: 'Please include',
+      details: [
+        'Your name',
+        'Phone number',
+        'Village / taluk / district',
+        'Produce (crop)',
+        'Quantity available (kg)',
+        'Expected price (\u20b9 per kg)',
+        'Available from (date)',
       ],
     },
     features: {
@@ -65,7 +89,7 @@ export const translations = {
         { tag: 'No more disputes', title: 'Weight Proof', description: 'Timestamped photos of the weighing scale at pickup and delivery — evidence, not arguments.' },
         { tag: 'Strength in numbers', title: 'Sell Together', description: 'Small quantities from nearby farmers are automatically combined into one lot bulk buyers actually want.' },
         { tag: 'Live demand', title: 'Buyers Active Today', description: 'See exactly which verified buyers are sourcing your crop in your area right now, before the window closes.' },
-        { tag: 'No literacy barrier', title: 'List Without Typing', description: 'A missed call and a short voice prompt in your language is enough to create a listing — no typing required.' },
+        { tag: 'No literacy barrier', title: 'List Without Typing', description: 'Send a short voice note in your own language on WhatsApp — no typing required.' },
         { tag: 'Earned trust', title: 'Know Your Buyer', description: 'Every buyer carries a visible reliability score built from real payment history, before you ever agree to sell.' },
       ],
     },
@@ -80,7 +104,7 @@ export const translations = {
     trustbar: {
       label: 'Verified & Trusted',
       items: [
-        'Photo-proof weighing',
+        'Sell on WhatsApp',
         'Verified buyers only',
         'Speak your own language',
         'Fair, transparent pricing',
@@ -127,7 +151,7 @@ export const translations = {
     },
     login: {
       panelTitle: 'A Platform for Farmers & Buyers',
-      panelSubtitle: 'Direct connections, fair prices, and transparent trades backed by digital weighing proof.',
+      panelSubtitle: 'Direct connections, fair prices, and transparent trades.',
       feature1: 'Fair prices',
       feature2: 'Transparent transactions',
       feature3: 'Farmer empowerment',
@@ -170,7 +194,7 @@ export const translations = {
     },
     register: {
       panelTitle: 'A Platform for Farmers & Buyers',
-      panelSubtitle: 'Direct connections, fair prices, and transparent trades backed by digital weighing proof.',
+      panelSubtitle: 'Direct connections, fair prices, and transparent trades.',
       feature1: 'Fair prices',
       feature2: 'Transparent transactions',
       feature3: 'Farmer empowerment',
@@ -219,8 +243,8 @@ export const translations = {
       passwordPlaceholder: 'Password (min. 6 characters)',
       confirmPasswordLabel: 'Confirm Password',
       confirmPasswordPlaceholder: 'Confirm password',
-      termsFarmer: 'I agree to photo-proof digital scale weighing and transparent lot pooling.',
-      termsBuyer: 'I agree to prompt payment settlements backed by digital scale verification.',
+      termsFarmer: 'I agree to the platform terms and transparent lot pooling.',
+      termsBuyer: 'I agree to prompt payment settlements.',
       submitFarmer: 'Create Farmer Account',
       submitBuyer: 'Create Buyer Account',
       submitting: 'Creating Account...',
@@ -229,7 +253,7 @@ export const translations = {
       demoQuickFill: 'Quick Demo Pre-fill:',
       demoFarmer: 'Fill Demo Farmer',
       demoBuyer: 'Fill Demo Buyer',
-      regNotice: 'Join Karnataka’s direct harvest network. No middlemen, transparent digital weighing.',
+      regNotice: 'Join Karnataka’s direct harvest network. No middlemen, transparent pricing.',
       errorName: 'Please enter your name',
       errorBusinessName: 'Please enter your business or firm name',
       errorPhone: 'Please enter a valid 10-digit mobile number',
@@ -261,7 +285,6 @@ export const translations = {
         recommended: 'Recommended Matches',
         requestsOrders: 'Requests / Orders',
         deals: 'Deals',
-        trustVerification: 'Trust & Verification',
       },
       farmerOverview: {
         welcomeBack: 'Welcome back',
@@ -305,8 +328,8 @@ export const translations = {
   kn: {
     nav: {
       home: 'ಮುಖಪುಟ',
-      how: 'ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
-      features: 'ವಿಶ್ವಾಸಾರ್ಹ ವೈಶಿಷ್ಟ್ಯಗಳು',
+      how: 'ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
+      features: 'ವೈಶಿಷ್ಟ್ಯಗಳು',
       trust: 'ಪರಿಶೀಲನೆ',
       impact: 'ಪರಿಣಾಮ',
       contact: 'ಸಂಪರ್ಕಿಸಿ',
@@ -320,17 +343,18 @@ export const translations = {
       titleLine2: 'ಒಟ್ಟಿಗೆ ಮಾರಾಟ.',
       titleLine3: 'ನಂಬಿಕೆಯಿಂದ ಮಾರಾಟ.',
       subtitle:
-        'ರೈತಮಾರ್ಗ ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರನ್ನು ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸುತ್ತದೆ — ಹತ್ತಿರದ ಉತ್ಪನ್ನಗಳನ್ನು ಬಲಿಷ್ಠ ಲಾಟ್‌ಗಳಾಗಿ ಸಂಯೋಜಿಸಿ, ಪ್ರತಿ ಒಪ್ಪಂದವನ್ನು ಫೋಟೋ-ಪುರಾವೆ ತೂಕ ಮತ್ತು ಗೋಚರ ಖರೀದಿದಾರ ವಿಶ್ವಾಸ ಅಂಕದೊಂದಿಗೆ ಬೆಂಬಲಿಸುತ್ತದೆ.',
+        'ರೈತಮಾರ್ಗ ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರನ್ನು ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸುತ್ತದೆ — ಹತ್ತಿರದ ಉತ್ಪನ್ನಗಳನ್ನು ಬಲಿಷ್ಠ ಲಾಟ್‌ಗಳಾಗಿ ಸಂಯೋಜಿಸಿ, ಪ್ರತಿ ಒಪ್ಪಂದವನ್ನು ಗೋಚರ ಖರೀದಿದಾರ ವಿಶ್ವಾಸ ಅಂಕದೊಂದಿಗೆ ಬೆಂಬಲಿಸುತ್ತದೆ.',
       ctaFarmer: 'ನಾನು ರೈತ',
       ctaFarmerSub: 'ನಿಮ್ಮ ಉತ್ಪನ್ನ ಪಟ್ಟಿ ಮಾಡಿ ಮತ್ತು ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ',
       ctaBuyer: 'ನಾನು ಖರೀದಿದಾರ',
       ctaBuyerSub: 'ತಾಜಾ ಉತ್ಪನ್ನ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ರೈತರನ್ನು ಹುಡುಕಿ',
+      ctaWhatsapp: 'ವೆಬ್‌ಸೈಟ್ ಬಳಸಲು ಕಷ್ಟವೇ? ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಮಾರಾಟ ಮಾಡಿ \u2192',
       trust1Strong: '86%',
       trust1Rest: 'ಭಾರತೀಯ ರೈತರು 2 ಹೆಕ್ಟೇರ್‌ಗಿಂತ ಕಡಿಮೆ ಭೂಮಿ ಹೊಂದಿದ್ದಾರೆ',
       trust2Strong: '30–50%',
       trust2Rest: 'ಮೌಲ್ಯ ಸಾಮಾನ್ಯವಾಗಿ ಮಧ್ಯವರ್ತಿಗಳಿಗೆ ಕಳೆದುಹೋಗುತ್ತದೆ',
       flowFarmer: 'ರೈತ ಪಟ್ಟಿ ಮಾಡುತ್ತಾರೆ',
-      flowMarket: 'ತೂಕ ಮಾಡಿ ಹೊಂದಿಸಲಾಗಿದೆ',
+      flowMarket: 'ಹೊಂದಿಸಲಾಗಿದೆ',
       flowBuyer: 'ಪರಿಶೀಲಿತ ಖರೀದಿದಾರ',
     },
     how: {
@@ -341,7 +365,7 @@ export const translations = {
         {
           title: 'ಕೆಲವೇ ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಿ',
           description:
-            'ಬೆಳೆ, ಪ್ರಮಾಣ ಮತ್ತು ನಿರೀಕ್ಷಿತ ಬೆಲೆಯನ್ನು ಫೋಟೋದೊಂದಿಗೆ ಸೇರಿಸಿ — ಅಥವಾ ಮಿಸ್ಡ್ ಕಾಲ್ ಮಾಡಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡಿ.',
+            'ಬೆಳೆ, ಪ್ರಮಾಣ ಮತ್ತು ನಿರೀಕ್ಷಿತ ಬೆಲೆಯನ್ನು ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಸೇರಿಸಿ — ಅಥವಾ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ವಿವರ ಕಳುಹಿಸಿ, ನಮ್ಮ ತಂಡ ನಿಮಗಾಗಿ ಪಟ್ಟಿ ಮಾಡುತ್ತದೆ.',
         },
         {
           title: 'ಸಂಯೋಜಿಸಿ ಮತ್ತು ಹೊಂದಿಸಿ',
@@ -354,10 +378,33 @@ export const translations = {
             'ನೀವು ಒಪ್ಪುವ ಮೊದಲು ಖರೀದಿದಾರರ ವಿಶ್ವಾಸ ಅಂಕ ಮತ್ತು ಇಂದಿನ ನ್ಯಾಯಯುತ ಬೆಲೆ ಶ್ರೇಣಿಯನ್ನು ನೋಡಿ — ಊಹೆ ಇಲ್ಲ, ಒತ್ತಡ ಇಲ್ಲ.',
         },
         {
-          title: 'ತೂಕ ಮಾಡಿ, ವಿತರಿಸಿ, ಪಾವತಿ ಪಡೆಯಿರಿ',
+          title: 'ವಿತರಿಸಿ, ಪಾವತಿ ಪಡೆಯಿರಿ',
           description:
-            'ಪಿಕಪ್ ಮತ್ತು ವಿತರಣೆಯನ್ನು ಫೋಟೋ-ಪುರಾವೆ ತೂಕದೊಂದಿಗೆ ಬೆಂಬಲಿಸಲಾಗುತ್ತದೆ, ಪಾವತಿ ಪ್ರತಿ ಹಂತದಲ್ಲೂ ನಿಮ್ಮ ಕೈ ಸೇರುವವರೆಗೆ ಟ್ರ್ಯಾಕ್ ಮಾಡಲಾಗುತ್ತದೆ.',
+            'ಪಿಕಪ್ ಮತ್ತು ವಿತರಣೆಯನ್ನು ನಮ್ಮ ತಂಡ ಸಂಯೋಜಿಸುತ್ತದೆ, ಪಾವತಿ ಪ್ರತಿ ಹಂತದಲ್ಲೂ ನಿಮ್ಮ ಕೈ ಸೇರುವವರೆಗೆ ಟ್ರ್ಯಾಕ್ ಮಾಡಲಾಗುತ್ತದೆ.',
         },
+      ],
+    },
+    sell: {
+      eyebrow: 'ವೆಬ್‌ಸೈಟ್ ಬೇಡ, ಚಿಂತೆ ಬೇಡ',
+      title: 'ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಮಾರಾಟ ಮಾಡಿ',
+      subtitle:
+        'ವೆಬ್‌ಸೈಟ್ ಬಳಸಲು ಕಷ್ಟವೇ? ನಿಮ್ಮ ಉತ್ಪನ್ನದ ವಿವರಗಳನ್ನು ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಕಳುಹಿಸಿ. ನಮ್ಮ ತಂಡ ನಿಮ್ಮ ಖಾತೆ ತೆರೆದು, ಉತ್ಪನ್ನವನ್ನು ಪಟ್ಟಿ ಮಾಡಿ, ಖರೀದಿದಾರರು ಆಸಕ್ತಿ ತೋರಿದಾಗ ನಿಮಗೆ ಕರೆ ಮಾಡುತ್ತದೆ.',
+      steps: [
+        { title: 'ಬಟನ್ ಒತ್ತಿ', description: 'ವಾಟ್ಸಾಪ್ ಸಿದ್ಧ ಸಂದೇಶದೊಂದಿಗೆ ತೆರೆಯುತ್ತದೆ \u2014 ಮೊದಲಿನಿಂದ ಟೈಪ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ.' },
+        { title: 'ವಿವರ ಕಳುಹಿಸಿ', description: 'ನಿಮ್ಮ ಹೆಸರು, ಫೋನ್, ಉತ್ಪನ್ನ, ಲಭ್ಯವಿರುವ ಕೆ.ಜಿ ಮತ್ತು ನಿರೀಕ್ಷಿತ ಬೆಲೆ ಬರೆಯಿರಿ \u2014 ಅಥವಾ ಕನ್ನಡದಲ್ಲಿ ಧ್ವನಿ ಸಂದೇಶ ಕಳುಹಿಸಿ.' },
+        { title: 'ಉಳಿದದ್ದು ನಾವು ನೋಡಿಕೊಳ್ಳುತ್ತೇವೆ', description: 'ನಮ್ಮ ತಂಡ ನಿಮ್ಮ ಉತ್ಪನ್ನವನ್ನು ಪಟ್ಟಿ ಮಾಡಿ, ಖರೀದಿದಾರರು ಆಸಕ್ತಿ ತೋರಿದಾಗ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ನಿಮಗೆ ತಿಳಿಸುತ್ತದೆ.' },
+      ],
+      button: 'ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ವಿವರ ಕಳುಹಿಸಿ',
+      numberLabel: 'ನಮ್ಮ ವಾಟ್ಸಾಪ್ ಸಂಖ್ಯೆ',
+      detailsTitle: 'ಇವುಗಳನ್ನು ಬರೆಯಿರಿ',
+      details: [
+        'ನಿಮ್ಮ ಹೆಸರು',
+        'ಫೋನ್ ಸಂಖ್ಯೆ',
+        'ಗ್ರಾಮ / ತಾಲ್ಲೂಕು / ಜಿಲ್ಲೆ',
+        'ಬೆಳೆ / ಉತ್ಪನ್ನ',
+        'ಲಭ್ಯವಿರುವ ಪ್ರಮಾಣ (ಕೆ.ಜಿ)',
+        'ನಿರೀಕ್ಷಿತ ಬೆಲೆ (\u20b9 ಪ್ರತಿ ಕೆ.ಜಿ)',
+        'ಯಾವಾಗಿನಿಂದ ಲಭ್ಯ (ದಿನಾಂಕ)',
       ],
     },
     features: {
@@ -368,7 +415,7 @@ export const translations = {
         { tag: 'ವಿವಾದಗಳಿಲ್ಲ', title: 'ತೂಕದ ಪುರಾವೆ', description: 'ಪಿಕಪ್ ಮತ್ತು ವಿತರಣೆಯಲ್ಲಿ ತೂಕದ ಯಂತ್ರದ ಸಮಯ-ಮುದ್ರಿತ ಫೋಟೋಗಳು — ವಾದಗಳಲ್ಲ, ಪುರಾವೆ.' },
         { tag: 'ಸಂಖ್ಯೆಯಲ್ಲಿ ಶಕ್ತಿ', title: 'ಒಟ್ಟಿಗೆ ಮಾರಾಟ', description: 'ಹತ್ತಿರದ ರೈತರ ಸಣ್ಣ ಪ್ರಮಾಣಗಳು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಒಂದು ಲಾಟ್ ಆಗಿ ಸಂಯೋಜಿಸಲ್ಪಡುತ್ತವೆ, ಬೃಹತ್ ಖರೀದಿದಾರರಿಗೆ ಬೇಕಾದದ್ದು.' },
         { tag: 'ಲೈವ್ ಬೇಡಿಕೆ', title: 'ಇಂದು ಸಕ್ರಿಯ ಖರೀದಿದಾರರು', description: 'ಯಾವ ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು ಈಗ ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ನಿಮ್ಮ ಬೆಳೆಯನ್ನು ಹುಡುಕುತ್ತಿದ್ದಾರೆ ಎಂದು ನಿಖರವಾಗಿ ನೋಡಿ.' },
-        { tag: 'ಸಾಕ್ಷರತೆ ಅಡ್ಡಿಯಿಲ್ಲ', title: 'ಟೈಪ್ ಮಾಡದೆ ಪಟ್ಟಿ ಮಾಡಿ', description: 'ಮಿಸ್ಡ್ ಕಾಲ್ ಮತ್ತು ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಒಂದು ಸಣ್ಣ ಧ್ವನಿ ಸೂಚನೆ ಸಾಕು — ಟೈಪ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ.' },
+        { tag: 'ಸಾಕ್ಷರತೆ ಅಡ್ಡಿಯಿಲ್ಲ', title: 'ಟೈಪ್ ಮಾಡದೆ ಪಟ್ಟಿ ಮಾಡಿ', description: 'ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಒಂದು ಸಣ್ಣ ಧ್ವನಿ ಸಂದೇಶ ಸಾಕು — ಟೈಪ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ.' },
         { tag: 'ಗಳಿಸಿದ ನಂಬಿಕೆ', title: 'ನಿಮ್ಮ ಖರೀದಿದಾರರನ್ನು ತಿಳಿಯಿರಿ', description: 'ನೀವು ಮಾರಾಟ ಮಾಡಲು ಒಪ್ಪುವ ಮೊದಲು, ಪ್ರತಿ ಖರೀದಿದಾರರಿಗೆ ನಿಜವಾದ ಪಾವತಿ ಇತಿಹಾಸದಿಂದ ನಿರ್ಮಿಸಲಾದ ಗೋಚರ ವಿಶ್ವಾಸಾರ್ಹತೆ ಅಂಕ ಇರುತ್ತದೆ.' },
       ],
     },
@@ -383,7 +430,7 @@ export const translations = {
     trustbar: {
       label: 'ಪರಿಶೀಲಿತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ',
       items: [
-        'ಫೋಟೋ-ಪುರಾವೆ ತೂಕ',
+        'ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಮಾರಾಟ',
         'ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು ಮಾತ್ರ',
         'ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡಿ',
         'ನ್ಯಾಯಯುತ, ಪಾರದರ್ಶಕ ಬೆಲೆ',
@@ -430,7 +477,7 @@ export const translations = {
     },
     login: {
       panelTitle: 'ರೈತರು ಮತ್ತು ಖರೀದಿದಾರರಿಗೆ ಒಂದು ವೇದಿಕೆ',
-      panelSubtitle: 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ಸೌಹಾರ್ದಯುತ ವ್ಯವಹಾರ.',
+      panelSubtitle: 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಪಾರದರ್ಶಕ ವ್ಯವಹಾರ.',
       feature1: 'ನ್ಯಾಯಸಮ್ಮತ ಬೆಲೆಗಳು',
       feature2: 'ಪಾರದರ್ಶಕ ವ್ಯವಹಾರಗಳು',
       feature3: 'ರೈತರಿಗೆ ಸಬಲೀಕರಣ',
@@ -473,7 +520,7 @@ export const translations = {
     },
     register: {
       panelTitle: 'ರೈತರು ಮತ್ತು ಖರೀದಿದಾರರಿಗೆ ಒಂದು ವೇದಿಕೆ',
-      panelSubtitle: 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ಸೌಹಾರ್ದಯುತ ವ್ಯವಹಾರ.',
+      panelSubtitle: 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಪಾರದರ್ಶಕ ವ್ಯವಹಾರ.',
       feature1: 'ನ್ಯಾಯಸಮ್ಮತ ಬೆಲೆಗಳು',
       feature2: 'ಪಾರದರ್ಶಕ ವ್ಯವಹಾರಗಳು',
       feature3: 'ರೈತರಿಗೆ ಸಬಲೀಕರಣ',
@@ -522,8 +569,8 @@ export const translations = {
       passwordPlaceholder: 'ಪಾಸ್‌ವರ್ಡ್ ಹೊಂದಿಸಿ (ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳು)',
       confirmPasswordLabel: 'ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ',
       confirmPasswordPlaceholder: 'ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ',
-      termsFarmer: 'ನಾನು ಡಿಜಿಟಲ್ ತೂಕದ ಫೋಟೋ ಪುರಾವೆ ಮತ್ತು ಪಾರದರ್ಶಕ ನಿಯಮಗಳಿಗೆ ಒಪ್ಪುತ್ತೇನೆ.',
-      termsBuyer: 'ನಾನು ಡಿಜಿಟಲ್ ತೂಕದ ಪರಿಶೀಲನೆಯೊಂದಿಗೆ ಸಕಾಲಿಕ ಪಾವತಿಗೆ ಒಪ್ಪುತ್ತೇನೆ.',
+      termsFarmer: 'ನಾನು ವೇದಿಕೆಯ ನಿಯಮಗಳಿಗೆ ಮತ್ತು ಪಾರದರ್ಶಕ ಲಾಟ್ ಸಂಯೋಜನೆಗೆ ಒಪ್ಪುತ್ತೇನೆ.',
+      termsBuyer: 'ನಾನು ಸಕಾಲಿಕ ಪಾವತಿಗೆ ಒಪ್ಪುತ್ತೇನೆ.',
       submitFarmer: 'ರೈತ ಖಾತೆ ರಚಿಸಿ',
       submitBuyer: 'ಖರೀದಿದಾರ ಖಾತೆ ರಚಿಸಿ',
       submitting: 'ಖಾತೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...',
@@ -532,7 +579,7 @@ export const translations = {
       demoQuickFill: 'ತ್ವರಿತ ಡೆಮೊ ಭರ್ತಿ:',
       demoFarmer: 'ಡೆಮೊ ರೈತ ವಿವರ ಭರ್ತಿ',
       demoBuyer: 'ಡೆಮೊ ಖರೀದಿದಾರ ವಿವರ ಭರ್ತಿ',
-      regNotice: 'ಕರ್ನಾಟಕದ ನೇರ ಸುಗ್ಗಿ ಜಾಲಕ್ಕೆ ಸೇರಿ. ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ, ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ನ್ಯಾಯಯುತ ವ್ಯಾಪಾರ.',
+      regNotice: 'ಕರ್ನಾಟಕದ ನೇರ ಸುಗ್ಗಿ ಜಾಲಕ್ಕೆ ಸೇರಿ. ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ, ಪಾರದರ್ಶಕ ಬೆಲೆಯೊಂದಿಗೆ ನ್ಯಾಯಯುತ ವ್ಯಾಪಾರ.',
       errorName: 'ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರು ನಮೂದಿಸಿ',
       errorBusinessName: 'ದಯವಿಟ್ಟು ನಿಮ್ಮ ವ್ಯಾಪಾರ ಅಥವಾ ಸಂಸ್ಥೆಯ ಹೆಸರು ನಮೂದಿಸಿ',
       errorPhone: 'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ 10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ',

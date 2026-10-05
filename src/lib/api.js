@@ -27,15 +27,18 @@ export async function apiRequest(path, options = {}) {
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error(`The backend returned an invalid response (${response.status}).`);
+      // Not JSON: usually a proxy/CORS/platform page. Show what it said so the cause is visible.
+      const snippet = responseText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
+      throw new Error(
+        response.ok
+          ? `The backend returned an invalid response (${response.status}).`
+          : `Request failed (${response.status})${snippet ? `: ${snippet}` : '.'}`,
+      );
     }
   }
 
   if (!response.ok) {
-    const error = new Error(data?.message || data?.error || `Request failed (${response.status}).`);
-    error.status = response.status;
-    error.code = data?.error;
-    throw error;
+    throw new Error(data?.message || data?.error || `Request failed (${response.status}).`);
   }
 
   return data;

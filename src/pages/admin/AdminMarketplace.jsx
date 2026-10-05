@@ -1,101 +1,84 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import EmptyState from '../../components/dashboard/EmptyState';
 import StatusBadge from '../../components/dashboard/StatusBadge';
-import { getAdminDeals, getAdminListings } from '../../lib/adminApi';
-import { AdminErrorNotice, AdminLoading } from './AdminFeedback';
-import { formatAdminDate } from './adminUtils';
-import './admin-dashboard.css';
+import { adminApi } from '../../lib/adminApi';
+import { useAdminResource } from '../../hooks/useAdminResource';
+import { formatDateTime, shortId } from './adminFormat';
+import '../../components/dashboard/dashboard-ui.css';
+
+const ListingsTable = () => {
+  const { data, loading, error } = useAdminResource(adminApi.listings);
+  const rows = data || [];
+  if (error) return <div className="dash-banner dash-banner--error">{error}</div>;
+  if (loading) return <p>Loading…</p>;
+  if (rows.length === 0) return <EmptyState icon="⚲" title="No listings yet" description="Farmer listings will appear here." />;
+  return (
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <thead><tr><th>Crop</th><th>Quantity</th><th>Price</th><th>Location</th><th>Available from</th><th>Farmer</th><th>Status</th></tr></thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td><strong>{row.crop}</strong>{row.grade ? <span className="admin-table__sub">Grade {row.grade}</span> : null}</td>
+              <td>{row.availableQuantity ?? row.quantity} {row.unit}</td>
+              <td>₹{row.price} / {row.unit}</td>
+              <td>{[row.village, row.taluk, row.district].filter(Boolean).join(', ') || '—'}</td>
+              <td>{row.availabilityDate || '—'}</td>
+              <td className="admin-table__mono">{shortId(row.farmerId)}</td>
+              <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const DealsTable = () => {
+  const { data, loading, error } = useAdminResource(adminApi.deals);
+  const rows = data || [];
+  if (error) return <div className="dash-banner dash-banner--error">{error}</div>;
+  if (loading) return <p>Loading…</p>;
+  if (rows.length === 0) return <EmptyState icon="⚖" title="No deals yet" description="Deals appear when buyers show interest in listings." />;
+  return (
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <thead><tr><th>Deal</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Buyer</th><th>Created</th><th>Status</th></tr></thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td className="admin-table__mono">{shortId(row.id)}</td>
+              <td>{row.quantity}</td>
+              <td>₹{row.price}</td>
+              <td className="admin-table__mono">{shortId(row.farmerId)}</td>
+              <td className="admin-table__mono">{shortId(row.buyerId)}</td>
+              <td>{formatDateTime(row.createdAt)}</td>
+              <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 const AdminMarketplace = () => {
-  const [listings, setListings] = useState([]);
-  const [deals, setDeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [nextListings, nextDeals] = await Promise.all([getAdminListings(), getAdminDeals()]);
-      setListings(nextListings);
-      setDeals(nextDeals);
-    } catch (requestError) {
-      setError(requestError);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    Promise.resolve().then(() => refresh());
-  }, [refresh]);
-
+  const [tab, setTab] = useState('listings');
   return (
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <span className="eyebrow admin-eyebrow">Read-only monitoring</span>
           <h1 className="dash-page__title">Marketplace</h1>
-          <p className="dash-page__subtitle">Latest listings and deal activity, up to 200 records per table.</p>
+          <p className="dash-page__subtitle">Read-only view of the latest 200 listings and deals.</p>
         </div>
-        <button type="button" className="btn btn--outline" onClick={refresh}>Refresh marketplace</button>
       </div>
-      {error ? <AdminErrorNotice error={error} onRetry={refresh} /> : null}
-      {loading ? <AdminLoading label="Loading listings and deals…" /> : null}
-
-      {!loading ? (
-        <>
-          <section className="dash-panel">
-            <h2 className="dash-panel__heading">Listings ({listings.length})</h2>
-            {!listings.length ? <p className="admin-muted">No listings found.</p> : (
-              <div className="admin-table-wrap">
-                <table className="admin-table">
-                  <thead>
-                    <tr><th>Produce</th><th>Farmer</th><th>Quantity</th><th>Location</th><th>Status</th><th>Created</th></tr>
-                  </thead>
-                  <tbody>
-                    {listings.map((listing) => (
-                      <tr key={listing.id}>
-                        <td><strong>{listing.crop || '—'}</strong><small>{listing.grade || ''}</small></td>
-                        <td>{listing.farmerId || '—'}</td>
-                        <td>{listing.quantity ?? '—'} {listing.unit || ''}</td>
-                        <td>{[listing.village, listing.taluk, listing.district].filter(Boolean).join(', ') || '—'}</td>
-                        <td><StatusBadge status={listing.status || 'UNKNOWN'} /></td>
-                        <td>{formatAdminDate(listing.createdAt)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-          <section className="dash-panel">
-            <h2 className="dash-panel__heading">Deals ({deals.length})</h2>
-            {!deals.length ? <p className="admin-muted">No deals found.</p> : (
-              <div className="admin-table-wrap">
-                <table className="admin-table">
-                  <thead>
-                    <tr><th>Deal</th><th>Listing</th><th>Farmer</th><th>Buyer</th><th>Quantity</th><th>Price</th><th>Status</th><th>Created</th></tr>
-                  </thead>
-                  <tbody>
-                    {deals.map((deal) => (
-                      <tr key={deal.id}>
-                        <td>{deal.id}</td>
-                        <td>{deal.listingId || '—'}</td>
-                        <td>{deal.farmerId || '—'}</td>
-                        <td>{deal.buyerId || '—'}</td>
-                        <td>{deal.quantity ?? '—'}</td>
-                        <td>{deal.price ?? '—'}</td>
-                        <td><StatusBadge status={deal.status || 'UNKNOWN'} /></td>
-                        <td>{formatAdminDate(deal.createdAt)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </>
-      ) : null}
+      <div className="admin-toolbar">
+        <div className="admin-toolbar__group">
+          <button type="button" className={`btn btn--sm ${tab === 'listings' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setTab('listings')}>Listings</button>
+          <button type="button" className={`btn btn--sm ${tab === 'deals' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setTab('deals')}>Deals</button>
+        </div>
+      </div>
+      <div className="dash-panel">{tab === 'listings' ? <ListingsTable /> : <DealsTable />}</div>
     </div>
   );
 };

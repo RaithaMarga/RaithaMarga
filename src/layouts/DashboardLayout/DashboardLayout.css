@@ -171,17 +171,6 @@
   color: var(--color-ink);
 }
 
-.dashlayout__identity-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.dashlayout__email {
-  color: var(--color-ink-soft);
-  font-size: var(--font-size-xs);
-}
-
 .dashlayout__content {
   flex: 1;
   padding: var(--space-6);
@@ -227,7 +216,7 @@
 
   .dashlayout__menu-toggle { display: flex; }
 
-  .dashlayout__identity-text { display: none; }
+  .dashlayout__name { display: none; }
 }
 
 @media (max-width: 480px) {

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import WhatsAppIcon from '../dashboard/WhatsAppIcon';
 import './Hero.css';
 
 const Hero = () => {
@@ -49,6 +50,12 @@ const Hero = () => {
               </span>
             </Link>
           </div>
+          <a href="#sell-on-whatsapp" className="hero__whatsapp hero__reveal" style={{ animationDelay: '320ms' }}>
+            <span className="hero__whatsapp-icon" aria-hidden="true">
+              <WhatsAppIcon size={16} />
+            </span>
+            <span className="hero__whatsapp-text">{h.ctaWhatsapp}</span>
+          </a>
         </div>
 
       </div>

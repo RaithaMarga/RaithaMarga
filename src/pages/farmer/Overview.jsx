@@ -4,11 +4,15 @@ import { useFarmerData } from '../../context/FarmerDataContext';
 import { apiRequest } from '../../lib/api';
 import { fromApiDeal } from '../../lib/marketplace';
 import StatCard from '../../components/dashboard/StatCard';
+import WhatsAppCard from '../../components/dashboard/WhatsAppCard';
+import VerificationNotice from '../../components/dashboard/VerificationNotice';
+import { useAuth } from '../../context/useAuth';
 import { IconField, IconScale, IconHandshake, IconClock } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
 
 const Overview = () => {
   const { stats, profile, listingsError } = useFarmerData();
+  const { user } = useAuth();
   const [matchCount, setMatchCount] = useState(0);
   const [pendingDealsCount, setPendingDealsCount] = useState(0);
 
@@ -44,6 +48,9 @@ const Overview = () => {
           + Add Produce
         </Link>
       </div>
+
+      <VerificationNotice user={user} role="farmer" />
+      <WhatsAppCard />
 
       <div className="stat-grid">
         <StatCard icon={<IconField />} label="Active Listings" value={stats.activeCount} accent="primary" />

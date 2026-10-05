@@ -1,171 +1,123 @@
-import { useMemo, useState } from 'react';
-import { useAdminData } from '../../context/AdminDataContext';
+import { useCallback, useState } from 'react';
+import EmptyState from '../../components/dashboard/EmptyState';
 import StatusBadge from '../../components/dashboard/StatusBadge';
-import { AdminErrorNotice, AdminLoading } from './AdminFeedback';
-import { formatAdminDate } from './adminUtils';
-import './admin-dashboard.css';
+import { adminApi } from '../../lib/adminApi';
+import { useAdminResource } from '../../hooks/useAdminResource';
+import { formatDateTime } from './adminFormat';
+import '../../components/dashboard/dashboard-ui.css';
 
-const STATUS_TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED'];
+const STATUSES = [['PENDING', 'Pending'], ['VERIFIED', 'Verified'], ['REJECTED', 'Rejected']];
+const ROLES = [['', 'All'], ['FARMER', 'Farmers'], ['BUYER', 'Buyers']];
 
 const AdminVerifications = () => {
-  const {
-    verificationQueue, loading, error, approve, reject, setVerificationStatus, refresh,
-  } = useAdminData();
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [roleFilter, setRoleFilter] = useState('ALL');
+  const [status, setStatus] = useState('PENDING');
+  const [role, setRole] = useState('');
+  const [busyUid, setBusyUid] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
   const [rejecting, setRejecting] = useState(null);
   const [note, setNote] = useState('');
-  const [workingUid, setWorkingUid] = useState('');
-  const [notice, setNotice] = useState(null);
 
-  const counts = useMemo(() => STATUS_TABS.reduce((result, status) => {
-    result[status] = status === 'ALL'
-      ? verificationQueue.length
-      : verificationQueue.filter((item) => item.verificationStatus === status).length;
-    return result;
-  }, {}), [verificationQueue]);
-  const records = verificationQueue.filter((item) =>
-    (statusFilter === 'ALL' || item.verificationStatus === statusFilter)
-    && (roleFilter === 'ALL' || item.role === roleFilter));
+  const fetcher = useCallback(() => adminApi.verifications({ role, status }), [role, status]);
+  const { data, loading, error, setData } = useAdminResource(fetcher);
+  const rows = data || [];
 
-  const runAction = async (record, action, reason = '') => {
-    setWorkingUid(record.uid);
-    setNotice(null);
+  const submit = async (row, nextStatus, noteText) => {
+    setBusyUid(row.uid);
+    setMessage({ type: '', text: '' });
     try {
-      if (action === 'VERIFIED') await approve(record);
-      else if (action === 'REJECTED') await reject(record, reason);
-      else await setVerificationStatus(record, action);
-      setNotice({ type: 'success', message: `${record.name || record.uid} updated to ${action}.` });
+      await adminApi.updateVerification(row.role, row.uid, { status: nextStatus, note: noteText });
+      // The row no longer belongs to the current filter, so drop it from the list.
+      setData((current) => (current || []).filter((item) => !(item.uid === row.uid && item.role === row.role)));
+      setMessage({ type: 'success', text: `${row.name || row.email} marked as ${nextStatus.toLowerCase()}.` });
       setRejecting(null);
       setNote('');
-    } catch (actionError) {
-      setNotice({ type: 'error', message: actionError.message });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
     } finally {
-      setWorkingUid('');
+      setBusyUid('');
     }
   };
-
-  if (loading && !verificationQueue.length) return <AdminLoading label="Loading verification queue…" />;
 
   return (
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <span className="eyebrow admin-eyebrow">Account review</span>
           <h1 className="dash-page__title">Verifications</h1>
-          <p className="dash-page__subtitle">Review farmer and buyer profiles and record each decision.</p>
+          <p className="dash-page__subtitle">
+            Buyers must be verified before they can post requirements or make deals.
+          </p>
         </div>
-        <button type="button" className="btn btn--outline" onClick={() => refresh().catch(() => {})}>
-          Refresh queue
-        </button>
       </div>
-      {error ? <AdminErrorNotice error={error} /> : null}
-      {notice ? (
-        <div className={`dash-banner dash-banner--${notice.type === 'success' ? 'success' : 'error'}`} role="status">
-          {notice.message}
+
+      <div className="admin-toolbar">
+        <div className="admin-toolbar__group">
+          {STATUSES.map(([value, label]) => (
+            <button key={value} type="button"
+              className={`btn btn--sm ${status === value ? 'btn--primary' : 'btn--outline'}`}
+              onClick={() => setStatus(value)}>{label}</button>
+          ))}
         </div>
+        <div className="admin-toolbar__group">
+          {ROLES.map(([value, label]) => (
+            <button key={label} type="button"
+              className={`btn btn--sm ${role === value ? 'btn--primary' : 'btn--outline'}`}
+              onClick={() => setRole(value)}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      {message.text ? (
+        <div className={`dash-banner dash-banner--${message.type}`}>{message.text}</div>
       ) : null}
+      {error ? <div className="dash-banner dash-banner--error">{error}</div> : null}
 
-      <section className="dash-panel">
-        <div className="admin-toolbar" style={{ justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
-          <div className="admin-filter-tabs" role="tablist" aria-label="Filter by verification status">
-            {STATUS_TABS.map((status) => (
-              <button
-                type="button"
-                role="tab"
-                aria-selected={statusFilter === status}
-                className={`btn btn--sm ${statusFilter === status ? 'btn--primary' : 'btn--outline'}`}
-                key={status}
-                onClick={() => setStatusFilter(status)}
-              >
-                {status === 'ALL' ? 'All' : status[0] + status.slice(1).toLowerCase()} ({counts[status]})
-              </button>
-            ))}
-          </div>
-          <label className="dash-field">
-            <span>Profile type</span>
-            <select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
-              <option value="ALL">Farmers and buyers</option>
-              <option value="FARMER">Farmers</option>
-              <option value="BUYER">Buyers</option>
-            </select>
-          </label>
-        </div>
-
-        {loading && !verificationQueue.length ? <AdminLoading label="Loading verification queue…" /> : null}
-        {!loading && !records.length ? (
-          <div className="empty-state">
-            <h2 className="empty-state__title">No matching profiles</h2>
-            <p className="empty-state__description">There are no profiles for the selected filters.</p>
-          </div>
-        ) : null}
-        {records.length ? (
+      <div className="dash-panel">
+        {loading ? <p>Loading…</p> : rows.length === 0 && !error ? (
+          <EmptyState icon="✓" title="Nothing here" description={`No ${status.toLowerCase()} ${role ? role.toLowerCase() + 's' : 'accounts'} right now.`} />
+        ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
-                <tr>
-                  <th>Applicant</th>
-                  <th>Profile details</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th>Review note</th>
-                  <th>Actions</th>
-                </tr>
+                <tr><th>Applicant</th><th>Type</th><th>Details</th><th>Applied</th><th>Status</th><th style={{ textAlign: 'right' }}>Action</th></tr>
               </thead>
               <tbody>
-                {records.map((record) => (
-                  <tr key={`${record.role}-${record.uid}`}>
+                {rows.map((row) => (
+                  <tr key={`${row.role}-${row.uid}`}>
                     <td>
-                      <strong>{record.name || 'Name unavailable'}</strong>
-                      <small>{record.email || record.uid}</small>
-                      <small>{record.role}</small>
+                      <strong>{row.name || '—'}</strong>
+                      <span className="admin-table__sub">{row.email}</span>
                     </td>
+                    <td>{row.role === 'FARMER' ? 'Farmer' : 'Buyer'}</td>
                     <td>
-                      {record.role === 'FARMER'
-                        ? <>
-                          {record.village || 'Village unavailable'}
-                          <small>{[record.taluk, record.district].filter(Boolean).join(', ') || 'Location unavailable'}</small>
-                          <small>Land: {record.landAcres ?? '—'} acres</small>
+                      {row.role === 'FARMER' ? (
+                        <>
+                          {[row.village, row.taluk, row.district].filter(Boolean).join(', ') || '—'}
+                          {row.landAcres != null ? <span className="admin-table__sub">{row.landAcres} acres</span> : null}
                         </>
-                        : <>
-                          {record.businessName || 'Business name unavailable'}
-                          <small>{record.district || 'District unavailable'}</small>
-                        </>}
+                      ) : (
+                        <>
+                          {row.businessName || '—'}
+                          {row.district ? <span className="admin-table__sub">{row.district}</span> : null}
+                        </>
+                      )}
                     </td>
-                    <td>{formatAdminDate(record.createdAt)}</td>
-                    <td><StatusBadge status={record.verificationStatus} /></td>
-                    <td>{record.verificationNote || '—'}</td>
+                    <td>{formatDateTime(row.createdAt)}</td>
                     <td>
-                      <div className="admin-actions">
-                        {record.verificationStatus === 'PENDING' ? (
-                          <>
-                            <button
-                              type="button"
-                              className="btn btn--sm btn--primary"
-                              disabled={Boolean(workingUid)}
-                              onClick={() => runAction(record, 'VERIFIED')}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn--sm btn--outline"
-                              disabled={Boolean(workingUid)}
-                              onClick={() => { setRejecting(record); setNote(''); setNotice(null); }}
-                            >
-                              Reject
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn--sm btn--outline"
-                            disabled={Boolean(workingUid)}
-                            onClick={() => runAction(record, 'PENDING')}
-                          >
-                            Return to pending
+                      <StatusBadge status={String(row.verificationStatus).toLowerCase()} />
+                      {row.verificationNote ? <span className="admin-table__sub admin-note">“{row.verificationNote}”</span> : null}
+                    </td>
+                    <td>
+                      <div className="admin-table__actions">
+                        {row.verificationStatus !== 'VERIFIED' ? (
+                          <button type="button" className="btn btn--sm btn--primary" disabled={busyUid === row.uid}
+                            onClick={() => submit(row, 'VERIFIED', null)}>Approve</button>
+                        ) : null}
+                        {row.verificationStatus !== 'REJECTED' ? (
+                          <button type="button" className="btn btn--sm btn--outline" disabled={busyUid === row.uid}
+                            onClick={() => { setRejecting(row); setNote(''); }}>
+                            {row.verificationStatus === 'VERIFIED' ? 'Revoke' : 'Reject'}
                           </button>
-                        )}
+                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -173,39 +125,22 @@ const AdminVerifications = () => {
               </tbody>
             </table>
           </div>
-        ) : null}
-      </section>
+        )}
+      </div>
 
       {rejecting ? (
-        <div className="admin-modal-backdrop" role="presentation">
-          <form
-            className="admin-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="reject-heading"
-            onSubmit={(event) => {
-              event.preventDefault();
-              runAction(rejecting, 'REJECTED', note);
-            }}
-          >
-            <h2 id="reject-heading">Reject {rejecting.name || 'profile'}</h2>
-            <p>A review note is required and will be saved with the audit record.</p>
-            <label className="dash-field">
-              <span>Reason for rejection</span>
-              <textarea value={note} onChange={(event) => setNote(event.target.value)}
-                maxLength={500} required autoFocus />
-              <small>{note.length}/500 characters</small>
-            </label>
+        <div className="admin-modal__scrim" role="dialog" aria-modal="true" aria-labelledby="reject-title">
+          <div className="admin-modal">
+            <h3 id="reject-title">{rejecting.verificationStatus === 'VERIFIED' ? 'Revoke' : 'Reject'} {rejecting.name || rejecting.email}?</h3>
+            <p>Add a short reason. It is saved with the record and shown in the audit log.</p>
+            <textarea value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} placeholder="Reason (required)" />
             <div className="admin-modal__actions">
-              <button type="button" className="btn btn--outline" disabled={Boolean(workingUid)}
-                onClick={() => setRejecting(null)}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn--primary" disabled={!note.trim() || Boolean(workingUid)}>
-                Confirm rejection
-              </button>
+              <button type="button" className="btn btn--sm btn--outline" onClick={() => setRejecting(null)}>Cancel</button>
+              <button type="button" className="btn btn--sm btn--danger"
+                disabled={!note.trim() || busyUid === rejecting.uid}
+                onClick={() => submit(rejecting, 'REJECTED', note.trim())}>Confirm</button>
             </div>
-          </form>
+          </div>
         </div>
       ) : null}
     </div>

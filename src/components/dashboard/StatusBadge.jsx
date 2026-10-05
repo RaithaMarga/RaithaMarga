@@ -10,6 +10,8 @@ const STATUS_META = {
   pending: { label: 'Pending Review', tone: 'gold' },
   needs_attention: { label: 'Needs Attention', tone: 'alert' },
   verified: { label: 'Verified', tone: 'success' },
+  rejected: { label: 'Rejected', tone: 'alert' },
+  disabled: { label: 'Disabled', tone: 'muted' },
   requested: { label: 'Requested', tone: 'gold' },
   interested: { label: 'Interest Requested', tone: 'gold' },
   confirmed: { label: 'Confirmed', tone: 'success' },
@@ -19,14 +21,10 @@ const STATUS_META = {
   accepted: { label: 'Accepted', tone: 'success' },
   completed: { label: 'Completed', tone: 'primary' },
   Pending_Verification: { label: 'Pending Verification', tone: 'gold' },
-  disabled: { label: 'Disabled', tone: 'alert' },
-  rejected: { label: 'Rejected', tone: 'alert' },
-  pending_verification: { label: 'Pending Verification', tone: 'gold' },
 };
 
 const StatusBadge = ({ status }) => {
-  const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : status;
-  const meta = STATUS_META[normalizedStatus] || STATUS_META[status] || { label: status, tone: 'neutral' };
+  const meta = STATUS_META[status] || { label: status, tone: 'neutral' };
   return <span className={`status-badge status-badge--${meta.tone}`}>{meta.label}</span>;
 };
 

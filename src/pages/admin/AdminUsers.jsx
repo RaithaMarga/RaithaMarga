@@ -1,34 +1,40 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../context/useAuth';
-import { useAdminData } from '../../context/AdminDataContext';
+import { useCallback, useState } from 'react';
+import EmptyState from '../../components/dashboard/EmptyState';
 import StatusBadge from '../../components/dashboard/StatusBadge';
-import { AdminErrorNotice, AdminLoading } from './AdminFeedback';
-import { formatAdminDate } from './adminUtils';
-import './admin-dashboard.css';
+import { useAuth } from '../../context/useAuth';
+import { adminApi } from '../../lib/adminApi';
+import { useAdminResource } from '../../hooks/useAdminResource';
+import { formatDateTime, titleCase } from './adminFormat';
+import '../../components/dashboard/dashboard-ui.css';
+
+const ROLES = [['', 'All'], ['FARMER', 'Farmers'], ['BUYER', 'Buyers'], ['ADMIN', 'Admins']];
+const STATUSES = [['', 'Any status'], ['ACTIVE', 'Active'], ['DISABLED', 'Disabled']];
 
 const AdminUsers = () => {
-  const { user: signedInUser } = useAuth();
-  const { users, usersLoading, usersError, loadUsers, setUserStatus } = useAdminData();
+  const { user } = useAuth();
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
-  const [workingUid, setWorkingUid] = useState('');
-  const [notice, setNotice] = useState(null);
+  const [busyUid, setBusyUid] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  useEffect(() => {
-    loadUsers({ role, status }).catch(() => {});
-  }, [loadUsers, role, status]);
+  const fetcher = useCallback(() => adminApi.users({ role, status }), [role, status]);
+  const { data, loading, error, setData } = useAdminResource(fetcher);
+  const rows = data || [];
 
-  const changeStatus = async (account) => {
-    const nextStatus = account.status === 'DISABLED' ? 'ACTIVE' : 'DISABLED';
-    setWorkingUid(account.uid);
-    setNotice(null);
+  const changeStatus = async (row, nextStatus) => {
+    if (nextStatus === 'DISABLED' && !window.confirm(`Disable ${row.name || row.email}? They will be blocked on their next request.`)) {
+      return;
+    }
+    setBusyUid(row.uid);
+    setMessage({ type: '', text: '' });
     try {
-      await setUserStatus(account.uid, nextStatus);
-      setNotice({ type: 'success', message: `${account.name || account.email || account.uid} is now ${nextStatus}.` });
-    } catch (error) {
-      setNotice({ type: 'error', message: error.message });
+      const updated = await adminApi.updateUserStatus(row.uid, nextStatus);
+      setData((current) => (current || []).map((item) => (item.uid === row.uid ? { ...item, ...updated } : item)));
+      setMessage({ type: 'success', text: `${row.name || row.email} is now ${nextStatus.toLowerCase()}.` });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
     } finally {
-      setWorkingUid('');
+      setBusyUid('');
     }
   };
 
@@ -36,82 +42,66 @@ const AdminUsers = () => {
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <span className="eyebrow admin-eyebrow">Account management</span>
           <h1 className="dash-page__title">Users</h1>
-          <p className="dash-page__subtitle">View account status and disable or re-enable non-admin accounts.</p>
+          <p className="dash-page__subtitle">Everyone with an account on the platform.</p>
         </div>
-        <button type="button" className="btn btn--outline" onClick={() => loadUsers({ role, status }).catch(() => {})}>
-          Refresh users
-        </button>
       </div>
 
-      {usersError ? <AdminErrorNotice error={usersError} /> : null}
-      {notice ? (
-        <div className={`dash-banner dash-banner--${notice.type === 'success' ? 'success' : 'error'}`} role="status">
-          {notice.message}
+      <div className="admin-toolbar">
+        <div className="admin-toolbar__group">
+          {ROLES.map(([value, label]) => (
+            <button key={label} type="button" className={`btn btn--sm ${role === value ? 'btn--primary' : 'btn--outline'}`}
+              onClick={() => setRole(value)}>{label}</button>
+          ))}
         </div>
-      ) : null}
-
-      <section className="dash-panel">
-        <div className="admin-toolbar" style={{ marginBottom: 'var(--space-4)' }}>
-          <label className="dash-field">
-            <span>Role</span>
-            <select value={role} onChange={(event) => setRole(event.target.value)}>
-              <option value="">All roles</option>
-              <option value="FARMER">Farmers</option>
-              <option value="BUYER">Buyers</option>
-              <option value="ADMIN">Admins</option>
-            </select>
-          </label>
-          <label className="dash-field">
-            <span>Account status</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="">All statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="DISABLED">Disabled</option>
-            </select>
-          </label>
+        <div className="admin-toolbar__group">
+          {STATUSES.map(([value, label]) => (
+            <button key={label} type="button" className={`btn btn--sm ${status === value ? 'btn--primary' : 'btn--outline'}`}
+              onClick={() => setStatus(value)}>{label}</button>
+          ))}
         </div>
+      </div>
 
-        {usersLoading ? <AdminLoading label="Loading users…" /> : null}
-        {!usersLoading && !users.length ? (
-          <div className="empty-state">
-            <h2 className="empty-state__title">No users found</h2>
-            <p className="empty-state__description">Try changing the role or status filters.</p>
-          </div>
-        ) : null}
-        {!usersLoading && users.length ? (
+      {message.text ? <div className={`dash-banner dash-banner--${message.type}`}>{message.text}</div> : null}
+      {error ? <div className="dash-banner dash-banner--error">{error}</div> : null}
+
+      <div className="dash-panel">
+        {loading ? <p>Loading…</p> : rows.length === 0 && !error ? (
+          <EmptyState icon="☺" title="No users found" description="Try a different filter." />
+        ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
-                <tr><th>User</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr>
+                <tr><th>Name</th><th>Role</th><th>Status</th><th>Joined</th><th style={{ textAlign: 'right' }}>Action</th></tr>
               </thead>
               <tbody>
-                {users.map((account) => (
-                  <tr key={account.uid}>
-                    <td><strong>{account.name || 'Name unavailable'}</strong><small>{account.email || account.uid}</small></td>
-                    <td>{account.role || '—'}</td>
-                    <td><StatusBadge status={account.status || 'ACTIVE'} /></td>
-                    <td>{formatAdminDate(account.createdAt)}</td>
-                    <td>
-                      {account.role !== 'ADMIN' && account.uid !== signedInUser?.uid ? (
-                        <button
-                          type="button"
-                          className={`btn btn--sm ${account.status === 'DISABLED' ? 'btn--primary' : 'btn--outline'}`}
-                          disabled={Boolean(workingUid)}
-                          onClick={() => changeStatus(account)}
-                        >
-                          {account.status === 'DISABLED' ? 'Enable' : 'Disable'}
-                        </button>
-                      ) : <span className="admin-muted">—</span>}
-                    </td>
-                  </tr>
-                ))}
+                {rows.map((row) => {
+                  const protectedRow = row.role === 'ADMIN' || row.uid === user?.uid;
+                  return (
+                    <tr key={row.uid}>
+                      <td><strong>{row.name || '—'}</strong><span className="admin-table__sub">{row.email}</span></td>
+                      <td>{titleCase(row.role)}</td>
+                      <td><StatusBadge status={String(row.status || 'ACTIVE').toLowerCase() === 'active' ? 'active' : 'disabled'} /></td>
+                      <td>{formatDateTime(row.createdAt)}</td>
+                      <td>
+                        <div className="admin-table__actions">
+                          {protectedRow ? <span className="admin-table__sub">Protected</span> : row.status === 'DISABLED' ? (
+                            <button type="button" className="btn btn--sm btn--primary" disabled={busyUid === row.uid}
+                              onClick={() => changeStatus(row, 'ACTIVE')}>Enable</button>
+                          ) : (
+                            <button type="button" className="btn btn--sm btn--outline" disabled={busyUid === row.uid}
+                              onClick={() => changeStatus(row, 'DISABLED')}>Disable</button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        ) : null}
-      </section>
+        )}
+      </div>
     </div>
   );
 };

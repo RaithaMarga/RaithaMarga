@@ -1,80 +1,51 @@
-import { useCallback, useEffect, useState } from 'react';
-import StatusBadge from '../../components/dashboard/StatusBadge';
-import { getAdminAuditLogs } from '../../lib/adminApi';
-import { AdminErrorNotice, AdminLoading } from './AdminFeedback';
-import { formatAdminDate } from './adminUtils';
-import './admin-dashboard.css';
+import EmptyState from '../../components/dashboard/EmptyState';
+import { adminApi } from '../../lib/adminApi';
+import { useAdminResource } from '../../hooks/useAdminResource';
+import { formatDateTime, shortId, titleCase } from './adminFormat';
+import '../../components/dashboard/dashboard-ui.css';
+
+const change = (entry) => {
+  const before = entry.before?.verificationStatus ?? entry.before?.status;
+  const after = entry.after?.verificationStatus ?? entry.after?.status;
+  return before || after ? `${before || '—'} → ${after || '—'}` : '—';
+};
 
 const AdminAudit = () => {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setLogs(await getAdminAuditLogs());
-    } catch (requestError) {
-      setError(requestError);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    Promise.resolve().then(() => refresh());
-  }, [refresh]);
-
+  const { data, loading, error, reload } = useAdminResource(adminApi.auditLogs);
+  const rows = data || [];
   return (
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <span className="eyebrow admin-eyebrow">Administrative history</span>
           <h1 className="dash-page__title">Audit log</h1>
-          <p className="dash-page__subtitle">The 100 most recent account and verification changes.</p>
+          <p className="dash-page__subtitle">The latest 100 actions taken by administrators.</p>
         </div>
-        <button type="button" className="btn btn--outline" onClick={refresh}>Refresh audit log</button>
+        <button type="button" className="btn btn--sm btn--outline" onClick={reload}>Refresh</button>
       </div>
-      {error ? <AdminErrorNotice error={error} onRetry={refresh} /> : null}
-      {loading ? <AdminLoading label="Loading audit log…" /> : null}
-      {!loading && !logs.length ? (
-        <section className="dash-panel">
-          <div className="empty-state">
-            <h2 className="empty-state__title">No audit actions yet</h2>
-            <p className="empty-state__description">Admin changes will appear here after they are recorded.</p>
-          </div>
-        </section>
-      ) : null}
-      {!loading && logs.length ? (
-        <section className="dash-panel">
+      {error ? <div className="dash-banner dash-banner--error">{error}</div> : null}
+      <div className="dash-panel">
+        {loading ? <p>Loading…</p> : rows.length === 0 && !error ? (
+          <EmptyState icon="☷" title="No actions recorded" description="Approvals, rejections and account changes will be listed here." />
+        ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
-              <thead>
-                <tr><th>Time</th><th>Action</th><th>Target</th><th>Admin</th><th>Note</th><th>Change</th></tr>
-              </thead>
+              <thead><tr><th>When</th><th>Action</th><th>Target</th><th>Change</th><th>Note</th><th>Admin</th></tr></thead>
               <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id}>
-                    <td>{formatAdminDate(log.at)}</td>
-                    <td><StatusBadge status={log.action || 'UNKNOWN'} /></td>
-                    <td>{log.targetUid || '—'}<small>{log.targetRole || ''}</small></td>
-                    <td>{log.adminUid || '—'}</td>
-                    <td>{log.note || '—'}</td>
-                    <td>
-                      <div className="admin-json">
-                        <strong>Before</strong>: {JSON.stringify(log.before || {})}
-                        <br />
-                        <strong>After</strong>: {JSON.stringify(log.after || {})}
-                      </div>
-                    </td>
+                {rows.map((entry) => (
+                  <tr key={entry.id}>
+                    <td>{formatDateTime(entry.at)}</td>
+                    <td>{titleCase(entry.action)}</td>
+                    <td>{titleCase(entry.targetRole)}<span className="admin-table__sub admin-table__mono">{shortId(entry.targetUid)}</span></td>
+                    <td>{change(entry)}</td>
+                    <td>{entry.note || '—'}</td>
+                    <td className="admin-table__mono">{shortId(entry.adminUid)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </section>
-      ) : null}
+        )}
+      </div>
     </div>
   );
 };

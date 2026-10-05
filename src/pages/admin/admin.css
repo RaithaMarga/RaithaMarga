@@ -1,0 +1,23 @@
+.admin-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); }
+.admin-toolbar__group { display: flex; gap: 6px; flex-wrap: wrap; }
+.admin-toolbar__spacer { flex: 1; }
+.admin-table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); text-align: left; }
+.admin-table th { padding: 10px 12px; border-bottom: 2px solid var(--color-border); color: var(--color-ink-soft); font-weight: 600; white-space: nowrap; }
+.admin-table td { padding: 12px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.admin-table tr:last-child td { border-bottom: 0; }
+.admin-table__sub { display: block; color: var(--color-ink-faint); font-size: var(--font-size-xs); margin-top: 2px; }
+.admin-table__mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); }
+.admin-table__actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.admin-note { color: var(--color-ink-soft); font-style: italic; }
+.admin-deals-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+.admin-deals-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-paper); }
+.admin-modal__scrim { position: fixed; inset: 0; background: rgba(33, 27, 18, 0.5); display: grid; place-items: center; z-index: 100; padding: var(--space-4); }
+.admin-modal { width: min(460px, 100%); background: var(--color-white); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); }
+.admin-modal h3 { margin: 0 0 var(--space-2); }
+.admin-modal p { margin: 0 0 var(--space-3); color: var(--color-ink-soft); font-size: var(--font-size-sm); }
+.admin-modal textarea { width: 100%; min-height: 96px; padding: 10px 12px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); font: inherit; resize: vertical; box-sizing: border-box; }
+.admin-modal__actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+.btn--danger { background: var(--color-tomato); border-color: var(--color-tomato); color: #fff; }
+.btn--danger:hover { filter: brightness(0.92); }
+.btn[disabled] { opacity: 0.6; cursor: not-allowed; }

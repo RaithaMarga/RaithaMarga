@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link } from 'react-router-dom';
 import logoMark from '../../assets/logo-mark.png';
 import './DashboardLayout.css';
 
-const DashboardLayout = ({ role, navItems, profileName, profileEmail, verificationStatus }) => {
+const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -64,18 +64,14 @@ const DashboardLayout = ({ role, navItems, profileName, profileEmail, verificati
               <span className={`dashlayout__verif dashlayout__verif--${verificationStatus}`}>
                 {verificationStatus === 'verified' ? 'Verified' :
                   verificationStatus === 'pending' ? 'Pending Review' :
-                  verificationStatus === 'needs_attention' ? 'Needs Attention' : 'Not Verified'}
+                  verificationStatus === 'needs_attention' ? 'Needs Attention' :
+                  verificationStatus === 'rejected' ? 'Not Approved' : 'Not Verified'}
               </span>
             ) : null}
             <span className="dashlayout__avatar" aria-hidden="true">
               {(profileName || 'F').trim().charAt(0).toUpperCase()}
             </span>
-            <span className="dashlayout__identity-text">
-              <span className="dashlayout__name">{profileName || 'Your farm'}</span>
-              {profileEmail && profileEmail !== profileName ? (
-                <span className="dashlayout__email">{profileEmail}</span>
-              ) : null}
-            </span>
+            <span className="dashlayout__name">{profileName || 'Your farm'}</span>
           </div>
         </header>
 

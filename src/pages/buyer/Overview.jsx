@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useBuyerData } from '../../context/BuyerDataContext';
+import { useAuth } from '../../context/useAuth';
+import VerificationNotice from '../../components/dashboard/VerificationNotice';
 import StatCard from '../../components/dashboard/StatCard';
 import { IconBasket, IconHandshake, IconScale, IconShieldCheck } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
 
 const Overview = () => {
   const { profile, stats, requests, listings, dataError } = useBuyerData();
+  const { user } = useAuth();
   const activeCount = listings.filter((l) => l.status === 'active').length;
 
   const activeDealsCount = requests.filter((deal) =>
@@ -24,6 +27,8 @@ const Overview = () => {
         {dataError && <div className="dash-banner dash-banner--error" role="alert">{dataError}</div>}
         <Link to="/buyer/dashboard/browse" className="btn btn--primary btn--sm">Browse Produce</Link>
       </div>
+
+      <VerificationNotice user={user} role="buyer" />
 
       <div className="stat-grid">
         <StatCard

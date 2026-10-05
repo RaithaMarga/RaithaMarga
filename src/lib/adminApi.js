@@ -1,34 +1,23 @@
 import { apiRequest } from './api';
 
-function queryString(filters = {}) {
-  const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) params.set(key, value);
-  });
-  const query = params.toString();
-  return query ? `?${query}` : '';
-}
+const withQuery = (path, params = {}) => {
+  const query = new URLSearchParams(
+    Object.entries(params).filter(([, value]) => value),
+  ).toString();
+  return query ? `${path}?${query}` : path;
+};
 
-export const getAdminOverview = () => apiRequest('/admin/overview');
+const patch = (path, body) => apiRequest(path, { method: 'PATCH', body: JSON.stringify(body) });
 
-export const getAdminVerifications = (filters) =>
-  apiRequest(`/admin/verifications${queryString(filters)}`);
-
-export const updateAdminVerification = (role, uid, status, note) =>
-  apiRequest(`/admin/verifications/${encodeURIComponent(role)}/${encodeURIComponent(uid)}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status, note }),
-  });
-
-export const getAdminUsers = (filters) =>
-  apiRequest(`/admin/users${queryString(filters)}`);
-
-export const updateAdminUserStatus = (uid, status) =>
-  apiRequest(`/admin/users/${encodeURIComponent(uid)}/status`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status }),
-  });
-
-export const getAdminListings = () => apiRequest('/admin/listings');
-export const getAdminDeals = () => apiRequest('/admin/deals');
-export const getAdminAuditLogs = () => apiRequest('/admin/audit-logs');
+// Every call below is checked again on the server (role must be ADMIN).
+export const adminApi = {
+  overview: () => apiRequest('/admin/overview'),
+  verifications: ({ role, status } = {}) => apiRequest(withQuery('/admin/verifications', { role, status })),
+  updateVerification: (role, uid, { status, note }) =>
+    patch(`/admin/verifications/${role}/${uid}`, { status, note: note || null }),
+  users: ({ role, status } = {}) => apiRequest(withQuery('/admin/users', { role, status })),
+  updateUserStatus: (uid, status) => patch(`/admin/users/${uid}/status`, { status }),
+  listings: () => apiRequest('/admin/listings'),
+  deals: () => apiRequest('/admin/deals'),
+  auditLogs: () => apiRequest('/admin/audit-logs'),
+};

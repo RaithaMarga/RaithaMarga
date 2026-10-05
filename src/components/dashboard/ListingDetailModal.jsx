@@ -65,27 +65,6 @@ const ListingDetailModal = ({ listing, verificationStatus, onClose, actions }) =
         </div>
 
         {actions ? <div className="detail-modal__actions">{actions}</div> : null}
-
-        {listing.weighingProofs?.length > 0 && (
-          <div style={{ marginTop: 'var(--space-5)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)' }}>
-            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, marginBottom: 'var(--space-3)' }}>
-              Weighing Proof ({listing.weighingProofs.length})
-            </h3>
-            <div className="detail-modal__gallery">
-              {listing.weighingProofs.map((proof) => (
-                <div key={proof.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <img src={proof.image} alt={`Weighing proof captured ${new Date(proof.capturedAt).toLocaleString()}`} />
-                  <StatusBadge status={proof.status} />
-                </div>
-              ))}
-            </div>
-            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-ink-faint)', marginTop: 'var(--space-2)' }}>
-              Farmer-submitted evidence, timestamped and GPS-tagged at capture. Full anti-fraud
-              verification (confirming the location/time weren't altered) requires backend
-              cross-checks not yet built.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

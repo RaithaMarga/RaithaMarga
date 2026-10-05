@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 330" role="img" aria-label="Delivery truck and a phone showing payment tracked">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#EAF5E4"/><stop offset="100%" stop-color="#C9E4C3"/>
+    </radialGradient>
+  </defs>
+  <circle cx="165" cy="160" r="150" fill="url(#bg)"/>
+  <path d="M40 235C26 200 40 168 72 156C80 192 66 220 40 235Z" fill="#9BCB98"/>
+  <path d="M296 240C310 206 296 176 266 166C256 200 270 226 296 240Z" fill="#9BCB98"/>
+  <!-- truck -->
+  <g>
+    <rect x="46" y="96" width="132" height="86" rx="8" fill="#2F7D45"/>
+    <path d="M178 118h34c6 0 10 3 13 8l14 24c2 3 3 6 3 10v22H178Z" fill="#256A39"/>
+    <path d="M192 128h18c3 0 5 1 6 4l9 18h-33Z" fill="#CFE8EA"/>
+    <rect x="46" y="176" width="195" height="12" rx="4" fill="#1F5A31"/>
+    <circle cx="94" cy="192" r="17" fill="#1E2A24"/><circle cx="94" cy="192" r="7" fill="#D5DDD6"/>
+    <circle cx="206" cy="192" r="17" fill="#1E2A24"/><circle cx="206" cy="192" r="7" fill="#D5DDD6"/>
+    <!-- leaf emblem -->
+    <path d="M112 156c-14-4-20-18-16-34 14 2 24 12 24 24-4-2-8-2-10 0 6 4 8 8 8 12-2-1-4-2-6-2Z" fill="#E7F1EA"/>
+    <path d="M112 160v-26" stroke="#2F7D45" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- phone -->
+  <g>
+    <rect x="186" y="110" width="104" height="168" rx="16" fill="#1E2A24"/>
+    <rect x="192" y="118" width="92" height="152" rx="11" fill="#FFFFFF"/>
+    <circle cx="238" cy="160" r="22" fill="#2F7D45"/>
+    <path d="M227 160l8 8 14-16" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="238" y="206" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#1F3B2A">Payment</text>
+    <text x="238" y="222" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#1F3B2A">Tracked</text>
+    <path d="M214 244h48" stroke="#9BCB98" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="214" cy="244" r="4" fill="#2F7D45"/><circle cx="238" cy="244" r="4" fill="#2F7D45"/><circle cx="262" cy="244" r="4" fill="#2F7D45"/>
+  </g>
+  <!-- step badge -->
+  <rect x="132" y="284" width="66" height="30" rx="15" fill="#E7F1EA" stroke="#B7D6B3"/>
+  <text x="165" y="305" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#1F3B2A">04</text>
+</svg>

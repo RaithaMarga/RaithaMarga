@@ -579,3 +579,18 @@
 @media (max-width: 480px) {
   .detail-modal { padding: var(--space-5); max-height: 92vh; }
 }
+
+/* WhatsApp helper card (farmer dashboard) */
+.whatsapp-card { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; background: #eaf7ef; border: 1px solid #b7e2c6; border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); margin-bottom: var(--space-5); }
+.whatsapp-card__icon { flex-shrink: 0; width: 46px; height: 46px; border-radius: var(--radius-full); background: #1faa59; color: #fff; display: grid; place-items: center; }
+.whatsapp-card__body { flex: 1 1 260px; }
+.whatsapp-card__title { margin: 0 0 2px; font-size: var(--font-size-lg); }
+.whatsapp-card__text { margin: 0; color: var(--color-ink-soft); font-size: var(--font-size-sm); line-height: 1.5; }
+.whatsapp-card__button { background: #1faa59; border-color: #1faa59; color: #fff; text-decoration: none; }
+.whatsapp-card__button:hover { filter: brightness(0.93); }
+
+/* Read-only account details */
+.account-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4) var(--space-5); margin: 0; }
+.account-grid dt { font-size: var(--font-size-xs); color: var(--color-ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+.account-grid dd { margin: 2px 0 0; font-weight: 600; color: var(--color-ink); word-break: break-word; }
+.account-grid__empty { color: var(--color-ink-faint); font-weight: 400; }

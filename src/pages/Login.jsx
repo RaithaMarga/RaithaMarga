@@ -8,7 +8,7 @@ import './Login.css';
 
 const Login = () => {
   const { t, language, setLanguage } = useLanguage();
-  const { login, resetPassword } = useAuth();
+  const { login, logout, resetPassword } = useAuth();
   const l = t?.login || {};
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -16,11 +16,15 @@ const Login = () => {
   // Role: 'farmer' | 'buyer'
   const initialRole = searchParams.get('role');
   const [role, setRole] = useState(initialRole === 'buyer' ? 'buyer' : 'farmer');
+  const [showAdminLogin, setShowAdminLogin] = useState(initialRole === 'admin');
 
   useEffect(() => {
     const r = searchParams.get('role');
     if (r === 'farmer' || r === 'buyer') {
       setRole(r);
+    }
+    if (r === 'admin') {
+      setShowAdminLogin(true);
     }
   }, [searchParams]);
 
@@ -35,10 +39,8 @@ const Login = () => {
   const [errors, setErrors] = useState({});
 
   // Optional admin modal/view toggle for district administrators
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [adminPin, setAdminPin] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   const clearError = (field) => {
@@ -64,7 +66,8 @@ const Login = () => {
     setIsSubmitting(true);
     try {
       const signedInUser = await login({ email, role, password, rememberMe });
-      navigate(signedInUser.role === 'buyer' ? '/buyer/dashboard' : '/farmer/dashboard');
+      const destinations = { admin: '/admin/dashboard', buyer: '/buyer/dashboard' };
+      navigate(destinations[signedInUser.role] || '/farmer/dashboard');
     } catch (error) {
       setErrors((prev) => ({ ...prev, form: error.message }));
     } finally {
@@ -89,22 +92,37 @@ const Login = () => {
     }
   };
 
-  const handleAdminSubmit = (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     const nextErrors = {};
-    if (!adminEmail.trim()) nextErrors.adminEmail = l.errorAdminEmail;
-    if (!adminPassword || adminPassword.length < 4) nextErrors.adminPassword = l.errorAdminPassword;
-    if (!adminPin) nextErrors.adminPin = l.errorAdminPin;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail.trim())) {
+      nextErrors.adminEmail = l.errorAdminEmail || 'Enter a valid email address.';
+    }
+    if (!adminPassword || adminPassword.length < 6) {
+      nextErrors.adminPassword = l.errorAdminPassword || 'Password must be at least 6 characters.';
+    }
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
     }
 
-    setErrors((prev) => ({
-      ...prev,
-      form: 'Administrator authentication is not configured yet. Contact the platform administrator.',
-    }));
+    setErrors({});
+    setIsSubmitting(true);
+    try {
+      // Admin access is decided by the backend (role stored on the account),
+      // never by anything in this form.
+      const signedInUser = await login({ email: adminEmail, password: adminPassword, rememberMe: false });
+      if (signedInUser.role !== 'admin') {
+        await logout();
+        throw new Error('This account does not have administrator access.');
+      }
+      navigate('/admin/dashboard');
+    } catch (error) {
+      setErrors({ form: error.message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -557,20 +575,6 @@ const Login = () => {
                     </div>
                     {errors.adminPassword && <span className="login-error-msg">{errors.adminPassword}</span>}
 
-                    <div className={`login-input-row ${errors.adminPin ? 'login-input-row--error' : ''}`}>
-                      <input
-                        type="password"
-                        maxLength={6}
-                        placeholder={l.adminPinPlaceholder || '4-ಅಂಕಿಯ ಪಿನ್ (ಉದಾ: 9999)'}
-                        value={adminPin}
-                        onChange={(e) => {
-                          setAdminPin(e.target.value.replace(/\D/g, '').slice(0, 6));
-                          clearError('adminPin');
-                        }}
-                      />
-                    </div>
-                    {errors.adminPin && <span className="login-error-msg">{errors.adminPin}</span>}
-
                     <button
                       type="submit"
                       className="login-submit-btn"
@@ -578,19 +582,6 @@ const Login = () => {
                       style={{ marginTop: '14px' }}
                     >
                       {isSubmitting ? (l.signingIn || 'Signing in...') : (l.adminSubmit || 'ಅಡ್ಮಿನ್ ಕನ್ಸೋಲ್ ಪ್ರವೇಶಿಸಿ')}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="login-demo-btn"
-                      style={{ marginTop: '10px' }}
-                      onClick={() => {
-                        setAdminEmail('admin@raithamarga.in');
-                        setAdminPassword('admin123');
-                        setAdminPin('9999');
-                      }}
-                    >
-                      ⚡ Quick Fill Demo Admin
                     </button>
 
                     <button

@@ -26,11 +26,6 @@ export const FarmerDataProvider = ({ children }) => {
   const [listingOwner, setListingOwner] = useState(null);
   const [listingLoadError, setListingLoadError] = useState('');
   const [profile, setProfile] = useLocalStorage(STORAGE_KEYS.FARMER_PROFILE, emptyProfile);
-  const [verification] = useState({
-    status: 'not_submitted',
-    documents: [],
-    submittedAt: null,
-  });
 
   useEffect(() => {
     if (!user || role !== 'farmer') return undefined;
@@ -110,9 +105,8 @@ export const FarmerDataProvider = ({ children }) => {
     profile,
     setProfile,
     saveProfile,
-    verification,
     stats,
-  }), [listings, listingsError, listingsLoading, addListing, profile, setProfile, saveProfile, verification, stats]);
+  }), [listings, listingsError, listingsLoading, addListing, profile, setProfile, saveProfile, stats]);
 
   return <FarmerDataContext.Provider value={value}>{children}</FarmerDataContext.Provider>;
 };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFarmerData } from '../../context/FarmerDataContext';
+import WhatsAppCard from '../../components/dashboard/WhatsAppCard';
 import '../../components/dashboard/dashboard-ui.css';
 
 const UNITS = ['kg', 'quintal', 'ton', 'dozen', 'crate'];
@@ -79,6 +80,8 @@ const AddProduce = () => {
           </p>
         </div>
       </div>
+
+      {!isEditing && <WhatsAppCard />}
 
       {isEditing ? (
         <div className="dash-panel">

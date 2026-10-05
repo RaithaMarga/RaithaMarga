@@ -27,7 +27,8 @@ const ProtectedRoute = ({ allowedRole, children }) => {
   }
 
   if (allowedRole && user?.role !== allowedRole) {
-    const targetDashboard = user?.role === 'buyer' ? '/buyer/dashboard' : '/farmer/dashboard';
+    const dashboards = { admin: '/admin/dashboard', buyer: '/buyer/dashboard', farmer: '/farmer/dashboard' };
+    const targetDashboard = dashboards[user?.role] || '/';
     return <Navigate to={targetDashboard} replace />;
   }
 

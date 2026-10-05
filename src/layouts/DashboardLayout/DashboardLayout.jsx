@@ -64,7 +64,8 @@ const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) =>
               <span className={`dashlayout__verif dashlayout__verif--${verificationStatus}`}>
                 {verificationStatus === 'verified' ? 'Verified' :
                   verificationStatus === 'pending' ? 'Pending Review' :
-                  verificationStatus === 'needs_attention' ? 'Needs Attention' : 'Not Verified'}
+                  verificationStatus === 'needs_attention' ? 'Needs Attention' :
+                  verificationStatus === 'rejected' ? 'Not Approved' : 'Not Verified'}
               </span>
             ) : null}
             <span className="dashlayout__avatar" aria-hidden="true">

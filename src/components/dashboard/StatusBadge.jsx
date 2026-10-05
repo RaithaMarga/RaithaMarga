@@ -10,6 +10,8 @@ const STATUS_META = {
   pending: { label: 'Pending Review', tone: 'gold' },
   needs_attention: { label: 'Needs Attention', tone: 'alert' },
   verified: { label: 'Verified', tone: 'success' },
+  rejected: { label: 'Rejected', tone: 'alert' },
+  disabled: { label: 'Disabled', tone: 'muted' },
   requested: { label: 'Requested', tone: 'gold' },
   interested: { label: 'Interest Requested', tone: 'gold' },
   confirmed: { label: 'Confirmed', tone: 'success' },

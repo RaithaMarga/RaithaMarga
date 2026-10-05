@@ -64,7 +64,7 @@ const MyListings = () => {
       {detailListing && (
         <ListingDetailModal listing={detailListing} onClose={() => setDetailListing(null)} />
       )}
-      <p className="dash-page__subtitle">Listing edits, deletion, and weighing-proof uploads are not available in the backend yet.</p>
+      <p className="dash-page__subtitle">Editing and deleting listings is not available yet. Contact the RaithaMarga team on WhatsApp if something needs to change.</p>
     </div>
   );
 };

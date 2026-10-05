@@ -3,7 +3,7 @@ import { useReveal } from '../../hooks/useReveal';
 import iconList from '../../assets/how-it-works/01_list_in_seconds.png';
 import iconCombined from '../../assets/how-it-works/02_combined_matched.png';
 import iconVerified from '../../assets/how-it-works/03_verified_buyer.png';
-import iconDelivery from '../../assets/how-it-works/04_weigh_deliver_get_paid.png';
+import iconDelivery from '../../assets/how-it-works/04_deliver_get_paid.svg';
 import './HowItWorks.css';
 
 const STEP_ICONS = [iconList, iconCombined, iconVerified, iconDelivery];

@@ -300,3 +300,53 @@
   .hero__flow-arrow--animated path { animation: none; stroke-dashoffset: 0; opacity: 1; }
   .hero__flow-card--float { animation: none; }
 }
+
+/* Secondary link for farmers who prefer WhatsApp to the website */
+.hero__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: 6px 14px 6px 8px;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid rgba(27, 94, 55, 0.22);
+  border-radius: var(--radius-full);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(33, 27, 18, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+}
+
+.hero__whatsapp:hover {
+  background: #ffffff;
+  border-color: #1faa59;
+  color: #0f3d24;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(31, 170, 89, 0.22);
+}
+
+.hero__whatsapp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: #1faa59;
+  color: #ffffff;
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.hero__whatsapp:hover .hero__whatsapp-icon {
+  transform: scale(1.08);
+}
+
+.hero__whatsapp-text {
+  line-height: 1.3;
+}
+

@@ -10,7 +10,7 @@ import AddProduce from './pages/farmer/AddProduce';
 import MyListings from './pages/farmer/MyListings';
 import BuyerMatches from './pages/farmer/BuyerMatches';
 import MyDeals from './pages/farmer/MyDeals';
-import FarmerVerification from './pages/farmer/Verification';
+import FarmerAccountDetails from './pages/farmer/AccountDetails';
 import FarmerProfile from './pages/farmer/Profile';
 
 import BuyerDashboardShell from './pages/buyer/BuyerDashboardShell';
@@ -19,12 +19,16 @@ import BrowseProduce from './pages/buyer/BrowseProduce';
 import RecommendedMatches from './pages/buyer/RecommendedMatches';
 import RequestsOrders from './pages/buyer/RequestsOrders';
 import Deals from './pages/buyer/Deals';
-import TrustVerification from './pages/buyer/TrustVerification';
 import BuyerProfile from './pages/buyer/Profile';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminShell from './pages/admin/AdminShell';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminVerifications from './pages/admin/AdminVerifications';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminMarketplace from './pages/admin/AdminMarketplace';
+import AdminAudit from './pages/admin/AdminAudit';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
 // lazy initial state (read from context) is recomputed per listing
@@ -60,7 +64,7 @@ function App() {
               <Route path="listings/:id/edit" element={<EditProduceRoute />} />
               <Route path="matches" element={<BuyerMatches />} />
               <Route path="deals" element={<MyDeals />} />
-              <Route path="verification" element={<FarmerVerification />} />
+              <Route path="account" element={<FarmerAccountDetails />} />
               <Route path="profile" element={<FarmerProfile />} />
             </Route>
 
@@ -78,18 +82,24 @@ function App() {
               <Route path="recommended" element={<RecommendedMatches />} />
               <Route path="requests" element={<RequestsOrders />} />
               <Route path="deals" element={<Deals />} />
-              <Route path="trust" element={<TrustVerification />} />
               <Route path="profile" element={<BuyerProfile />} />
             </Route>
 
+            {/* Guarded Admin Console (role is enforced by the backend as well) */}
             <Route
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRole="admin">
-                  <AdminDashboard />
+                  <AdminShell />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AdminOverview />} />
+              <Route path="verifications" element={<AdminVerifications />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="marketplace" element={<AdminMarketplace />} />
+              <Route path="audit" element={<AdminAudit />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>

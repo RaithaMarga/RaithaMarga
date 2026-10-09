@@ -1,0 +1,124 @@
+.crop-showcase {
+  padding: var(--space-12) 0;
+  background: var(--color-cream-alt);
+}
+
+.crop-showcase__heading {
+  max-width: 660px;
+  margin: 0 auto var(--space-8);
+  text-align: center;
+}
+
+.crop-showcase__heading h2 {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--font-size-3xl);
+}
+
+.crop-showcase__heading p {
+  color: var(--color-ink-soft);
+}
+
+.crop-showcase__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.crop-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-paper);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.crop-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.crop-card__image {
+  height: 164px;
+  overflow: hidden;
+  background: var(--color-cream);
+}
+
+.crop-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-4);
+}
+
+.crop-card__category {
+  color: var(--color-gold-dark);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.crop-card__body h3 {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-lg);
+}
+
+.crop-card__availability {
+  margin-top: var(--space-2);
+  color: var(--color-ink-faint);
+  font-size: var(--font-size-sm);
+}
+
+.crop-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: auto;
+  padding-top: var(--space-4);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.crop-card__action:focus-visible {
+  border-radius: var(--radius-sm);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .crop-showcase__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .crop-showcase {
+    padding: var(--space-10) 0;
+  }
+
+  .crop-showcase__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .crop-card__image {
+    height: 132px;
+  }
+
+  .crop-card__body {
+    padding: var(--space-3);
+  }
+}
+
+@media (max-width: 380px) {
+  .crop-showcase__grid {
+    grid-template-columns: 1fr;
+  }
+}

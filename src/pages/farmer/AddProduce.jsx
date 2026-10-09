@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFarmerData } from '../../context/FarmerDataContext';
 import WhatsAppCard from '../../components/dashboard/WhatsAppCard';
+import CropImage from '../../components/CropImage';
+import { CROP_SUGGESTIONS, findImageCrop } from '../../data/crops';
 import '../../components/dashboard/dashboard-ui.css';
 
 const UNITS = ['kg', 'quintal', 'ton', 'dozen', 'crate'];
@@ -21,6 +23,9 @@ const AddProduce = () => {
   const isEditing = Boolean(id);
   const navigate = useNavigate();
   const { addListing, profile } = useFarmerData();
+  const selectedCrop = findImageCrop(form.crop) ?? (
+    form.crop.trim() ? { name: form.crop.trim(), image: null } : null
+  );
 
   const [form, setForm] = useState(() => {
     return emptyForm;
@@ -114,13 +119,23 @@ const AddProduce = () => {
               id="crop"
               type="text"
               placeholder="e.g. Tomato"
+              list="crop-suggestions"
               value={form.crop}
               onChange={handleChange('crop')}
               aria-required="true"
               aria-invalid={Boolean(fieldErrors.crop)}
               aria-describedby={fieldErrors.crop ? 'crop-error' : undefined}
             />
+            <datalist id="crop-suggestions">
+              {CROP_SUGGESTIONS.map((name) => <option key={name} value={name} />)}
+            </datalist>
             {fieldErrors.crop && <span id="crop-error" className="dash-field__error">{fieldErrors.crop}</span>}
+            {selectedCrop && (
+              <div className="add-produce-crop-preview">
+                <CropImage crop={selectedCrop} />
+                <span>{selectedCrop.name}</span>
+              </div>
+            )}
           </div>
           <div className="dash-field">
             <label htmlFor="grade">Quality / Grade</label>

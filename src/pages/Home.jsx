@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar/Navbar';
 import Hero from '../components/Hero/Hero';
 import TrustBar from '../components/TrustBar/TrustBar';
+import CropShowcase from '../components/CropShowcase';
 import HowItWorks from '../components/HowItWorks/HowItWorks';
 import SellOnWhatsApp from '../components/SellOnWhatsApp/SellOnWhatsApp';
 import Features from '../components/Features/Features';
@@ -16,6 +17,7 @@ const Home = () => {
       <main>
         <Hero />
         <TrustBar />
+        <CropShowcase />
         <HowItWorks />
         <SellOnWhatsApp />
         <Features />

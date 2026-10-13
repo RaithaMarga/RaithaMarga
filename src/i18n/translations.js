@@ -19,6 +19,15 @@ export const translations = {
       fruit: 'Fruit',
       availability: 'Availability will be updated soon',
       action: 'View Availability',
+      viewAll: 'VIEW ALL',
+      showLess: 'SHOW LESS',
+      viewAllCount: 'VIEW ALL (24)',
+      showingCount: 'Showing {count} of {total} crops',
+      allCrops: 'All Crops',
+      page: 'Page',
+      previous: 'Previous',
+      next: 'Next',
+      backToHome: 'Back to Home',
       names: {},
     },
     hero: {
@@ -94,9 +103,8 @@ export const translations = {
     features: {
       eyebrow: 'Built for real farmers',
       title: 'More Than a Marketplace',
-      subtitle: 'Five features designed around the problems small farmers actually face.',
+      subtitle: 'Four features designed around the problems small farmers actually face.',
       items: [
-        { tag: 'No more disputes', title: 'Weight Proof', description: 'Timestamped photos of the weighing scale at pickup and delivery — evidence, not arguments.' },
         { tag: 'Strength in numbers', title: 'Sell Together', description: 'Small quantities from nearby farmers are automatically combined into one lot bulk buyers actually want.' },
         { tag: 'Live demand', title: 'Buyers Active Today', description: 'See exactly which verified buyers are sourcing your crop in your area right now, before the window closes.' },
         { tag: 'No literacy barrier', title: 'List Without Typing', description: 'Send a short voice note in your own language on WhatsApp — no typing required.' },
@@ -355,6 +363,15 @@ export const translations = {
       fruit: 'ಹಣ್ಣು',
       availability: 'ಲಭ್ಯತೆಯನ್ನು ಶೀಘ್ರದಲ್ಲೇ ನವೀಕರಿಸಲಾಗುತ್ತದೆ',
       action: 'ಲಭ್ಯತೆ ವೀಕ್ಷಿಸಿ',
+      viewAll: 'ಎಲ್ಲಾ ನೋಡಿ',
+      showLess: 'ಕಡಿಮೆ ನೋಡಿ',
+      viewAllCount: 'ಎಲ್ಲಾ ನೋಡಿ (24)',
+      showingCount: '{total} ಬೆಳೆಗಳಲ್ಲಿ {count} ತೋರಿಸಲಾಗುತ್ತಿದೆ',
+      allCrops: 'ಎಲ್ಲಾ ಬೆಳೆಗಳು',
+      page: 'ಪುಟ',
+      previous: 'ಹಿಂದಿನ',
+      next: 'ಮುಂದಿನ',
+      backToHome: 'ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ',
       names: {
         tomato: 'ಟೊಮೆಟೊ',
         onion: 'ಈರುಳ್ಳಿ',
@@ -455,9 +472,8 @@ export const translations = {
     features: {
       eyebrow: 'ನೈಜ ರೈತರಿಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ',
       title: 'ಕೇವಲ ಮಾರುಕಟ್ಟೆಗಿಂತ ಹೆಚ್ಚು',
-      subtitle: 'ಸಣ್ಣ ರೈತರು ನಿಜವಾಗಿ ಎದುರಿಸುವ ಸಮಸ್ಯೆಗಳ ಸುತ್ತ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಐದು ವೈಶಿಷ್ಟ್ಯಗಳು.',
+      subtitle: 'ಸಣ್ಣ ರೈತರು ನಿಜವಾಗಿ ಎದುರಿಸುವ ಸಮಸ್ಯೆಗಳ ಸುತ್ತ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ನಾಲ್ಕು ವೈಶಿಷ್ಟ್ಯಗಳು.',
       items: [
-        { tag: 'ವಿವಾದಗಳಿಲ್ಲ', title: 'ತೂಕದ ಪುರಾವೆ', description: 'ಪಿಕಪ್ ಮತ್ತು ವಿತರಣೆಯಲ್ಲಿ ತೂಕದ ಯಂತ್ರದ ಸಮಯ-ಮುದ್ರಿತ ಫೋಟೋಗಳು — ವಾದಗಳಲ್ಲ, ಪುರಾವೆ.' },
         { tag: 'ಸಂಖ್ಯೆಯಲ್ಲಿ ಶಕ್ತಿ', title: 'ಒಟ್ಟಿಗೆ ಮಾರಾಟ', description: 'ಹತ್ತಿರದ ರೈತರ ಸಣ್ಣ ಪ್ರಮಾಣಗಳು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಒಂದು ಲಾಟ್ ಆಗಿ ಸಂಯೋಜಿಸಲ್ಪಡುತ್ತವೆ, ಬೃಹತ್ ಖರೀದಿದಾರರಿಗೆ ಬೇಕಾದದ್ದು.' },
         { tag: 'ಲೈವ್ ಬೇಡಿಕೆ', title: 'ಇಂದು ಸಕ್ರಿಯ ಖರೀದಿದಾರರು', description: 'ಯಾವ ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು ಈಗ ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ನಿಮ್ಮ ಬೆಳೆಯನ್ನು ಹುಡುಕುತ್ತಿದ್ದಾರೆ ಎಂದು ನಿಖರವಾಗಿ ನೋಡಿ.' },
         { tag: 'ಸಾಕ್ಷರತೆ ಅಡ್ಡಿಯಿಲ್ಲ', title: 'ಟೈಪ್ ಮಾಡದೆ ಪಟ್ಟಿ ಮಾಡಿ', description: 'ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಒಂದು ಸಣ್ಣ ಧ್ವನಿ ಸಂದೇಶ ಸಾಕು — ಟೈಪ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ.' },

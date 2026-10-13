@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import StatusBadge from './StatusBadge';
-import PhotoPlaceholder from './PhotoPlaceholder';
+import ListingImage from './ListingImage';
 import './dashboard-ui.css';
 
 /**
@@ -38,17 +38,9 @@ const ListingDetailModal = ({ listing, verificationStatus, onClose, actions }) =
           &times;
         </button>
 
-        {listing.photos?.length > 0 ? (
-          <div className="detail-modal__gallery">
-            {listing.photos.map((src, i) => (
-              <img key={i} src={src} alt={`${listing.crop} photo ${i + 1}`} />
-            ))}
-          </div>
-        ) : (
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            <PhotoPlaceholder label="No photos provided" />
-          </div>
-        )}
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+          <ListingImage listing={listing} label="No photos provided" />
+        </div>
 
         <div className="detail-modal__title-row">
           <h2 id="detail-modal-title" className="detail-modal__title">{listing.crop || 'Untitled crop'}</h2>

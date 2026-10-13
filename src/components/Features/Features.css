@@ -15,14 +15,8 @@
 
 .features__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-6);
-}
-
-.features__grid--second-row {
-  grid-template-columns: repeat(2, 1fr);
-  max-width: 66.6%;
-  margin: var(--space-6) auto 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
 }
 
 .features__card {
@@ -92,19 +86,15 @@
 }
 
 /* ---------- Tablet: 2 per row ---------- */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .features__grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .features__grid--second-row {
-    max-width: 100%;
   }
 }
 
 /* ---------- Mobile: 1 per row ---------- */
 @media (max-width: 560px) {
-  .features__grid,
-  .features__grid--second-row {
+  .features__grid {
     grid-template-columns: 1fr;
   }
   .features__card-media { height: 180px; }

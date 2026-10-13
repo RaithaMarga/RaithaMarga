@@ -56,7 +56,9 @@ const normalizeCropName = (name) =>
   name.trim().toLowerCase().replace(/[\s_]+/g, '-');
 
 export const findImageCrop = (name) => {
-  const normalizedName = normalizeCropName(name);
+  if (!name) return null;
+  const cleanName = String(name).replace(/\s*\([^)]*\)/g, '').trim();
+  const normalizedName = normalizeCropName(cleanName);
   return IMAGE_CROPS.find(
     (crop) =>
       crop.id === normalizedName ||
@@ -109,45 +111,114 @@ export const CROP_SUGGESTIONS = [...new Set([
   'Crossandra',
 ])];
 
-// Crop categories shown on the farmer registration form.
-// Shape: [{ value, label, crops: [{ value, label }] }]
-// `value` of a crop is what gets stored as the farmer's preferred crop.
-const crop = (name) => ({ value: name, label: name });
+export const CROP_KANNADA_MAP = {
+  Tomato: 'ಟೊಮೆಟೊ',
+  Onion: 'ಈರುಳ್ಳಿ',
+  Potato: 'ಆಲೂಗಡ್ಡೆ',
+  Carrot: 'ಕ್ಯಾರೆಟ್',
+  Cabbage: 'ಎಲೆಕೋಸು',
+  Cauliflower: 'ಹೂಕೋಸು',
+  Brinjal: 'ಬದನೆಕಾಯಿ',
+  Beans: 'ಬೀನ್ಸ್',
+  Capsicum: 'ದಪ್ಪ ಮೆಣಸಿನಕಾಯಿ',
+  'Green Chilli': 'ಹಸಿರು ಮೆಣಸಿನಕಾಯಿ',
+  Okra: 'ಬೆಂಡೆಕಾಯಿ',
+  Cucumber: 'ಸೌತೆಕಾಯಿ',
+  Pumpkin: 'ಕುಂಬಳಕಾಯಿ',
+  Beetroot: 'ಬೀಟ್‌ರೂಟ್',
+  Radish: 'ಮೂಲಂಗಿ',
+  Drumstick: 'ನುಗ್ಗೆಕಾಯಿ',
+  Mango: 'ಮಾವಿನ ಹಣ್ಣು',
+  Banana: 'ಬಾಳೆಹಣ್ಣು',
+  Grapes: 'ದ್ರಾಕ್ಷಿ',
+  Pomegranate: 'ದಾಳಿಂಬೆ',
+  Papaya: 'ಪಪ್ಪಾಯಿ',
+  Guava: 'ಸೀಬೆಹಣ್ಣು',
+  Sapota: 'ಸಪೋಟ',
+  Watermelon: 'ಕಲ್ಲಂಗಡಿ',
+  Orange: 'ಕಿತ್ತಳೆ',
+  Lemon: 'ನಿಂಬೆಹಣ್ಣು',
+  Coconut: 'ತೆಂಗಿನಕಾಯಿ',
+  Jackfruit: 'ಹಲಸಿನ ಹಣ್ಣು',
+  Ragi: 'ರಾಗಿ',
+  Paddy: 'ಭತ್ತ',
+  Maize: 'ಮೆಕ್ಕೆಜೋಳ',
+  Jowar: 'ಜೋಳ',
+  Bajra: 'ಸಜ್ಜೆ',
+  Wheat: 'ಗೋಧಿ',
+  'Foxtail Millet': 'ನವಣೆ',
+  'Tur Dal': 'ತೊಗರಿ ಬೇಳೆ',
+  'Bengal Gram': 'ಕಡಲೆ',
+  'Green Gram': 'ಹೆಸರು ಕಾಳು',
+  'Black Gram': 'ಉದ್ದಿನ ಕಾಳು',
+  'Horse Gram': 'ಹುರುಳಿ',
+  Cowpea: 'ಅಲಸಂದಿ',
+  'Field Beans': 'ಅವರೆಕಾಳು',
+  Groundnut: 'ಕಡಲೆಕಾಯಿ',
+  Sunflower: 'ಸೂರ್ಯಕಾಂತಿ',
+  Soybean: 'ಸೋಯಾಬೀನ್',
+  Sesame: 'ಎಳ್ಳು',
+  Castor: 'ಹರಳು',
+  Safflower: 'ಕುಸುಮೆ',
+  Sugarcane: 'ಕಬ್ಬು',
+  Cotton: 'ಹತ್ತಿ',
+  Coffee: 'ಕಾಫಿ',
+  Arecanut: 'ಅಡಿಕೆ',
+  Turmeric: 'ಅರಿಶಿನ',
+  Ginger: 'ಶುಂಠಿ',
+  Pepper: 'ಕಾಳುಮೆಣಸು',
+  Cardamom: 'ಏಲಕ್ಕಿ',
+  Tobacco: 'ತಂಬಾಕು',
+  Marigold: 'ಚೆಂಡು ಹೂ',
+  Rose: 'ಗುಲಾಬಿ',
+  Jasmine: 'ಮಲ್ಲಿಗೆ',
+  Chrysanthemum: 'ಸೇವಂತಿಗೆ',
+  Crossandra: 'ಕನಕಾಂಬರ',
+};
+
+// Formats each crop as: English (ಕನ್ನಡ)
+const crop = (name) => {
+  const kn = CROP_KANNADA_MAP[name];
+  return {
+    value: name,
+    label: kn ? `${name} (${kn})` : name,
+  };
+};
 
 export const CROP_CATEGORIES = [
   {
     value: 'vegetables',
-    label: 'Vegetables',
+    label: 'Vegetables (ತರಕಾರಿಗಳು)',
     crops: ['Tomato', 'Onion', 'Potato', 'Carrot', 'Cabbage', 'Cauliflower', 'Brinjal', 'Beans', 'Capsicum', 'Green Chilli', 'Okra', 'Cucumber', 'Pumpkin', 'Beetroot', 'Radish', 'Drumstick'].map(crop),
   },
   {
     value: 'fruits',
-    label: 'Fruits',
+    label: 'Fruits (ಹಣ್ಣುಗಳು)',
     crops: ['Mango', 'Banana', 'Grapes', 'Pomegranate', 'Papaya', 'Guava', 'Sapota', 'Watermelon', 'Orange', 'Lemon', 'Coconut', 'Jackfruit'].map(crop),
   },
   {
     value: 'cereals',
-    label: 'Cereals & Millets',
+    label: 'Cereals & Millets (ಧಾನ್ಯಗಳು ಮತ್ತು ಸಿರಿಧಾನ್ಯಗಳು)',
     crops: ['Ragi', 'Paddy', 'Maize', 'Jowar', 'Bajra', 'Wheat', 'Foxtail Millet'].map(crop),
   },
   {
     value: 'pulses',
-    label: 'Pulses',
+    label: 'Pulses (ಬೇಳೆಕಾಳುಗಳು)',
     crops: ['Tur Dal', 'Bengal Gram', 'Green Gram', 'Black Gram', 'Horse Gram', 'Cowpea', 'Field Beans'].map(crop),
   },
   {
     value: 'oilseeds',
-    label: 'Oilseeds',
+    label: 'Oilseeds (ಎಣ್ಣೆಕಾಳುಗಳು)',
     crops: ['Groundnut', 'Sunflower', 'Soybean', 'Sesame', 'Castor', 'Safflower'].map(crop),
   },
   {
     value: 'cash_crops',
-    label: 'Cash & Plantation Crops',
+    label: 'Cash & Plantation Crops (ವಾಣಿಜ್ಯ ಮತ್ತು ತೋಟದ ಬೆಳೆಗಳು)',
     crops: ['Sugarcane', 'Cotton', 'Coffee', 'Arecanut', 'Turmeric', 'Ginger', 'Pepper', 'Cardamom', 'Tobacco'].map(crop),
   },
   {
     value: 'flowers',
-    label: 'Flowers',
+    label: 'Flowers (ಹೂಗಳು)',
     crops: ['Marigold', 'Rose', 'Jasmine', 'Chrysanthemum', 'Crossandra'].map(crop),
   },
 ];

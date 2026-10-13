@@ -34,6 +34,18 @@
   background: var(--color-paper);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base), box-shadow var(--transition-base);
+  animation: cropCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes cropCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .crop-card:hover {
@@ -92,6 +104,76 @@
   outline-offset: 3px;
 }
 
+/* ========================================================
+   Meesho-Styled "VIEW ALL" Action Section
+   Signature Meesho features:
+   - Uppercase bold lettering
+   - Iconic Meesho magenta (#9F2089)
+   - Clean pill silhouette
+   - Interactive chevron arrow slide
+   - Elegant hover elevation
+   ======================================================== */
+.crop-showcase__footer {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.meesho-view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 38px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  border: 2px solid #9F2089;
+  background-color: #FFFFFF;
+  color: #9F2089;
+  box-shadow: 0 4px 14px rgba(159, 32, 137, 0.12);
+  transition: transform 0.22s ease, background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+  user-select: none;
+}
+
+.meesho-view-all-btn:hover {
+  background-color: #9F2089;
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(159, 32, 137, 0.28);
+  transform: translateY(-2px);
+}
+
+.meesho-view-all-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.meesho-view-all-btn:focus-visible {
+  outline: 3px solid rgba(159, 32, 137, 0.4);
+  outline-offset: 3px;
+}
+
+.meesho-view-all-arrow {
+  display: inline-block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meesho-view-all-btn:hover .meesho-view-all-arrow {
+  transform: translateX(4px);
+}
+
 @media (max-width: 900px) {
   .crop-showcase__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -115,10 +197,22 @@
   .crop-card__body {
     padding: var(--space-3);
   }
+
+  .meesho-view-all-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 24px;
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 380px) {
   .crop-showcase__grid {
     grid-template-columns: 1fr;
   }
+}
+
+.crop-card__qty {
+  color: var(--color-primary-dark);
+  font-weight: var(--font-weight-semibold, 600);
 }

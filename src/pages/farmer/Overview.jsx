@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useFarmerData } from '../../context/FarmerDataContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../lib/api';
 import { fromApiDeal } from '../../lib/marketplace';
 import StatCard from '../../components/dashboard/StatCard';
@@ -13,6 +14,10 @@ import '../../components/dashboard/dashboard-ui.css';
 const Overview = () => {
   const { stats, profile, listingsError } = useFarmerData();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isKannada = language === 'kn';
+  const fo = t.dashboard?.farmerOverview || {};
+
   const [matchCount, setMatchCount] = useState(0);
   const [pendingDealsCount, setPendingDealsCount] = useState(0);
 
@@ -34,18 +39,22 @@ const Overview = () => {
     ? quantityEntries.map(([unit, qty]) => `${qty} ${unit}`).join(' \u2022 ')
     : '0';
 
+  const welcomeText = profile.name
+    ? `${isKannada ? 'ಸ್ವಾಗತ' : 'Welcome back'}, ${profile.name.split(' ')[0]}`
+    : (fo.welcomeDefault || (isKannada ? 'ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಸ್ವಾಗತ' : 'Welcome to your dashboard'));
+
   return (
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <h1 className="dash-page__title">
-            {profile.name ? `Welcome back, ${profile.name.split(' ')[0]}` : 'Welcome to your dashboard'}
-          </h1>
-          <p className="dash-page__subtitle">Here's what's happening with your listings today.</p>
+          <h1 className="dash-page__title">{welcomeText}</h1>
+          <p className="dash-page__subtitle">
+            {fo.subtitle || (isKannada ? 'ಇಂದು ನಿಮ್ಮ ಪಟ್ಟಿಗಳ ಸ್ಥಿತಿಗತಿ ಇಲ್ಲಿದೆ.' : "Here's what's happening with your listings today.")}
+          </p>
         </div>
         {listingsError && <div className="dash-banner dash-banner--error" role="alert">{listingsError}</div>}
         <Link to="/farmer/dashboard/add-produce" className="btn btn--primary btn--sm">
-          + Add Produce
+          {fo.addProduceBtn || (isKannada ? '+ ಬೆಳೆ ಸೇರಿಸಿ' : '+ Add Produce')}
         </Link>
       </div>
 
@@ -53,47 +62,61 @@ const Overview = () => {
       <WhatsAppCard />
 
       <div className="stat-grid">
-        <StatCard icon={<IconField />} label="Active Listings" value={stats.activeCount} accent="primary" />
+        <StatCard
+          icon={<IconField />}
+          label={fo.activeListings || (isKannada ? 'ಸಕ್ರಿಯ ಪಟ್ಟಿಗಳು' : 'Active Listings')}
+          value={stats.activeCount}
+          accent="primary"
+        />
         <StatCard
           icon={<IconScale />}
-          label="Available Quantity"
+          label={fo.availableQty || (isKannada ? 'ಲಭ್ಯವಿರುವ ಪ್ರಮಾಣ' : 'Available Quantity')}
           value={quantityDisplay}
-          caption={quantityEntries.length ? 'across active listings' : 'No active quantity yet'}
+          caption={quantityEntries.length
+            ? (fo.acrossListings || (isKannada ? 'ಸಕ್ರಿಯ ಪಟ್ಟಿಗಳಲ್ಲಿ' : 'across active listings'))
+            : (fo.noActiveQty || (isKannada ? 'ಇನ್ನೂ ಪ್ರಮಾಣವಿಲ್ಲ' : 'No active quantity yet'))}
           accent="gold"
         />
         <StatCard
           icon={<IconHandshake />}
-          label="Buyer Matches"
+          label={fo.buyerMatches || (isKannada ? 'ಖರೀದಿದಾರ ಹೊಂದಾಣಿಕೆಗಳು' : 'Buyer Matches')}
           value={matchCount}
-          caption={matchCount ? `${matchCount} buyers interested` : 'No matches yet'}
+          caption={matchCount
+            ? `${matchCount} ${isKannada ? 'ಖರೀದಿದಾರರು ಆಸಕ್ತಿ ಹೊಂದಿದ್ದಾರೆ' : 'buyers interested'}`
+            : (isKannada ? 'ಇನ್ನೂ ಹೊಂದಾಣಿಕೆಗಳಿಲ್ಲ' : 'No matches yet')}
           accent="primary"
         />
         <StatCard
           icon={<IconClock />}
-          label="Pending Deals"
+          label={fo.pendingDeals || (isKannada ? 'ಬಾಕಿ ಒಪ್ಪಂದಗಳು' : 'Pending Deals')}
           value={pendingDealsCount}
-          caption={pendingDealsCount ? `${pendingDealsCount} in progress` : 'No active trades'}
+          caption={pendingDealsCount
+            ? `${pendingDealsCount} ${isKannada ? 'ಪ್ರಗತಿಯಲ್ಲಿದೆ' : 'in progress'}`
+            : (isKannada ? 'ಸಕ್ರಿಯ ವ್ಯವಹಾರಗಳಿಲ್ಲ' : 'No active trades')}
           accent="tomato"
         />
       </div>
 
       <div className="dash-panel">
-        <h2 className="dash-panel__heading">Listing snapshot</h2>
+        <h2 className="dash-panel__heading">
+          {fo.snapshotHeading || (isKannada ? 'ಪಟ್ಟಿಗಳ ಸಂಕ್ಷಿಪ್ತ ವಿವರ' : 'Listing snapshot')}
+        </h2>
         <p className="dash-panel__intro">
-          {stats.totalListings} total {'\u2022'} {stats.draftCount} draft {'\u2022'} {stats.activeCount} active {'\u2022'}{' '}
-          {stats.matchedCount} matched {'\u2022'} {stats.soldCount} sold
+          {stats.totalListings} {isKannada ? 'ಒಟ್ಟು' : 'total'} {'\u2022'} {stats.draftCount} {isKannada ? 'ಕರಡು' : 'draft'} {'\u2022'}{' '}
+          {stats.activeCount} {isKannada ? 'ಸಕ್ರಿಯ' : 'active'} {'\u2022'} {stats.matchedCount} {isKannada ? 'ಹೊಂದಿಸಲಾಗಿದೆ' : 'matched'} {'\u2022'}{' '}
+          {stats.soldCount} {isKannada ? 'ಮಾರಾಟವಾಗಿದೆ' : 'sold'}
         </p>
         {stats.totalListings === 0 ? (
           <p style={{ color: 'var(--color-ink-soft)', fontSize: 'var(--font-size-sm)' }}>
-            You haven't listed any produce yet.{' '}
+            {fo.noListings || (isKannada ? 'ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಉತ್ಪನ್ನವನ್ನು ಪಟ್ಟಿ ಮಾಡಿಲ್ಲ.' : "You haven't listed any produce yet.")}{' '}
             <Link to="/farmer/dashboard/add-produce" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
-              Add your first listing
+              {fo.addFirstListing || (isKannada ? 'ನಿಮ್ಮ ಮೊದಲ ಬೆಳೆಯನ್ನು ಪಟ್ಟಿ ಮಾಡಿ' : 'Add your first listing')}
             </Link>{' '}
-            to start appearing in buyer searches.
+            {fo.startAppearing || (isKannada ? 'ಖರೀದಿದಾರರ ಹುಡುಕಾಟದಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳಲು.' : 'to start appearing in buyer searches.')}
           </p>
         ) : (
           <Link to="/farmer/dashboard/listings" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: 'var(--font-size-sm)' }}>
-            View all listings →
+            {fo.viewAllListings || (isKannada ? 'ಎಲ್ಲಾ ಪಟ್ಟಿಗಳನ್ನು ವೀಕ್ಷಿಸಿ →' : 'View all listings →')}
           </Link>
         )}
       </div>

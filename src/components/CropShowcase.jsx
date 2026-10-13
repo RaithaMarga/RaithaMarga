@@ -1,12 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { IMAGE_CROPS } from '../data/crops';
-import CropImage from './CropImage';
+import CropCard from './CropCard';
+import { useMarketplaceListings } from '../hooks/useMarketplaceListings';
 import './CropShowcase.css';
+
+const HOME_CROP_LIMIT = 4;
 
 const CropShowcase = () => {
   const { t } = useLanguage();
   const copy = t.crops;
+  const listings = useMarketplaceListings();
+
+  const displayedCrops = IMAGE_CROPS.slice(0, HOME_CROP_LIMIT);
 
   return (
     <section className="crop-showcase" id="crops">
@@ -16,25 +22,21 @@ const CropShowcase = () => {
           <h2>{copy.title}</h2>
           <p>{copy.subtitle}</p>
         </div>
+
         <div className="crop-showcase__grid">
-          {IMAGE_CROPS.map((crop) => (
-            <article className="crop-card" key={crop.id}>
-              <div className="crop-card__image">
-                <CropImage crop={crop} />
-              </div>
-              <div className="crop-card__body">
-                <span className="crop-card__category">
-                  {crop.category === 'Vegetable' ? copy.vegetable : copy.fruit}
-                </span>
-                <h3>{copy.names[crop.id] ?? crop.name}</h3>
-                <p className="crop-card__availability">{copy.availability}</p>
-                <Link className="crop-card__action" to="/login?role=buyer">
-                  {copy.action}
-                  <span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
+          {displayedCrops.map((crop) => (
+            <CropCard key={crop.id} crop={crop} copy={copy} listings={listings} />
           ))}
+        </div>
+
+        {/* Meesho-styled VIEW ALL button navigating directly to /crops */}
+        <div className="crop-showcase__footer">
+          <Link to="/crops" className="meesho-view-all-btn">
+            <span>{copy.viewAll || 'VIEW ALL'}</span>
+            <span className="meesho-view-all-arrow" aria-hidden="true">
+              ›
+            </span>
+          </Link>
         </div>
       </div>
     </section>

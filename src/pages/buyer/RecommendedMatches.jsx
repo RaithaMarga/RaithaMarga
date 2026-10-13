@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useBuyerData } from '../../context/BuyerDataContext';
 import { apiRequest } from '../../lib/api';
 import EmptyState from '../../components/dashboard/EmptyState';
+import ListingImage from '../../components/dashboard/ListingImage';
 import '../../components/dashboard/dashboard-ui.css';
 import { IconHandshake } from '../../components/dashboard/icons';
 
@@ -74,6 +75,7 @@ const RecommendedMatches = () => {
             const requested = hasRequested(match.listingId);
             return (
               <article key={match.id} className="dash-panel">
+                <ListingImage listing={match.listing} />
                 <h3>{match.listing.crop} · {match.listing.availableQuantity} {match.listing.unit} available</h3>
                 <p>Location: {match.listing.location} · Asking ₹{match.listing.expectedPrice} / {match.listing.unit}</p>
                 <p>Your requirement: {match.requirement.quantity} {match.requirement.unit} · target ₹{match.requirement.targetPrice}</p>

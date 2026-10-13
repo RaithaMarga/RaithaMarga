@@ -24,6 +24,7 @@ const CropImage = ({ crop, className = '' }) => {
       src={image}
       alt={crop.name}
       loading="lazy"
+      decoding="async"
       onError={() => setFailedImage(image)}
     />
   );

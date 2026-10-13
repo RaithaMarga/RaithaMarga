@@ -1,0 +1,202 @@
+.crops-page {
+  padding: calc(var(--space-12) + 20px) 0 var(--space-16);
+  background: var(--color-cream);
+  min-height: 80vh;
+}
+
+.crops-page__header {
+  max-width: 780px;
+  margin: 0 auto var(--space-8);
+  text-align: center;
+}
+
+.crops-page__home-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 20px;
+  margin-bottom: var(--space-4);
+  background: var(--color-paper);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: #0c4a2a;
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(33, 27, 18, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crops-page__home-pill:hover {
+  background: var(--color-white);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 4px 10px rgba(27, 94, 55, 0.12);
+  transform: translateY(-1px);
+}
+
+.crops-page__home-icon {
+  stroke: #1B5E37;
+  flex-shrink: 0;
+}
+
+.crops-page__title {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--font-size-3xl);
+  color: var(--color-ink);
+}
+
+.crops-page__subtitle {
+  color: var(--color-ink-soft);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-6);
+}
+
+/* Category Filter Pills */
+.crops-page__filters {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.crops-filter-pill {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-paper);
+  color: var(--color-ink-soft);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crops-filter-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.crops-filter-pill--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.crops-filter-pill--active:hover {
+  background: var(--color-primary-dark);
+  color: var(--color-white);
+}
+
+.crops-page__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-faint);
+  margin-top: var(--space-2);
+  letter-spacing: 0.03em;
+}
+
+.crops-page__grid {
+  margin-top: var(--space-4);
+}
+
+/* Pagination Controls */
+.crops-pagination {
+  margin-top: var(--space-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.crops-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.crops-pagination__btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  transform: translateY(-1px);
+}
+
+.crops-pagination__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.crops-pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crops-pagination__page-number {
+  min-width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crops-pagination__page-number:hover:not(.crops-pagination__page-number--active) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.crops-pagination__page-number--active {
+  background: #9F2089; /* Meesho-inspired accent badge for current active page */
+  border-color: #9F2089;
+  color: #FFFFFF;
+  box-shadow: 0 4px 10px rgba(159, 32, 137, 0.25);
+}
+
+@media (max-width: 640px) {
+  .crops-page {
+    padding-top: var(--space-8);
+  }
+
+  .crops-pagination {
+    gap: var(--space-2);
+  }
+
+  .crops-pagination__btn {
+    padding: 8px 14px;
+    font-size: var(--font-size-xs);
+  }
+
+  .crops-pagination__page-number {
+    min-width: 34px;
+    height: 34px;
+    font-size: var(--font-size-xs);
+  }
+}

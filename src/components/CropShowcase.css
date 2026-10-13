@@ -211,3 +211,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.crop-card__qty {
+  color: var(--color-primary-dark);
+  font-weight: var(--font-weight-semibold, 600);
+}

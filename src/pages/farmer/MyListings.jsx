@@ -4,9 +4,8 @@ import { useFarmerData } from '../../context/FarmerDataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import StatusBadge from '../../components/dashboard/StatusBadge';
 import EmptyState from '../../components/dashboard/EmptyState';
-import PhotoPlaceholder from '../../components/dashboard/PhotoPlaceholder';
+import ListingImage from '../../components/dashboard/ListingImage';
 import ListingDetailModal from '../../components/dashboard/ListingDetailModal';
-import { findImageCrop } from '../../data/crops';
 import '../../components/dashboard/dashboard-ui.css';
 import { IconField } from '../../components/dashboard/icons';
 
@@ -48,21 +47,9 @@ const MyListings = () => {
       ) : (
         <div className="listing-grid">
           {listings.map((listing) => {
-            const cropMatch = findImageCrop(listing.crop);
-            const photoUrl = listing.photos?.[0] || cropMatch?.image;
-
             return (
               <article key={listing.id} className="listing-card">
-                {photoUrl ? (
-                  <img
-                    src={photoUrl}
-                    alt={listing.crop}
-                    className="listing-card__photo"
-                    loading="lazy"
-                  />
-                ) : (
-                  <PhotoPlaceholder label={isKannada ? 'ಚಿತ್ರ ಲಭ್ಯವಿಲ್ಲ' : 'No photo yet'} />
-                )}
+                <ListingImage listing={listing} label={isKannada ? 'ಚಿತ್ರ ಲಭ್ಯವಿಲ್ಲ' : 'No photo yet'} />
                 <div className="listing-card__top">
                   <span className="listing-card__crop">{listing.crop || 'Produce'}</span>
                   <StatusBadge status={listing.status} />

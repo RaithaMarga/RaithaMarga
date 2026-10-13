@@ -3,7 +3,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_KEYS } from '../data/storageKeys';
 import { useAuth } from './useAuth';
 import { apiRequest } from '../lib/api';
-import { fromApiDeal, fromApiListing, fromApiRequirement } from '../lib/marketplace';
+import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings } from '../lib/marketplace';
 
 const BuyerDataContext = createContext(null);
 
@@ -22,6 +22,7 @@ export const BuyerDataProvider = ({ children }) => {
   const [requirementData, setRequirementData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [listingData, setListingData] = useState([]);
+  const [storedListings, setStoredListings] = useState(getStoredMarketplaceListings);
   const [dataOwner, setDataOwner] = useState(null);
   const [loadError, setLoadError] = useState('');
 
@@ -60,11 +61,29 @@ export const BuyerDataProvider = ({ children }) => {
     return () => { active = false; };
   }, [user, role]);
 
+  // Listings farmers published in this browser (shared local marketplace store).
+  // Refresh instantly when a farmer publishes, in this tab or another one.
+  useEffect(() => {
+    const refresh = () => setStoredListings(getStoredMarketplaceListings());
+    const onStorage = (e) => {
+      if (!e.key || e.key === STORAGE_KEYS.MARKETPLACE_LISTINGS) refresh();
+    };
+    window.addEventListener('raithamarga-listings-changed', refresh);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('raithamarga-listings-changed', refresh);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+
   const isCurrentOwner = dataOwner === user?.uid && role === 'buyer';
   const requirements = useMemo(() => isCurrentOwner ? requirementData : [], [isCurrentOwner, requirementData]);
   const requests = useMemo(() => isCurrentOwner ? requestData : [], [isCurrentOwner, requestData]);
-  const listings = useMemo(() => isCurrentOwner ? listingData : [], [isCurrentOwner, listingData]);
-  const dataError = isCurrentOwner ? loadError : '';
+  const listings = useMemo(
+    () => (role === 'buyer' ? mergeListings(isCurrentOwner ? listingData : [], storedListings) : []),
+    [role, isCurrentOwner, listingData, storedListings],
+  );
+  const dataError = isCurrentOwner && listings.length === 0 ? loadError : '';
   const dataLoading = Boolean(user && role === 'buyer' && !isCurrentOwner);
 
   const saveProfile = useCallback(async (data) => {

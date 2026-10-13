@@ -5,6 +5,7 @@ import Footer from '../components/Footer/Footer';
 import CropCard from '../components/CropCard';
 import { useLanguage } from '../context/LanguageContext';
 import { IMAGE_CROPS } from '../data/crops';
+import { useMarketplaceListings } from '../hooks/useMarketplaceListings';
 import './Crops.css';
 
 const ITEMS_PER_PAGE = 6;
@@ -12,6 +13,7 @@ const ITEMS_PER_PAGE = 6;
 const Crops = () => {
   const { t, language } = useLanguage();
   const copy = t.crops;
+  const listings = useMarketplaceListings();
 
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
@@ -132,7 +134,7 @@ const Crops = () => {
           {/* Grid */}
           <div className="crop-showcase__grid crops-page__grid">
             {paginatedCrops.map((crop) => (
-              <CropCard key={crop.id} crop={crop} copy={copy} />
+              <CropCard key={crop.id} crop={crop} copy={copy} listings={listings} />
             ))}
           </div>
 

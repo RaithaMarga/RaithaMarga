@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { IMAGE_CROPS } from '../data/crops';
 import CropCard from './CropCard';
+import { useMarketplaceListings } from '../hooks/useMarketplaceListings';
 import './CropShowcase.css';
 
 const HOME_CROP_LIMIT = 4;
@@ -9,6 +10,7 @@ const HOME_CROP_LIMIT = 4;
 const CropShowcase = () => {
   const { t } = useLanguage();
   const copy = t.crops;
+  const listings = useMarketplaceListings();
 
   const displayedCrops = IMAGE_CROPS.slice(0, HOME_CROP_LIMIT);
 
@@ -23,7 +25,7 @@ const CropShowcase = () => {
 
         <div className="crop-showcase__grid">
           {displayedCrops.map((crop) => (
-            <CropCard key={crop.id} crop={crop} copy={copy} />
+            <CropCard key={crop.id} crop={crop} copy={copy} listings={listings} />
           ))}
         </div>
 

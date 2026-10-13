@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../data/storageKeys';
+import { findImageCrop } from '../data/crops';
 
 export function fromApiListing(listing) {
   return {
@@ -155,7 +156,25 @@ export function saveStoredMarketplaceListing(newListing) {
   }
 }
 
-// Computes aggregate availability for a given crop name
+// Merge several listing arrays by id (earlier arrays win), newest first.
+export function mergeListings(...lists) {
+  const map = new Map();
+  lists.flat().forEach((item) => {
+    if (item && !map.has(item.id)) map.set(item.id, item);
+  });
+  return Array.from(map.values());
+}
+
+// Image for a listing. Crop images live in the frontend bundle only (src/assets/images),
+// they are looked up by crop name and are never sent to or stored by the backend.
+export function getListingImage(listing) {
+  return listing?.photos?.[0] || findImageCrop(listing?.crop)?.image || null;
+}
+
+const TO_KG = { kg: 1, quintal: 100, ton: 1000 };
+
+// Computes aggregate availability for a given crop name.
+// kg / quintal / ton are converted and summed as kg; other units (dozen, crate) are kept separate.
 export function getCropAvailability(cropName, listings = null) {
   if (!cropName) return null;
   const allListings = listings || getStoredMarketplaceListings();
@@ -169,17 +188,27 @@ export function getCropAvailability(cropName, listings = null) {
 
   if (!matching.length) return null;
 
-  const totalQuantity = matching.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
-  const unit = matching[0]?.unit || 'kg';
+  const byUnit = {};
+  matching.forEach((item) => {
+    const qty = Number(item.quantity) || 0;
+    const unit = String(item.unit || 'kg').toLowerCase();
+    const key = TO_KG[unit] ? 'kg' : unit;
+    byUnit[key] = (byUnit[key] || 0) + qty * (TO_KG[unit] || 1);
+  });
+  const totals = Object.entries(byUnit)
+    .map(([unit, quantity]) => ({ unit, quantity: Math.round(quantity * 100) / 100 }))
+    .filter((t) => t.quantity > 0)
+    .sort((a, b) => (a.unit === 'kg' ? -1 : b.unit === 'kg' ? 1 : 0));
+  if (!totals.length) return null;
+
   const prices = matching.map((m) => Number(m.expectedPrice ?? m.price ?? 0)).filter(Boolean);
-  const minPrice = prices.length ? Math.min(...prices) : null;
-  const latestLocation = matching[0]?.location || matching[0]?.district || '';
 
   return {
     count: matching.length,
-    totalQuantity,
-    unit,
-    minPrice,
-    location: latestLocation,
+    totals,
+    totalQuantity: totals[0].quantity,
+    unit: totals[0].unit,
+    minPrice: prices.length ? Math.min(...prices) : null,
+    location: matching[0]?.location || matching[0]?.district || '',
   };
 }

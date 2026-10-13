@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useBuyerData } from '../../context/BuyerDataContext';
 import StatusBadge from '../../components/dashboard/StatusBadge';
 import EmptyState from '../../components/dashboard/EmptyState';
-import PhotoPlaceholder from '../../components/dashboard/PhotoPlaceholder';
+import ListingImage from '../../components/dashboard/ListingImage';
 import ListingDetailModal from '../../components/dashboard/ListingDetailModal';
 import { IconBasket, IconSearch } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
@@ -161,11 +161,7 @@ const BrowseProduce = () => {
           <div className="listing-grid">
             {filtered.map((listing) => (
               <article key={listing.id} className="listing-card">
-                {listing.photos?.[0] ? (
-                  <img src={listing.photos[0]} alt={listing.crop} className="listing-card__photo" />
-                ) : (
-                  <PhotoPlaceholder />
-                )}
+                <ListingImage listing={listing} />
                 <div className="listing-card__top">
                   <span className="listing-card__crop">{listing.crop}</span>
                   <StatusBadge status={listing.status} />

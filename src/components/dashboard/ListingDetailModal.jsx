@@ -23,6 +23,7 @@ const ListingDetailModal = ({ listing, verificationStatus, onClose, actions }) =
   if (!listing) return null;
 
   const fields = [
+    ...(listing.farmerName ? [{ label: 'Farmer', value: listing.farmerName }] : []),
     { label: 'Quantity', value: `${listing.quantity || '\u2014'} ${listing.unit || ''}` },
     { label: 'Expected Price', value: `\u20B9${listing.expectedPrice || '\u2014'} / ${listing.unit || 'unit'}` },
     { label: 'Quality / Grade', value: listing.grade || 'Not specified' },

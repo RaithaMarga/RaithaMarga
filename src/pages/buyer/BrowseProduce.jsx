@@ -168,6 +168,7 @@ const BrowseProduce = () => {
                 </div>
                 {listing.grade ? <span className="listing-card__grade">{listing.grade}</span> : null}
                 <div className="listing-card__meta">
+                  {listing.farmerName ? <span>Farmer: <strong>{listing.farmerName}</strong></span> : null}
                   <span><strong>{listing.quantity} {listing.unit}</strong> available</span>
                   <span>Price: <strong>{'\u20B9'}{listing.expectedPrice}</strong> / {listing.unit}</span>
                   <span>{listing.location || 'Location not set'}</span>

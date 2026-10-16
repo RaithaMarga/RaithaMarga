@@ -20,4 +20,10 @@ export const adminApi = {
   listings: () => apiRequest('/admin/listings'),
   deals: () => apiRequest('/admin/deals'),
   auditLogs: () => apiRequest('/admin/audit-logs'),
+  // Farmers added by the team (name + phone, no email / login).
+  farmers: () => apiRequest('/admin/farmers'),
+  createFarmer: (body) => apiRequest('/admin/farmers', { method: 'POST', body: JSON.stringify(body) }),
+  removeFarmer: (id) => apiRequest(`/admin/farmers/${encodeURIComponent(id)}/remove`, { method: 'POST' }),
+  // Admins can move deals that belong to team-added farmers (those farmers have no login).
+  updateDealStatus: (id, status) => patch(`/deals/${encodeURIComponent(id)}/status`, { status }),
 };

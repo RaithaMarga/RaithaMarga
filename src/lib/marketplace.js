@@ -168,6 +168,7 @@ export function mergeListings(...lists) {
 // Image for a listing. Crop images live in the frontend bundle only (src/assets/images),
 // they are looked up by crop name and are never sent to or stored by the backend.
 export function getListingImage(listing) {
+  if (listing?.managed) return findImageCrop(listing.crop)?.image || null;
   return listing?.photos?.[0] || findImageCrop(listing?.crop)?.image || null;
 }
 
@@ -178,11 +179,14 @@ const TO_KG = { kg: 1, quintal: 100, ton: 1000 };
 export function getCropAvailability(cropName, listings = null) {
   if (!cropName) return null;
   const allListings = listings || getStoredMarketplaceListings();
-  const cleanTarget = String(cropName).replace(/\s*\([^)]*\)/g, '').trim().toLowerCase();
+  const targetImageCrop = findImageCrop(cropName);
+  const cleanTarget = String(cropName).replace(/\s*\([^)]*\)/g, '').trim().toLowerCase().replace(/[\s_]+/g, ' ');
 
   const matching = allListings.filter((l) => {
     if (l.status && l.status !== 'active') return false;
-    const lCrop = String(l.crop || '').replace(/\s*\([^)]*\)/g, '').trim().toLowerCase();
+    const listingImageCrop = findImageCrop(l.crop);
+    const lCrop = String(l.crop || '').replace(/\s*\([^)]*\)/g, '').trim().toLowerCase().replace(/[\s_]+/g, ' ');
+    if (targetImageCrop && listingImageCrop) return targetImageCrop.id === listingImageCrop.id;
     return lCrop === cleanTarget || lCrop.replace(/-/g, ' ') === cleanTarget.replace(/-/g, ' ');
   });
 

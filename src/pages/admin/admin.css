@@ -8,6 +8,7 @@
 .admin-table tr:last-child td { border-bottom: 0; }
 .admin-table__sub { display: block; color: var(--color-ink-faint); font-size: var(--font-size-xs); margin-top: 2px; }
 .admin-table__mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); }
+.admin-listing-crop-image { display: block; width: 72px; height: 48px; margin-bottom: 6px; border-radius: var(--radius-sm); object-fit: cover; }
 .admin-table__actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
 .admin-note { color: var(--color-ink-soft); font-style: italic; }
 .admin-deals-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }

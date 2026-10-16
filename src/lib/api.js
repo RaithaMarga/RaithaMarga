@@ -43,3 +43,10 @@ export async function apiRequest(path, options = {}) {
 
   return data;
 }
+
+/** Unauthenticated GET for public endpoints (e.g. availability on the home page). */
+export async function publicRequest(path) {
+  const response = await fetch(`${API_BASE_URL}/api${path}`);
+  if (!response.ok) throw new Error(`Request failed (${response.status}).`);
+  return response.json();
+}

@@ -3,7 +3,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { STORAGE_KEYS } from '../data/storageKeys';
 import { useAuth } from './useAuth';
 import { apiRequest } from '../lib/api';
-import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings } from '../lib/marketplace';
+import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings, isLocalListing, isLocalDeal, createLocalDeal, updateLocalDealStatus } from '../lib/marketplace';
+import { useStoredDeals } from '../hooks/useStoredDeals';
 
 const BuyerDataContext = createContext(null);
 
@@ -22,6 +23,7 @@ export const BuyerDataProvider = ({ children }) => {
   const [requirementData, setRequirementData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [listingData, setListingData] = useState([]);
+  const storedDeals = useStoredDeals();
   const [storedListings, setStoredListings] = useState(getStoredMarketplaceListings);
   const [dataOwner, setDataOwner] = useState(null);
   const [loadError, setLoadError] = useState('');
@@ -78,7 +80,12 @@ export const BuyerDataProvider = ({ children }) => {
 
   const isCurrentOwner = dataOwner === user?.uid && role === 'buyer';
   const requirements = useMemo(() => isCurrentOwner ? requirementData : [], [isCurrentOwner, requirementData]);
-  const requests = useMemo(() => isCurrentOwner ? requestData : [], [isCurrentOwner, requestData]);
+  const requests = useMemo(() => {
+    const local = storedDeals
+      .filter((deal) => deal.buyerId === user?.uid)
+      .map(fromApiDeal);
+    return [...local, ...(isCurrentOwner ? requestData : [])];
+  }, [isCurrentOwner, requestData, storedDeals, user?.uid]);
   const listings = useMemo(
     () => (role === 'buyer' ? mergeListings(isCurrentOwner ? listingData : [], storedListings) : []),
     [role, isCurrentOwner, listingData, storedListings],
@@ -121,6 +128,10 @@ export const BuyerDataProvider = ({ children }) => {
   }, [profile.location]);
 
   const expressInterest = useCallback(async (listing, requestedQuantity = listing.quantity) => {
+    // Local-only listing: the backend doesn't know it, so open the deal locally.
+    if (isLocalListing(listing)) {
+      return fromApiDeal(createLocalDeal(listing, requestedQuantity, user?.uid));
+    }
     const created = await apiRequest('/deals', {
       method: 'POST',
       body: JSON.stringify({
@@ -140,9 +151,13 @@ export const BuyerDataProvider = ({ children }) => {
       location: listing.location,
     }, ...previous]);
     return deal;
-  }, []);
+  }, [user?.uid]);
 
   const cancelRequest = useCallback(async (dealId) => {
+    if (isLocalDeal(dealId)) {
+      updateLocalDealStatus(dealId, 'CANCELLED');
+      return;
+    }
     const updated = await apiRequest(`/deals/${dealId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status: 'CANCELLED' }),

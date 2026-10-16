@@ -212,3 +212,75 @@ export function getCropAvailability(cropName, listings = null) {
     location: matching[0]?.location || matching[0]?.district || '',
   };
 }
+
+// ---------------------------------------------------------------------------
+// Local deals: listings that only exist in this browser (demo/seed listings, or ones the
+// farmer saved locally because the backend was unreachable) are unknown to the backend, so
+// "I'm Interested" on them is handled here instead of via POST /deals.
+// ---------------------------------------------------------------------------
+export const isLocalListing = (listingOrId) => {
+  const id = typeof listingOrId === 'object' ? listingOrId?.id : listingOrId;
+  return String(id || '').startsWith('listing-');
+};
+export const isLocalDeal = (dealOrId) => {
+  const id = typeof dealOrId === 'object' ? dealOrId?.id : dealOrId;
+  return String(id || '').startsWith('deal-local-');
+};
+
+export function getStoredDeals() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.BUYER_DEALS) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredDeals(deals) {
+  localStorage.setItem(STORAGE_KEYS.BUYER_DEALS, JSON.stringify(deals));
+  window.dispatchEvent(new Event('raithamarga-deals-changed'));
+}
+
+function adjustStoredListingQuantity(listingId, delta) {
+  const current = getStoredMarketplaceListings();
+  const updated = current.map((item) => {
+    if (item.id !== listingId) return item;
+    const quantity = Math.max(0, Number(item.quantity || 0) + delta);
+    const status = quantity === 0 ? 'sold' : (item.status === 'sold' ? 'active' : item.status);
+    return { ...item, quantity, status };
+  });
+  localStorage.setItem(STORAGE_KEYS.MARKETPLACE_LISTINGS, JSON.stringify(updated));
+  window.dispatchEvent(new Event('raithamarga-listings-changed'));
+}
+
+export function createLocalDeal(listing, quantity, buyerId) {
+  const qty = Math.min(Number(quantity) || 0, Number(listing.quantity) || 0);
+  if (qty <= 0) throw new Error('This listing has no quantity left.');
+  const deal = {
+    id: `deal-local-${Date.now()}`,
+    listingId: listing.id,
+    buyerId,
+    farmerId: listing.farmerId,
+    quantity: qty,
+    price: Number(listing.expectedPrice ?? listing.price),
+    status: 'INTERESTED',
+    crop: listing.crop,
+    unit: listing.unit,
+    location: listing.location,
+    createdAt: new Date().toISOString(),
+  };
+  writeStoredDeals([deal, ...getStoredDeals()]);
+  adjustStoredListingQuantity(listing.id, -qty);
+  return deal;
+}
+
+export function updateLocalDealStatus(dealId, status) {
+  const deals = getStoredDeals();
+  const deal = deals.find((d) => d.id === dealId);
+  if (!deal) throw new Error('Deal was not found.');
+  const wasOpen = !['CANCELLED', 'FAILED'].includes(String(deal.status).toUpperCase());
+  writeStoredDeals(deals.map((d) => (d.id === dealId ? { ...d, status } : d)));
+  // Cancelling gives the quantity back to the listing (and to the home page totals).
+  if (status === 'CANCELLED' && wasOpen) adjustStoredListingQuantity(deal.listingId, Number(deal.quantity) || 0);
+  return { ...deal, status };
+}

@@ -138,6 +138,9 @@ const AdminAddFarmer = () => {
         </div>
 
         <h2 style={{ fontSize: 'var(--font-size-lg)' }}>Produce to list <span className="admin-table__sub" style={{ display: 'inline' }}>(optional)</span></h2>
+        <p className="dash-panel__intro">
+          Farmer details are saved for the team. To make this farmer visible to buyers, add their crop, quantity, and price here; buyers see the produce and farmer name, never the phone number.
+        </p>
         <div className="dash-form__row">
           <div className={`dash-field${errors.crop ? ' dash-field--error' : ''}`}>
             <label htmlFor="af-crop">Crop</label>

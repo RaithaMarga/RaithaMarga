@@ -77,6 +77,7 @@ const RecommendedMatches = () => {
               <article key={match.id} className="dash-panel">
                 <ListingImage listing={match.listing} />
                 <h3>{match.listing.crop} · {match.listing.availableQuantity} {match.listing.unit} available</h3>
+                {match.listing.farmerName ? <p>Farmer: <strong>{match.listing.farmerName}</strong></p> : null}
                 <p>Location: {match.listing.location} · Asking ₹{match.listing.expectedPrice} / {match.listing.unit}</p>
                 <p>Your requirement: {match.requirement.quantity} {match.requirement.unit} · target ₹{match.requirement.targetPrice}</p>
                 <p>Match score: {match.score}%</p>

@@ -1,15 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import EmptyState from '../../components/dashboard/EmptyState';
 import { CROP_SUGGESTIONS } from '../../data/crops';
 import { WHATSAPP_DISPLAY } from '../../config/whatsapp';
-import { useMarketplaceListings } from '../../hooks/useMarketplaceListings';
-import {
-  addAssistedListing,
-  getAssistedFarmers,
-  normalizePhone,
-  removeAssistedFarmer,
-  saveAssistedFarmer,
-} from '../../lib/assistedFarmers';
+import { adminApi } from '../../lib/adminApi';
+import { useAdminResource } from '../../hooks/useAdminResource';
 import { formatDateTime } from './adminFormat';
 import '../../components/dashboard/dashboard-ui.css';
 
@@ -21,24 +15,15 @@ const EMPTY = {
   crop: '', quantity: '', unit: 'kg', price: '', grade: '', availabilityDate: '',
 };
 
+const phoneDigits = (value) => String(value || '').replace(/\D/g, '').slice(-10);
+
 const AdminAddFarmer = () => {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [farmers, setFarmers] = useState(getAssistedFarmers);
-  const listings = useMarketplaceListings();
-
-  useEffect(() => {
-    const refresh = () => setFarmers(getAssistedFarmers());
-    window.addEventListener('raithamarga-assisted-farmers-changed', refresh);
-    return () => window.removeEventListener('raithamarga-assisted-farmers-changed', refresh);
-  }, []);
-
-  const listingCount = useMemo(() => {
-    const counts = {};
-    listings.forEach((l) => { counts[l.farmerId] = (counts[l.farmerId] || 0) + 1; });
-    return counts;
-  }, [listings]);
+  const [saving, setSaving] = useState(false);
+  const { data, loading, error, reload } = useAdminResource(adminApi.farmers);
+  const farmers = data || [];
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   const hasProduce = Boolean(form.crop.trim() || form.quantity || form.price);
@@ -47,7 +32,8 @@ const AdminAddFarmer = () => {
     const next = {};
     if (!form.name.trim()) next.name = 'Farmer name is required.';
     if (!form.phone.trim()) next.phone = 'Phone number is required.';
-    else if (normalizePhone(form.phone).length !== 10) next.phone = 'Enter a valid 10-digit mobile number.';
+    else if (phoneDigits(form.phone).length !== 10) next.phone = 'Enter a valid 10-digit mobile number.';
+    if (!form.district.trim()) next.district = 'District is required.';
     if (hasProduce) {
       if (!form.crop.trim()) next.crop = 'Enter the crop.';
       if (!(Number(form.quantity) > 0)) next.quantity = 'Enter the quantity.';
@@ -56,7 +42,7 @@ const AdminAddFarmer = () => {
     return next;
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     const found = validate();
     setErrors(found);
@@ -64,25 +50,56 @@ const AdminAddFarmer = () => {
       setMessage({ type: 'error', text: 'Please fix the highlighted fields.' });
       return;
     }
-    const { farmer, isNew } = saveAssistedFarmer(form);
-    if (hasProduce) addAssistedListing(farmer, form);
-    setMessage({
-      type: 'success',
-      text: `${farmer.name} ${isNew ? 'was added' : 'was updated'}${hasProduce ? ' and the produce is now live in the marketplace.' : '.'}`,
-    });
-    setForm(EMPTY);
+    const body = {
+      fullName: form.name.trim(),
+      phone: form.phone.trim(),
+      village: form.village.trim() || null,
+      taluk: form.taluk.trim() || null,
+      district: form.district.trim(),
+      notes: form.notes.trim() || null,
+      produce: hasProduce
+        ? {
+            crop: form.crop.trim(),
+            quantity: Number(form.quantity),
+            unit: form.unit,
+            grade: form.grade ? form.grade.replace(/^Grade\s*/i, '') : null,
+            price: Number(form.price),
+            availabilityDate: form.availabilityDate || null,
+          }
+        : null,
+    };
+    setSaving(true);
+    try {
+      const result = await adminApi.createFarmer(body);
+      setMessage({
+        type: 'success',
+        text: `${result.farmer.name} ${result.created ? 'was added' : 'was updated'}${result.listing ? ' and the produce is now live in the marketplace.' : '.'}`,
+      });
+      setForm(EMPTY);
+      reload();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message || 'Could not save the farmer.' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const fillFor = (farmer) => {
-    setForm({ ...EMPTY, name: farmer.name, phone: farmer.phone, village: farmer.village, taluk: farmer.taluk, district: farmer.district });
+    setForm({ ...EMPTY, name: farmer.name, phone: farmer.phone, village: farmer.village || '', taluk: farmer.taluk || '', district: farmer.district || '' });
     setErrors({});
     setMessage({ type: 'success', text: `Adding more produce for ${farmer.name}. Fill in the crop details below.` });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const remove = (farmer) => {
-    if (!window.confirm(`Remove ${farmer.name} and all produce listed for them?`)) return;
-    removeAssistedFarmer(farmer.id);
+  const remove = async (farmer) => {
+    if (!window.confirm(`Remove ${farmer.name} and take their produce off the marketplace?`)) return;
+    try {
+      await adminApi.removeFarmer(farmer.id);
+      setMessage({ type: 'success', text: `${farmer.name} was removed.` });
+      reload();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message || 'Could not remove the farmer.' });
+    }
   };
 
   const field = (name, label, props = {}, required = false) => (
@@ -117,7 +134,7 @@ const AdminAddFarmer = () => {
         <div className="dash-form__row">
           {field('village', 'Village', { placeholder: 'Village' })}
           {field('taluk', 'Taluk', { placeholder: 'Taluk' })}
-          {field('district', 'District', { placeholder: 'District' })}
+          {field('district', 'District', { placeholder: 'District' }, true)}
         </div>
 
         <h2 style={{ fontSize: 'var(--font-size-lg)' }}>Produce to list <span className="admin-table__sub" style={{ display: 'inline' }}>(optional)</span></h2>
@@ -152,13 +169,19 @@ const AdminAddFarmer = () => {
         </div>
 
         <div>
-          <button type="submit" className="btn btn--primary">{hasProduce ? 'Save farmer & list produce' : 'Save farmer'}</button>
+          <button type="submit" className="btn btn--primary" disabled={saving}>
+            {saving ? 'Saving…' : hasProduce ? 'Save farmer & list produce' : 'Save farmer'}
+          </button>
         </div>
       </form>
 
       <div className="dash-panel">
         <h2 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-3)' }}>Farmers added by the team</h2>
-        {farmers.length === 0 ? (
+        {error ? (
+          <div className="dash-banner dash-banner--error">{error}</div>
+        ) : loading ? (
+          <p>Loading…</p>
+        ) : farmers.length === 0 ? (
           <EmptyState icon="+" title="No farmers added yet" description="Farmers you add from WhatsApp messages will appear here." />
         ) : (
           <div className="admin-table-wrap">
@@ -168,7 +191,7 @@ const AdminAddFarmer = () => {
               </thead>
               <tbody>
                 {farmers.map((f) => {
-                  const digits = normalizePhone(f.phone);
+                  const digits = phoneDigits(f.phone);
                   return (
                     <tr key={f.id}>
                       <td><strong>{f.name}</strong>{f.notes ? <span className="admin-table__sub">{f.notes}</span> : null}</td>
@@ -179,7 +202,7 @@ const AdminAddFarmer = () => {
                         </span>
                       </td>
                       <td>{[f.village, f.taluk, f.district].filter(Boolean).join(', ') || '—'}</td>
-                      <td>{listingCount[f.id] || 0}</td>
+                      <td>{f.listingCount || 0}</td>
                       <td>{formatDateTime(f.createdAt)}</td>
                       <td>
                         <div className="admin-table__actions">
@@ -194,9 +217,6 @@ const AdminAddFarmer = () => {
             </table>
           </div>
         )}
-        <p className="admin-table__sub" style={{ marginTop: 'var(--space-3)' }}>
-          Saved in this browser for now. Listed produce appears on the home page and in the buyer dashboard here.
-        </p>
       </div>
     </div>
   );

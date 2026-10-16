@@ -77,15 +77,16 @@ const AdminUsers = () => {
               <tbody>
                 {rows.map((row) => {
                   const protectedRow = row.role === 'ADMIN' || row.uid === user?.uid;
+                  const managed = Boolean(row.managed);
                   return (
                     <tr key={row.uid}>
-                      <td><strong>{row.name || '—'}</strong><span className="admin-table__sub">{row.email}</span></td>
+                      <td><strong>{row.name || '—'}</strong><span className="admin-table__sub">{managed ? `${row.phone || ''} · Added by team` : row.email}</span></td>
                       <td>{titleCase(row.role)}</td>
                       <td><StatusBadge status={String(row.status || 'ACTIVE').toLowerCase() === 'active' ? 'active' : 'disabled'} /></td>
                       <td>{formatDateTime(row.createdAt)}</td>
                       <td>
                         <div className="admin-table__actions">
-                          {protectedRow ? <span className="admin-table__sub">Protected</span> : row.status === 'DISABLED' ? (
+                          {managed ? <span className="admin-table__sub">Managed by team</span> : protectedRow ? <span className="admin-table__sub">Protected</span> : row.status === 'DISABLED' ? (
                             <button type="button" className="btn btn--sm btn--primary" disabled={busyUid === row.uid}
                               onClick={() => changeStatus(row, 'ACTIVE')}>Enable</button>
                           ) : (

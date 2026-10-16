@@ -34,16 +34,40 @@ const ListingsTable = () => {
   );
 };
 
+const NEXT_STATUSES = {
+  INTERESTED: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['IN_PROGRESS', 'CANCELLED'],
+  IN_PROGRESS: ['COMPLETED', 'FAILED'],
+};
+const LABELS = { CONFIRMED: 'Confirm', IN_PROGRESS: 'Start', COMPLETED: 'Complete', CANCELLED: 'Cancel', FAILED: 'Mark failed' };
+
 const DealsTable = () => {
-  const { data, loading, error } = useAdminResource(adminApi.deals);
+  const { data, loading, error, reload } = useAdminResource(adminApi.deals);
+  const [busy, setBusy] = useState('');
+  const [actionError, setActionError] = useState('');
+
+  // Only works for deals whose farmer was added by the team (they have no login); the server enforces this.
+  const move = async (id, status) => {
+    setBusy(id);
+    setActionError('');
+    try {
+      await adminApi.updateDealStatus(id, status);
+      reload();
+    } catch (err) {
+      setActionError(err.message || 'Could not update the deal.');
+    } finally {
+      setBusy('');
+    }
+  };
   const rows = data || [];
   if (error) return <div className="dash-banner dash-banner--error">{error}</div>;
   if (loading) return <p>Loading…</p>;
   if (rows.length === 0) return <EmptyState icon="⚖" title="No deals yet" description="Deals appear when buyers show interest in listings." />;
   return (
     <div className="admin-table-wrap">
+      {actionError ? <div className="dash-banner dash-banner--error">{actionError}</div> : null}
       <table className="admin-table">
-        <thead><tr><th>Deal</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Buyer</th><th>Created</th><th>Status</th></tr></thead>
+        <thead><tr><th>Deal</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Buyer</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
@@ -54,6 +78,15 @@ const DealsTable = () => {
               <td className="admin-table__mono">{shortId(row.buyerId)}</td>
               <td>{formatDateTime(row.createdAt)}</td>
               <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
+              <td>
+                <div className="admin-table__actions">
+                  {(NEXT_STATUSES[row.status] || []).map((next) => (
+                    <button key={next} type="button" className="btn btn--sm btn--outline" disabled={busy === row.id} onClick={() => move(row.id, next)}>
+                      {LABELS[next]}
+                    </button>
+                  ))}
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -69,7 +102,7 @@ const AdminMarketplace = () => {
       <div className="dash-page__header">
         <div>
           <h1 className="dash-page__title">Marketplace</h1>
-          <p className="dash-page__subtitle">Read-only view of the latest 200 listings and deals.</p>
+          <p className="dash-page__subtitle">The latest 200 listings and deals. Deal actions work for farmers added by the team.</p>
         </div>
       </div>
       <div className="admin-toolbar">

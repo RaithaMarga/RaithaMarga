@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../../context/useAuth';
+import { useStoredDeals } from '../../hooks/useStoredDeals';
+import { useMarketplaceListings } from '../../hooks/useMarketplaceListings';
 import { apiRequest } from '../../lib/api';
-import { fromApiDeal, fromApiListing } from '../../lib/marketplace';
+import { fromApiDeal, fromApiListing, isLocalDeal, updateLocalDealStatus } from '../../lib/marketplace';
 import EmptyState from './EmptyState';
 import { IconScale } from './icons';
 import './dashboard-ui.css';
@@ -31,6 +34,20 @@ export default function MarketplaceDeals({ role }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingId, setSavingId] = useState('');
+  const { user } = useAuth();
+  const storedDeals = useStoredDeals();
+  const allListings = useMarketplaceListings();
+
+  // Deals on local-only listings (created in this browser) belong to this buyer / this farmer.
+  const localDeals = useMemo(() => {
+    const byId = new Map(allListings.map((l) => [l.id, l]));
+    return storedDeals
+      .filter((d) => (role === 'farmer'
+        ? d.farmerId === user?.uid || d.farmerId === 'farmer-local'
+        : d.buyerId === user?.uid))
+      .map((d) => ({ ...fromApiDeal(d), listing: byId.get(d.listingId) || { crop: d.crop, unit: d.unit } }));
+  }, [storedDeals, allListings, role, user?.uid]);
+  const visibleDeals = useMemo(() => [...localDeals, ...deals], [localDeals, deals]);
 
   const loadDeals = useCallback(async () => {
     try {
@@ -71,6 +88,10 @@ export default function MarketplaceDeals({ role }) {
     setError('');
     setSavingId(dealId);
     try {
+      if (isLocalDeal(dealId)) {
+        updateLocalDealStatus(dealId, status);
+        return;
+      }
       await apiRequest(`/deals/${dealId}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status }),
@@ -97,7 +118,7 @@ export default function MarketplaceDeals({ role }) {
       {error && <div className="dash-banner dash-banner--error" role="alert">{error}</div>}
       {loading ? (
         <div className="dash-panel" role="status">Loading deals…</div>
-      ) : deals.length === 0 ? (
+      ) : visibleDeals.length === 0 ? (
         <div className="dash-panel">
           <EmptyState
             icon={<IconScale />}
@@ -107,7 +128,7 @@ export default function MarketplaceDeals({ role }) {
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
-          {deals.map((deal) => {
+          {visibleDeals.map((deal) => {
             const action = actionMap[deal.status];
             return (
               <article key={deal.id} className="dash-panel">

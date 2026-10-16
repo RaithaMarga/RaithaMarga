@@ -28,6 +28,7 @@ import AdminShell from './pages/admin/AdminShell';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminVerifications from './pages/admin/AdminVerifications';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminAddFarmer from './pages/admin/AdminAddFarmer';
 import AdminMarketplace from './pages/admin/AdminMarketplace';
 import AdminAudit from './pages/admin/AdminAudit';
 
@@ -99,6 +100,7 @@ function App() {
               <Route index element={<AdminOverview />} />
               <Route path="verifications" element={<AdminVerifications />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="farmers" element={<AdminAddFarmer />} />
               <Route path="marketplace" element={<AdminMarketplace />} />
               <Route path="audit" element={<AdminAudit />} />
             </Route>

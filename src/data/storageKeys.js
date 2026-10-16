@@ -4,4 +4,5 @@ export const STORAGE_KEYS = {
   BUYER_PROFILE: 'raithamarga.buyerProfile',
   MARKETPLACE_LISTINGS: 'raithamarga.marketplaceListings',
   BUYER_DEALS: 'raithamarga.buyerDeals',
+  ASSISTED_FARMERS: 'raithamarga.assistedFarmers',
 };

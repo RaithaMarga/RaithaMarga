@@ -143,6 +143,7 @@ const AdminAddFarmer = () => {
             <label htmlFor="af-crop">Crop</label>
             <input id="af-crop" list="af-crops" value={form.crop} onChange={set('crop')} placeholder="e.g. Tomato" />
             <datalist id="af-crops">{CROP_SUGGESTIONS.map((c) => <option key={c} value={c} />)}</datalist>
+            <span className="admin-table__sub">Choose a crop from the suggestions for the best matching produce picture.</span>
             {errors.crop && <span className="dash-field__error">{errors.crop}</span>}
           </div>
           {field('quantity', 'Quantity available', { type: 'number', min: '0', step: '0.1', placeholder: 'e.g. 500' })}
@@ -203,7 +204,7 @@ const AdminAddFarmer = () => {
                       </td>
                       <td>{[f.village, f.taluk, f.district].filter(Boolean).join(', ') || '—'}</td>
                       <td>{f.listingCount || 0}</td>
-                      <td>{formatDateTime(f.createdAt)}</td>
+                      <td>Added by {f.createdByName || 'team'} on {formatDateTime(f.createdAt)}</td>
                       <td>
                         <div className="admin-table__actions">
                           <button type="button" className="btn btn--sm btn--outline" onClick={() => fillFor(f)}>Add produce</button>

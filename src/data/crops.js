@@ -53,16 +53,21 @@ export const IMAGE_CROPS = [
 }));
 
 const normalizeCropName = (name) =>
-  name.trim().toLowerCase().replace(/[\s_]+/g, '-');
+  String(name)
+    .replace(/\s*\([^)]*\)/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-');
 
 export const findImageCrop = (name) => {
   if (!name) return null;
-  const cleanName = String(name).replace(/\s*\([^)]*\)/g, '').trim();
-  const normalizedName = normalizeCropName(cleanName);
+  const normalizedName = normalizeCropName(name);
+  const names = new Set([normalizedName]);
+  if (normalizedName.endsWith('ies')) names.add(`${normalizedName.slice(0, -3)}y`);
+  if (normalizedName.endsWith('es')) names.add(normalizedName.slice(0, -2));
+  if (normalizedName.endsWith('s')) names.add(normalizedName.slice(0, -1));
   return IMAGE_CROPS.find(
-    (crop) =>
-      crop.id === normalizedName ||
-      normalizeCropName(crop.name) === normalizedName,
+    (crop) => names.has(crop.id) || names.has(normalizeCropName(crop.name)),
   ) ?? null;
 };
 

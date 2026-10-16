@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import EmptyState from '../../components/dashboard/EmptyState';
+import ListingImage from '../../components/dashboard/ListingImage';
 import StatusBadge from '../../components/dashboard/StatusBadge';
 import { adminApi } from '../../lib/adminApi';
 import { useAdminResource } from '../../hooks/useAdminResource';
@@ -19,12 +21,12 @@ const ListingsTable = () => {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td><strong>{row.crop}</strong>{row.grade ? <span className="admin-table__sub">Grade {row.grade}</span> : null}</td>
+              <td><ListingImage listing={row} className="admin-listing-crop-image" /><strong>{row.crop}</strong>{row.grade ? <span className="admin-table__sub">Grade {row.grade}</span> : null}</td>
               <td>{row.availableQuantity ?? row.quantity} {row.unit}</td>
               <td>₹{row.price} / {row.unit}</td>
               <td>{[row.village, row.taluk, row.district].filter(Boolean).join(', ') || '—'}</td>
               <td>{row.availabilityDate || '—'}</td>
-              <td className="admin-table__mono">{shortId(row.farmerId)}</td>
+              <td>{row.farmerName || shortId(row.farmerId)}</td>
               <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
             </tr>
           ))}
@@ -45,6 +47,8 @@ const DealsTable = () => {
   const { data, loading, error, reload } = useAdminResource(adminApi.deals);
   const [busy, setBusy] = useState('');
   const [actionError, setActionError] = useState('');
+  const [needsAction, setNeedsAction] = useState(false);
+  const [managedOnly, setManagedOnly] = useState(false);
 
   // Only works for deals whose farmer was added by the team (they have no login); the server enforces this.
   const move = async (id, status) => {
@@ -59,28 +63,38 @@ const DealsTable = () => {
       setBusy('');
     }
   };
-  const rows = data || [];
+  const rows = (data || []).filter((row) =>
+    (!needsAction || ['INTERESTED', 'CONFIRMED', 'IN_PROGRESS'].includes(row.status))
+      && (!managedOnly || row.managed),
+  );
   if (error) return <div className="dash-banner dash-banner--error">{error}</div>;
   if (loading) return <p>Loading…</p>;
-  if (rows.length === 0) return <EmptyState icon="⚖" title="No deals yet" description="Deals appear when buyers show interest in listings." />;
+  if ((data || []).length === 0) return <EmptyState icon="⚖" title="No deals yet" description="Deals appear when buyers show interest in listings." />;
   return (
     <div className="admin-table-wrap">
+      <div className="admin-toolbar" style={{ marginBottom: 'var(--space-4)' }}>
+        <label><input type="checkbox" checked={needsAction} onChange={(event) => setNeedsAction(event.target.checked)} /> Needs action</label>
+        <label><input type="checkbox" checked={managedOnly} onChange={(event) => setManagedOnly(event.target.checked)} /> Team-added farmers only</label>
+      </div>
+      {rows.length === 0 ? <EmptyState icon="⚖" title="No matching deals" description="Try changing or clearing the deal filters." /> : null}
       {actionError ? <div className="dash-banner dash-banner--error">{actionError}</div> : null}
-      <table className="admin-table">
-        <thead><tr><th>Deal</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Buyer</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead>
+      {rows.length > 0 ? <table className="admin-table">
+        <thead><tr><th>Crop</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Farmer phone</th><th>Buyer</th><th>Buyer contact</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td className="admin-table__mono">{shortId(row.id)}</td>
-              <td>{row.quantity}</td>
-              <td>₹{row.price}</td>
-              <td className="admin-table__mono">{shortId(row.farmerId)}</td>
-              <td className="admin-table__mono">{shortId(row.buyerId)}</td>
+              <td><strong>{row.crop || 'Produce'}</strong><span className="admin-table__sub">{shortId(row.id)}</span></td>
+              <td>{row.quantity} {row.unit}</td>
+              <td>₹{row.price} / {row.unit}</td>
+              <td>{row.farmerName || shortId(row.farmerId)}</td>
+              <td>{row.managed ? row.farmerPhone || '—' : '—'}</td>
+              <td>{row.buyerName || shortId(row.buyerId)}</td>
+              <td>{row.buyerContact || '—'}</td>
               <td>{formatDateTime(row.createdAt)}</td>
               <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
               <td>
                 <div className="admin-table__actions">
-                  {(NEXT_STATUSES[row.status] || []).map((next) => (
+                  {(row.managed ? NEXT_STATUSES[row.status] || [] : []).map((next) => (
                     <button key={next} type="button" className="btn btn--sm btn--outline" disabled={busy === row.id} onClick={() => move(row.id, next)}>
                       {LABELS[next]}
                     </button>
@@ -91,12 +105,14 @@ const DealsTable = () => {
           ))}
         </tbody>
       </table>
+        : null}
     </div>
   );
 };
 
 const AdminMarketplace = () => {
-  const [tab, setTab] = useState('listings');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get('tab') === 'deals' ? 'deals' : 'listings';
   return (
     <div className="dash-page">
       <div className="dash-page__header">
@@ -107,8 +123,8 @@ const AdminMarketplace = () => {
       </div>
       <div className="admin-toolbar">
         <div className="admin-toolbar__group">
-          <button type="button" className={`btn btn--sm ${tab === 'listings' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setTab('listings')}>Listings</button>
-          <button type="button" className={`btn btn--sm ${tab === 'deals' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setTab('deals')}>Deals</button>
+          <button type="button" className={`btn btn--sm ${tab === 'listings' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setSearchParams({ tab: 'listings' })}>Listings</button>
+          <button type="button" className={`btn btn--sm ${tab === 'deals' ? 'btn--primary' : 'btn--outline'}`} onClick={() => setSearchParams({ tab: 'deals' })}>Deals</button>
         </div>
       </div>
       <div className="dash-panel">{tab === 'listings' ? <ListingsTable /> : <DealsTable />}</div>

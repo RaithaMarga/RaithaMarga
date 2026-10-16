@@ -34,6 +34,7 @@ const AdminOverview = () => {
             <StatCard icon={<IconHandshake />} label="Buyers" value={data.totalBuyers} accent="gold" />
             <StatCard icon={<IconField />} label="Active listings" value={data.activeListings} accent="primary" />
             <StatCard icon={<IconBasket />} label="Active requirements" value={data.activeRequirements} accent="gold" />
+            <StatCard icon={<IconHandshake />} label="New interest requests" value={data.managedInterestCount ?? 0} accent="tomato" />
           </div>
 
           {pending > 0 ? (
@@ -42,6 +43,31 @@ const AdminOverview = () => {
               <Link to="/admin/dashboard/verifications">Open the verification queue →</Link>
             </div>
           ) : null}
+
+          <div className="dash-panel" style={{ marginTop: 'var(--space-5)' }}>
+            <h2 className="dash-panel__heading">New interest requests</h2>
+            {(data.newInterestRequests || []).length ? (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead><tr><th>Crop</th><th>Quantity</th><th>Buyer</th><th>Farmer</th><th>Date</th></tr></thead>
+                  <tbody>
+                    {data.newInterestRequests.map((deal) => (
+                      <tr key={deal.id}>
+                        <td>{deal.crop}</td>
+                        <td>{deal.quantity} {deal.unit}</td>
+                        <td>{deal.buyerName || 'Buyer'}</td>
+                        <td>{deal.farmerName || 'Team-added farmer'}</td>
+                        <td>{deal.createdAt ? new Date(deal.createdAt).toLocaleDateString('en-IN') : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <Link to="/admin/dashboard/marketplace?tab=deals">Open Deals →</Link>
+              </div>
+            ) : (
+              <p className="dash-page__subtitle">No new interest requests for team-added farmers.</p>
+            )}
+          </div>
 
           <div className="dash-panel" style={{ marginTop: 'var(--space-5)' }}>
             <h2 className="dash-panel__heading">Deals by status</h2>

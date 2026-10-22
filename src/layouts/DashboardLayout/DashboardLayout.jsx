@@ -5,7 +5,7 @@ import { useAuth } from '../../context/useAuth';
 import logoMark from '../../assets/logo-mark.png';
 import './DashboardLayout.css';
 
-const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) => {
+const DashboardLayout = ({ role, navItems, profileName, verificationStatus, cartCount = 0 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, language, toggleLanguage } = useLanguage();
   const { logout } = useAuth();
@@ -119,6 +119,17 @@ const DashboardLayout = ({ role, navItems, profileName, verificationStatus }) =>
           <span className="dashlayout__role-tag">{roleLabel}</span>
 
           <div className="dashlayout__identity">
+            {role === 'Buyer' ? (
+              <Link
+                to="/buyer/dashboard/cart"
+                className="dashlayout__cart-link"
+                aria-label={`${cartCount} ${isKannada ? 'ವಸ್ತುಗಳು ಕಾರ್ಟ್‌ನಲ್ಲಿ' : 'items in cart'}`}
+                title={isKannada ? 'ಕಾರ್ಟ್' : 'Cart'}
+              >
+                <span aria-hidden="true">🛒</span>
+                <span className="dashlayout__cart-count">{cartCount}</span>
+              </Link>
+            ) : null}
             {/* Topbar Language Switcher */}
             <button
               type="button"

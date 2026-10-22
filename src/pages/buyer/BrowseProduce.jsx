@@ -4,7 +4,10 @@ import StatusBadge from '../../components/dashboard/StatusBadge';
 import EmptyState from '../../components/dashboard/EmptyState';
 import ListingImage from '../../components/dashboard/ListingImage';
 import ListingDetailModal from '../../components/dashboard/ListingDetailModal';
+import MakeOfferModal from '../../components/dashboard/MakeOfferModal';
 import { IconBasket, IconSearch } from '../../components/dashboard/icons';
+import { isLocalListing } from '../../lib/marketplace';
+import { useLanguage } from '../../context/LanguageContext';
 import '../../components/dashboard/dashboard-ui.css';
 
 const emptyFilters = {
@@ -17,11 +20,15 @@ const emptyFilters = {
 };
 
 const BrowseProduce = () => {
-  const { listings, expressInterest, hasRequested, dataError, dataLoading } = useBuyerData();
+  const { listings, expressInterest, addToCart, hasRequested, dataError, dataLoading } = useBuyerData();
+  const { t } = useLanguage();
+  const trading = t.trading;
   const [filters, setFilters] = useState(emptyFilters);
   const [confirmedId, setConfirmedId] = useState(null);
   const [detailListing, setDetailListing] = useState(null);
   const [actionError, setActionError] = useState('');
+  const [cartMessage, setCartMessage] = useState('');
+  const [offerListing, setOfferListing] = useState(null);
 
   const activeListings = useMemo(() => listings.filter((l) => l.status === 'active'), [listings]);
 
@@ -54,6 +61,17 @@ const BrowseProduce = () => {
       await expressInterest(listing);
       setConfirmedId(listing.id);
       setTimeout(() => setConfirmedId(null), 2500);
+    } catch (error) {
+      setActionError(error.message);
+    }
+  };
+
+  const handleAddToCart = (listing) => {
+    setActionError('');
+    setCartMessage('');
+    try {
+      addToCart(listing);
+      setCartMessage(trading.addedToCart.replace('{crop}', listing.crop));
     } catch (error) {
       setActionError(error.message);
     }
@@ -93,6 +111,7 @@ const BrowseProduce = () => {
 
       {dataError && <div className="dash-banner dash-banner--error" role="alert">{dataError}</div>}
       {actionError && <div className="dash-banner dash-banner--error" role="alert">{actionError}</div>}
+      {cartMessage && <div className="dash-banner dash-banner--success" role="status">{cartMessage}</div>}
       <div className="dash-panel">
         <h2 className="dash-panel__heading">Filters</h2>
         <p className="dash-panel__intro">Narrow down listings by what matters most to you.</p>
@@ -178,6 +197,18 @@ const BrowseProduce = () => {
                   <button type="button" className="btn btn--outline btn--sm" onClick={() => setDetailListing(listing)}>
                     View Details
                   </button>
+                  {isLocalListing(listing) ? (
+                    <span className="listing-card__local-note">Demo listing · checkout unavailable</span>
+                  ) : (
+                    <button type="button" className="btn btn--outline btn--sm" onClick={() => handleAddToCart(listing)}>
+                      {trading.addToCart}
+                    </button>
+                  )}
+                  {!listing.managed && !isLocalListing(listing) && (
+                    <button type="button" className="btn btn--outline btn--sm" onClick={() => setOfferListing(listing)}>
+                      {trading.makeOffer}
+                    </button>
+                  )}
                   {renderInterestAction(listing)}
                 </div>
               </article>
@@ -190,9 +221,24 @@ const BrowseProduce = () => {
         <ListingDetailModal
           listing={detailListing}
           onClose={() => setDetailListing(null)}
-          actions={renderInterestAction(detailListing, 'sm')}
+          actions={(
+            <>
+              {isLocalListing(detailListing) ? null : (
+                <button type="button" className="btn btn--outline btn--sm" onClick={() => handleAddToCart(detailListing)}>
+                  {trading.addToCart}
+                </button>
+              )}
+              {!detailListing.managed && !isLocalListing(detailListing) && (
+                <button type="button" className="btn btn--outline btn--sm" onClick={() => setOfferListing(detailListing)}>
+                  {trading.makeOffer}
+                </button>
+              )}
+              {renderInterestAction(detailListing, 'sm')}
+            </>
+          )}
         />
       )}
+      {offerListing && <MakeOfferModal listing={offerListing} onClose={() => setOfferListing(null)} />}
     </div>
   );
 };

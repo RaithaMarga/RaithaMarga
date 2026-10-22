@@ -40,6 +40,58 @@
 
 .dash-panel + .dash-panel { margin-top: 0; }
 
+.dash-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(10, 25, 16, 0.55);
+}
+
+.offer-modal {
+  width: min(100%, 560px);
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.cart-lines { display: grid; gap: var(--space-4); }
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 104px minmax(160px, 1fr) minmax(150px, 220px) auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cart-line:last-child { padding-bottom: 0; border-bottom: 0; }
+.cart-line .crop-image { width: 104px; height: 86px; border-radius: var(--radius-md); }
+.cart-line__details, .cart-line__quantity { display: grid; gap: 6px; }
+.cart-line__details h2 { font-size: var(--font-size-lg); }
+.cart-line__details p, .cart-line__quantity label { color: var(--color-ink-soft); font-size: var(--font-size-sm); }
+.cart-line__quantity input { width: 100%; min-height: 40px; }
+.cart-line__quantity strong { font-size: var(--font-size-sm); }
+.cart-line__actions { display: grid; justify-items: end; gap: var(--space-2); }
+.cart-line__notice { color: var(--color-tomato); font-size: var(--font-size-sm); }
+
+.cart-summary { display: grid; justify-items: end; gap: var(--space-3); }
+.cart-summary > div { display: flex; gap: var(--space-6); font-size: var(--font-size-lg); }
+.cart-summary p { max-width: 700px; color: var(--color-ink-soft); font-size: var(--font-size-sm); text-align: right; }
+
+@media (max-width: 720px) {
+  .cart-line { grid-template-columns: 76px minmax(0, 1fr); align-items: start; }
+  .cart-line .crop-image { width: 76px; height: 68px; }
+  .cart-line__quantity, .cart-line__actions { grid-column: 2; justify-items: stretch; }
+  .cart-line__actions { display: flex; flex-wrap: wrap; justify-content: space-between; }
+  .cart-summary { justify-items: stretch; }
+  .cart-summary p { text-align: left; }
+}
+
 .dash-panel__heading {
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-1);

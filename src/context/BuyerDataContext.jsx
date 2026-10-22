@@ -5,6 +5,16 @@ import { useAuth } from './useAuth';
 import { apiRequest } from '../lib/api';
 import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings, isLocalListing, isLocalDeal, createLocalDeal, updateLocalDealStatus } from '../lib/marketplace';
 import { useStoredDeals } from '../hooks/useStoredDeals';
+import {
+  addCartLine as addCartLineToItems,
+  clearCheckoutIdempotencyKey,
+  getCheckoutIdempotencyKey,
+  MAX_CHECKOUT_LINES,
+  readBuyerCart,
+  removeCartLine,
+  updateCartLineQuantity,
+  writeBuyerCart,
+} from '../lib/cart';
 
 const BuyerDataContext = createContext(null);
 
@@ -27,6 +37,29 @@ export const BuyerDataProvider = ({ children }) => {
   const [storedListings, setStoredListings] = useState(getStoredMarketplaceListings);
   const [dataOwner, setDataOwner] = useState(null);
   const [loadError, setLoadError] = useState('');
+  const [cartState, setCartState] = useState({ uid: null, items: [] });
+  const buyerUid = role === 'buyer' ? user?.uid : null;
+  const cartSnapshot = useMemo(() => {
+    if (!buyerUid) return { uid: null, items: [], error: '' };
+    if (cartState.uid === buyerUid) return cartState;
+    try {
+      return { uid: buyerUid, items: readBuyerCart(buyerUid), error: '' };
+    } catch (error) {
+      return { uid: buyerUid, items: [], error: `Could not load your saved cart: ${error.message}` };
+    }
+  }, [buyerUid, cartState]);
+  const cart = cartSnapshot.items;
+  const cartOwner = cartSnapshot.uid;
+  const cartReady = Boolean(buyerUid && cartOwner === buyerUid);
+  const cartError = cartSnapshot.error;
+
+  const persistBuyerCart = useCallback((items) => {
+    if (!buyerUid || cartError) {
+      throw new Error(cartError || 'A signed-in buyer is required to update the cart.');
+    }
+    writeBuyerCart(buyerUid, items);
+    setCartState({ uid: buyerUid, items, error: '' });
+  }, [buyerUid, cartError]);
 
   useEffect(() => {
     if (!user || role !== 'buyer') return undefined;
@@ -153,6 +186,66 @@ export const BuyerDataProvider = ({ children }) => {
     return deal;
   }, [user?.uid]);
 
+  const addToCart = useCallback((listing) => {
+    if (!buyerUid || !cartReady || cartOwner !== buyerUid) {
+      throw new Error('Your buyer cart is still loading. Please try again.');
+    }
+    persistBuyerCart(addCartLineToItems(readBuyerCart(buyerUid), listing));
+  }, [buyerUid, cartOwner, cartReady, persistBuyerCart]);
+
+  const changeCartQuantity = useCallback((listingId, quantity) => {
+    if (!buyerUid) throw new Error('A signed-in buyer is required to update the cart.');
+    persistBuyerCart(updateCartLineQuantity(readBuyerCart(buyerUid), listingId, quantity));
+  }, [buyerUid, persistBuyerCart]);
+
+  const removeFromCart = useCallback((listingId) => {
+    if (!buyerUid) throw new Error('A signed-in buyer is required to update the cart.');
+    persistBuyerCart(removeCartLine(readBuyerCart(buyerUid), listingId));
+  }, [buyerUid, persistBuyerCart]);
+
+  const checkoutCart = useCallback(async () => {
+    if (!cartReady || cartOwner !== buyerUid || !buyerUid) {
+      throw new Error('Your buyer cart is still loading. Please try again.');
+    }
+    if (cartError) throw new Error(cartError);
+    if (cart.length === 0) throw new Error('Your cart is empty.');
+    if (cart.some((item) => item.localOnly)) {
+      throw new Error('Demo listings saved only in this browser cannot be purchased. Add produce published to the marketplace backend.');
+    }
+    if (cart.length > MAX_CHECKOUT_LINES) {
+      throw new Error(`A single checkout can include up to ${MAX_CHECKOUT_LINES} distinct listings. Remove some lines and check out in separate batches.`);
+    }
+    const idempotencyKey = getCheckoutIdempotencyKey(buyerUid, cart);
+    const createdDeals = await apiRequest('/deals/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        idempotencyKey,
+        items: cart.map((item) => ({
+          listingId: item.listingId,
+          quantity: Number(item.quantity),
+          expectedPrice: Number(item.expectedPrice),
+        })),
+      }),
+    });
+    persistBuyerCart([]);
+    clearCheckoutIdempotencyKey(buyerUid);
+    const parsedDeals = createdDeals.map((item) => ({
+      ...fromApiDeal(item),
+      crop: item.crop || 'Produce listing',
+      unit: item.unit || '',
+    }));
+    setRequestData((previous) => [...parsedDeals, ...previous]);
+    setListingData((previous) => previous.map((listing) => {
+      const deal = parsedDeals.find((created) => created.listingId === listing.id);
+      return deal ? { ...listing, quantity: Math.max(0, Number(listing.quantity) - Number(deal.quantity)) } : listing;
+    }));
+    return parsedDeals;
+  }, [buyerUid, cart, cartOwner, cartReady, cartError, persistBuyerCart]);
+
+  const isCartOwner = cartOwner === buyerUid && Boolean(buyerUid) && cartReady;
+  const buyerCart = useMemo(() => isCartOwner ? cart : [], [cart, isCartOwner]);
+  const buyerCartError = isCartOwner ? cartError : '';
+
   const cancelRequest = useCallback(async (dealId) => {
     if (isLocalDeal(dealId)) {
       updateLocalDealStatus(dealId, 'CANCELLED');
@@ -195,13 +288,21 @@ export const BuyerDataProvider = ({ children }) => {
     addRequirement,
     requests,
     listings,
+    cart: buyerCart,
+    cartCount: buyerCart.length,
+    cartReady,
+    cartError: buyerCartError,
+    addToCart,
+    changeCartQuantity,
+    removeFromCart,
+    checkoutCart,
     expressInterest,
     cancelRequest,
     hasRequested,
     dataError,
     dataLoading,
     stats,
-  }), [profile, setProfile, saveProfile, requirements, addRequirement, requests, listings, expressInterest, cancelRequest, hasRequested, dataError, dataLoading, stats]);
+  }), [profile, setProfile, saveProfile, requirements, addRequirement, requests, listings, buyerCart, cartReady, buyerCartError, addToCart, changeCartQuantity, removeFromCart, checkoutCart, expressInterest, cancelRequest, hasRequested, dataError, dataLoading, stats]);
 
   return <BuyerDataContext.Provider value={value}>{children}</BuyerDataContext.Provider>;
 };

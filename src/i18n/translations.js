@@ -362,7 +362,7 @@ export const translations = {
         availableWhenAdded: 'Available when added',
         quantity: 'Quantity',
         lineTotal: 'Line total',
-        localOnly: 'This browser-only demo listing cannot be checked out.',
+        localOnly: 'This listing is not yet published to the marketplace and cannot be checked out.',
         remove: 'Remove',
         subtotal: 'Subtotal',
         summaryLabel: 'Cart summary',

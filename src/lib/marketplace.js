@@ -50,97 +50,24 @@ export function fromApiDeal(deal) {
   };
 }
 
-// Initial seed listings so the marketplace and homepage always have active produce visible
-export const SEED_LISTINGS = [
-  {
-    id: 'listing-seed-onion',
-    farmerId: 'farmer-local',
-    farmerName: 'Basavarajappa Gowda',
-    crop: 'Onion (ಈರುಳ್ಳಿ)',
-    quantity: 332.5,
-    unit: 'kg',
-    grade: 'Grade A',
-    expectedPrice: 33,
-    price: 33,
-    district: 'Kolar',
-    taluk: 'Malur',
-    village: 'Local Village',
-    status: 'active',
-    location: 'Local Village, Malur, Kolar',
-    availabilityDate: '2026-10-15',
-    createdAt: new Date().toISOString(),
-    photos: [],
-  },
-  {
-    id: 'listing-seed-tomato',
-    farmerId: 'farmer-demo-2',
-    farmerName: 'Manjunath Reddy',
-    crop: 'Tomato (ಟೊಮೆಟೊ)',
-    quantity: 500,
-    unit: 'kg',
-    grade: 'Grade A',
-    expectedPrice: 18,
-    price: 18,
-    district: 'Kolar',
-    taluk: 'Srinivaspur',
-    village: 'Rayalpadu',
-    status: 'active',
-    location: 'Rayalpadu, Srinivaspur, Kolar',
-    availabilityDate: '2026-10-14',
-    createdAt: new Date().toISOString(),
-    photos: [],
-  },
-  {
-    id: 'listing-seed-potato',
-    farmerId: 'farmer-demo-3',
-    farmerName: 'Anand Kumar',
-    crop: 'Potato (ಆಲೂಗಡ್ಡೆ)',
-    quantity: 400,
-    unit: 'kg',
-    grade: 'Grade A',
-    expectedPrice: 24,
-    price: 24,
-    district: 'Hassan',
-    taluk: 'Channarayapatna',
-    village: 'Kikkeri',
-    status: 'active',
-    location: 'Kikkeri, Channarayapatna, Hassan',
-    availabilityDate: '2026-10-16',
-    createdAt: new Date().toISOString(),
-    photos: [],
-  },
-  {
-    id: 'listing-seed-chilli',
-    farmerId: 'farmer-demo-4',
-    farmerName: 'Ramesh Patil',
-    crop: 'Green Chilli (ಹಸಿರು ಮೆಣಸಿನಕಾಯಿ)',
-    quantity: 150,
-    unit: 'kg',
-    grade: 'Grade A',
-    expectedPrice: 42,
-    price: 42,
-    district: 'Haveri',
-    taluk: 'Byadagi',
-    village: 'Motebennur',
-    status: 'active',
-    location: 'Motebennur, Byadagi, Haveri',
-    availabilityDate: '2026-10-15',
-    createdAt: new Date().toISOString(),
-    photos: [],
-  },
-];
+// Older builds shipped four made-up "demo farmer" listings and wrote them into every browser's
+// localStorage. They are no longer created, and any copy already saved is dropped on read.
+const isLegacyDemoListing = (item) =>
+  String(item?.id || '').startsWith('listing-seed-') || String(item?.farmerId || '').startsWith('farmer-demo');
+
+function writeStoredListings(listings) {
+  localStorage.setItem(STORAGE_KEYS.MARKETPLACE_LISTINGS, JSON.stringify(listings));
+}
 
 export function getStoredMarketplaceListings() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.MARKETPLACE_LISTINGS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.MARKETPLACE_LISTINGS, JSON.stringify(SEED_LISTINGS));
-      return SEED_LISTINGS;
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : SEED_LISTINGS;
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKETPLACE_LISTINGS) || '[]');
+    if (!Array.isArray(parsed)) return [];
+    const cleaned = parsed.filter((item) => !isLegacyDemoListing(item));
+    if (cleaned.length !== parsed.length) writeStoredListings(cleaned);
+    return cleaned;
   } catch {
-    return SEED_LISTINGS;
+    return [];
   }
 }
 
@@ -156,6 +83,12 @@ export function saveStoredMarketplaceListing(newListing) {
     console.error('Failed to save listing to storage:', err);
     return [];
   }
+}
+
+export function removeStoredMarketplaceListing(id) {
+  const remaining = getStoredMarketplaceListings().filter((item) => item.id !== id);
+  writeStoredListings(remaining);
+  window.dispatchEvent(new Event('raithamarga-listings-changed'));
 }
 
 // Merge several listing arrays by id (earlier arrays win), newest first.

@@ -161,6 +161,8 @@ export const BuyerDataProvider = ({ children }) => {
   }, [profile.location]);
 
   const expressInterest = useCallback(async (listing, requestedQuantity = listing.quantity) => {
+    const targetListingId = listing.id || listing.listingId;
+    const targetPrice = Number(listing.expectedPrice ?? listing.price);
     // Local-only listing: the backend doesn't know it, so open the deal locally.
     if (isLocalListing(listing)) {
       return fromApiDeal(createLocalDeal(listing, requestedQuantity, user?.uid));
@@ -168,13 +170,13 @@ export const BuyerDataProvider = ({ children }) => {
     const created = await apiRequest('/deals', {
       method: 'POST',
       body: JSON.stringify({
-        listingId: listing.id,
+        listingId: targetListingId,
         quantity: Number(requestedQuantity),
-        price: Number(listing.expectedPrice),
+        price: targetPrice,
       }),
     });
     const deal = fromApiDeal(created);
-    setListingData((previous) => previous.map((item) => item.id === listing.id
+    setListingData((previous) => previous.map((item) => item.id === targetListingId
       ? { ...item, quantity: Math.max(0, Number(item.quantity) - Number(requestedQuantity)) }
       : item));
     setRequestData((previous) => [{

@@ -8,6 +8,8 @@ import {
   toApiListing,
   getStoredMarketplaceListings,
   saveStoredMarketplaceListing,
+  removeStoredMarketplaceListing,
+  isLocalListing,
 } from '../lib/marketplace';
 
 const FarmerDataContext = createContext(null);
@@ -39,8 +41,29 @@ export const FarmerDataProvider = ({ children }) => {
     if (!user || role !== 'farmer') return undefined;
     let active = true;
 
+    // Listings saved only in this browser (backend was unreachable at the time) are re-published to
+    // the backend so buyers can actually add them to the cart and check out.
+    const syncLocalListings = async () => {
+      const pending = getStoredMarketplaceListings()
+        .filter((l) => isLocalListing(l) && l.farmerId === user.uid);
+      for (const local of pending) {
+        try {
+          const created = await apiRequest('/listings', {
+            method: 'POST',
+            body: JSON.stringify(toApiListing(local, JSON.parse(localStorage.getItem(STORAGE_KEYS.FARMER_PROFILE) || '{}'))),
+          });
+          removeStoredMarketplaceListing(local.id);
+          saveStoredMarketplaceListing(fromApiListing(created));
+        } catch (syncError) {
+          console.warn('Could not sync local listing yet:', syncError);
+          break;
+        }
+      }
+    };
+
     // Load from backend API and merge with local storage
-    apiRequest('/listings')
+    syncLocalListings()
+      .then(() => apiRequest('/listings'))
       .then((data) => {
         if (!active) return;
         const apiListings = data.filter((listing) => listing.farmerId === user.uid).map(fromApiListing);

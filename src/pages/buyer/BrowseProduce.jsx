@@ -255,7 +255,7 @@ const BrowseProduce = () => {
                   </button>
                   {isLocalListing(listing) ? (
                     <span className="listing-card__local-note" style={{ fontSize: 'var(--font-size-xs)' }}>
-                      {isKannada ? 'ಡೆಮೊ ಪಟ್ಟಿ' : 'Demo listing'}
+                      {isKannada ? 'ಶೀಘ್ರದಲ್ಲೇ ಆರ್ಡರ್‌ಗೆ ಲಭ್ಯ' : 'Not orderable yet'}
                     </span>
                   ) : (
                     <button

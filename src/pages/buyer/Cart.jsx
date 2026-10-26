@@ -18,12 +18,16 @@ export default function BuyerCart() {
     changeCartQuantity,
     removeFromCart,
     checkoutCart,
+    expressInterest,
   } = useBuyerData();
   const [checkoutError, setCheckoutError] = useState('');
   const [success, setSuccess] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
+  const [requestingId, setRequestingId] = useState('');
+  const [offeredItems, setOfferedItems] = useState({});
   const [offerListing, setOfferListing] = useState(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isKannada = language === 'kn';
   const text = t.trading;
   const copy = text.cart;
 
@@ -42,6 +46,25 @@ export default function BuyerCart() {
       removeFromCart(listingId);
     } catch (error) {
       setCheckoutError(error.message);
+    }
+  };
+
+  const sendItemRequest = async (item) => {
+    setRequestingId(item.listingId);
+    setCheckoutError('');
+    setSuccess('');
+    try {
+      await expressInterest(item, item.quantity);
+      removeFromCart(item.listingId);
+      setSuccess(
+        isKannada
+          ? `${item.crop} ಗೆ ನೇರ ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ! ಒಪ್ಪಂದ ರಚಿಸಲಾಗಿದೆ.`
+          : `Request sent for ${item.crop}! Deal created with ${item.farmerName}.`
+      );
+    } catch (error) {
+      setCheckoutError(error.message);
+    } finally {
+      setRequestingId('');
     }
   };
 
@@ -97,6 +120,11 @@ export default function BuyerCart() {
                   <p>{copy.farmer}: <strong>{item.farmerName}</strong></p>
                   <p>{copy.price}: ₹{item.expectedPrice} / {item.unit}</p>
                   <p>{copy.availableWhenAdded}: {item.availableQuantity} {item.unit}</p>
+                  {offeredItems[item.listingId] ? (
+                    <span className="cart-line__offer-badge">
+                      🏷️ {isKannada ? 'ಪ್ರಸ್ತಾವನೆ ಕಳುಹಿಸಲಾಗಿದೆ:' : 'Offer sent:'} ₹{offeredItems[item.listingId].offerPrice} / {item.unit}
+                    </span>
+                  ) : null}
                   {item.localOnly && <p className="cart-line__notice">{copy.localOnly}</p>}
                 </div>
                 <div className="cart-line__quantity">
@@ -115,8 +143,25 @@ export default function BuyerCart() {
                 </div>
                 <div className="cart-line__actions">
                   {!item.managed && !item.localOnly && (
-                    <button type="button" className="btn btn--outline btn--sm" onClick={() => setOfferListing(item)}>
+                    <button
+                      type="button"
+                      className="btn btn--outline btn--sm"
+                      onClick={() => setOfferListing(item)}
+                    >
                       {text.makeOffer}
+                    </button>
+                  )}
+                  {!item.localOnly && (
+                    <button
+                      type="button"
+                      className="btn btn--outline btn--sm"
+                      style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                      disabled={requestingId === item.listingId}
+                      onClick={() => sendItemRequest(item)}
+                    >
+                      {requestingId === item.listingId
+                        ? (isKannada ? 'ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ…' : 'Sending…')
+                        : (copy.sendRequest || (isKannada ? 'ವಿನಂತಿ ಕಳುಹಿಸಿ' : 'Send Request'))}
                     </button>
                   )}
                   <button type="button" className="btn--text" onClick={() => removeLine(item.listingId)}>
@@ -135,16 +180,30 @@ export default function BuyerCart() {
             {cart.length > MAX_CHECKOUT_LINES && <p className="cart-line__notice">{copy.checkoutLimit.replace('{count}', String(MAX_CHECKOUT_LINES))}</p>}
             <button
               type="button"
-              className="btn btn--primary"
+              className="btn--amazon-checkout"
               disabled={checkingOut || cartError || cart.some((item) => item.localOnly) || cart.length > MAX_CHECKOUT_LINES}
               onClick={checkout}
             >
-              {checkingOut ? copy.checkingOut : copy.checkout}
+              <span aria-hidden="true">🛒</span>
+              <span>{checkingOut ? copy.checkingOut : (copy.proceedToCheckout || 'Proceed to Checkout')}</span>
             </button>
           </section>
         </>
       )}
-      {offerListing && <MakeOfferModal listing={offerListing} onClose={() => setOfferListing(null)} />}
+      {offerListing && (
+        <MakeOfferModal
+          listing={offerListing}
+          onClose={() => setOfferListing(null)}
+          onSuccess={(result) => {
+            setOfferedItems((prev) => ({ ...prev, [result.listingId]: result }));
+            setSuccess(
+              isKannada
+                ? `₹${result.offerPrice} ಬೆಲೆ ಪ್ರಸ್ತಾವನೆಯನ್ನು ರೈತರಿಗೆ ಕಳುಹಿಸಲಾಗಿದೆ! ಇದನ್ನು 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳು' ಪುಟದಲ್ಲಿ ಗಮನಿಸಬಹುದು.`
+                : `Offer of ₹${result.offerPrice} sent to farmer! You can track this in My Bids.`
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

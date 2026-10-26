@@ -20,15 +20,21 @@ const Overview = () => {
 
   const [matchCount, setMatchCount] = useState(0);
   const [pendingDealsCount, setPendingDealsCount] = useState(0);
+  const [incomingBidsCount, setIncomingBidsCount] = useState(0);
 
   useEffect(() => {
     let active = true;
-    Promise.all([apiRequest('/matches'), apiRequest('/deals')])
-      .then(([matches, deals]) => {
+    Promise.all([
+      apiRequest('/matches').catch(() => []),
+      apiRequest('/deals').catch(() => []),
+      apiRequest('/bids').catch(() => []),
+    ])
+      .then(([matches, deals, bids]) => {
         if (!active) return;
         setMatchCount(matches.length);
         setPendingDealsCount(deals.map(fromApiDeal).filter((deal) =>
           !['completed', 'cancelled', 'failed'].includes(deal.status)).length);
+        setIncomingBidsCount(bids.filter((bid) => String(bid.status || '').toLowerCase() === 'offered').length);
       })
       .catch((error) => console.error('Could not load farmer dashboard totals:', error));
     return () => { active = false; };
@@ -61,6 +67,22 @@ const Overview = () => {
       <VerificationNotice user={user} role="farmer" />
       <WhatsAppCard />
 
+      {incomingBidsCount > 0 && (
+        <div className="dash-banner dash-banner--success" role="status" style={{ marginBottom: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+          <div>
+            <strong>🏷️ {isKannada ? 'ಹೊಸ ಬೆಲೆ ಪ್ರಸ್ತಾವನೆ ಬಂದಿದೆ!' : 'New Buyer Offers Received!'}</strong>{' '}
+            <span>
+              {isKannada
+                ? `${incomingBidsCount} ಖರೀದಿದಾರರ ಬೆಲೆ ಪ್ರಸ್ತಾವನೆಗಳು ನಿಮ್ಮ ಪರಿಶೀಲನೆಗೆ ಕಾಯುತ್ತಿವೆ.`
+                : `${incomingBidsCount} price offer(s) from buyers are waiting for your review.`}
+            </span>
+          </div>
+          <Link to="/farmer/dashboard/bids" className="btn btn--primary btn--sm">
+            {isKannada ? 'ಪ್ರಸ್ತಾವನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ →' : 'Review Offers →'}
+          </Link>
+        </div>
+      )}
+
       <div className="stat-grid">
         <StatCard
           icon={<IconField />}
@@ -78,13 +100,13 @@ const Overview = () => {
           accent="gold"
         />
         <StatCard
-          icon={<IconHandshake />}
-          label={fo.buyerMatches || (isKannada ? 'ಖರೀದಿದಾರ ಹೊಂದಾಣಿಕೆಗಳು' : 'Buyer Matches')}
-          value={matchCount}
-          caption={matchCount
-            ? `${matchCount} ${isKannada ? 'ಖರೀದಿದಾರರು ಆಸಕ್ತಿ ಹೊಂದಿದ್ದಾರೆ' : 'buyers interested'}`
-            : (isKannada ? 'ಇನ್ನೂ ಹೊಂದಾಣಿಕೆಗಳಿಲ್ಲ' : 'No matches yet')}
-          accent="primary"
+          icon={<IconScale />}
+          label={isKannada ? 'ಬಂದಿರುವ ಪ್ರಸ್ತಾವನೆಗಳು' : 'Buyer Offers'}
+          value={incomingBidsCount}
+          caption={incomingBidsCount
+            ? (isKannada ? 'ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿದೆ' : 'Action needed')
+            : (isKannada ? 'ಇನ್ನೂ ಪ್ರಸ್ತಾವನೆಗಳಿಲ್ಲ' : 'No active offers')}
+          accent="tomato"
         />
         <StatCard
           icon={<IconClock />}
@@ -93,7 +115,16 @@ const Overview = () => {
           caption={pendingDealsCount
             ? `${pendingDealsCount} ${isKannada ? 'ಪ್ರಗತಿಯಲ್ಲಿದೆ' : 'in progress'}`
             : (isKannada ? 'ಸಕ್ರಿಯ ವ್ಯವಹಾರಗಳಿಲ್ಲ' : 'No active trades')}
-          accent="tomato"
+          accent="primary"
+        />
+        <StatCard
+          icon={<IconHandshake />}
+          label={fo.buyerMatches || (isKannada ? 'ಖರೀದಿದಾರ ಹೊಂದಾಣಿಕೆಗಳು' : 'Buyer Matches')}
+          value={matchCount}
+          caption={matchCount
+            ? `${matchCount} ${isKannada ? 'ಖರೀದಿದಾರರು ಆಸಕ್ತಿ ಹೊಂದಿದ್ದಾರೆ' : 'buyers interested'}`
+            : (isKannada ? 'ಇನ್ನೂ ಹೊಂದಾಣಿಕೆಗಳಿಲ್ಲ' : 'No matches yet')}
+          accent="primary"
         />
       </div>
 

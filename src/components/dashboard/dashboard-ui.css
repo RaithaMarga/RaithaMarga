@@ -473,6 +473,263 @@
   border-top: 1px solid var(--color-border);
 }
 
+.listing-card__actions--two-only {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.listing-card__actions--two-only .btn,
+.listing-card__actions--two-only .btn--amazon-cart {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* Amazon style Add to Cart button */
+.btn--amazon-cart {
+  background: #ffd814;
+  border: 1px solid #fcd200;
+  border-radius: var(--radius-full);
+  color: #0f1111;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(213, 217, 217, 0.5);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-body);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn--amazon-cart:hover:not(:disabled) {
+  background: #f7ca00;
+  border-color: #f2c200;
+  box-shadow: 0 2px 6px rgba(213, 217, 217, 0.85);
+  transform: translateY(-1px);
+}
+
+.btn--amazon-cart:active:not(:disabled) {
+  background: #f0b800;
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.btn--amazon-cart:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn--amazon-cart.is-in-cart {
+  background: #eaf7ef;
+  border-color: #1faa59;
+  color: #1b5e37;
+}
+
+/* Amazon style checkout button */
+.btn--amazon-checkout {
+  background: #ffd814;
+  border: 1px solid #fcd200;
+  border-radius: var(--radius-full);
+  color: #0f1111;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-family: var(--font-body);
+  box-shadow: 0 2px 5px rgba(213, 217, 217, 0.5);
+  padding: 12px 28px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.btn--amazon-checkout:hover:not(:disabled) {
+  background: #f7ca00;
+  border-color: #f2c200;
+  box-shadow: 0 2px 8px rgba(213, 217, 217, 0.85);
+  transform: translateY(-1px);
+}
+
+.btn--amazon-checkout:active:not(:disabled) {
+  background: #f0b800;
+  transform: translateY(1px);
+}
+
+.btn--amazon-checkout:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cart-line__offer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: #fff8e6;
+  border: 1px solid #fedb72;
+  color: #8f6000;
+  font-weight: 600;
+}
+
+/* ---------- Modern Produce Search & Browse Toolbar ---------- */
+.browse-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.browse-searchbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-cream);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 4px var(--space-4);
+  transition: all var(--transition-fast);
+}
+
+.browse-searchbar:focus-within {
+  border-color: var(--color-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+}
+
+.browse-searchbar__icon {
+  font-size: 1.1rem;
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
+}
+
+.browse-searchbar__input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-base);
+  color: var(--color-ink);
+  outline: none;
+  padding: 8px 0;
+  font-family: var(--font-body);
+}
+
+.browse-searchbar__clear {
+  background: none;
+  border: none;
+  color: var(--color-ink-faint);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+}
+
+.browse-searchbar__clear:hover {
+  color: var(--color-ink);
+  background: var(--color-cream-alt);
+}
+
+/* Crop category pills */
+.browse-pills {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding: 2px 0 4px 0;
+  scrollbar-width: thin;
+}
+
+.browse-pill {
+  border: 1px solid var(--color-border);
+  background: var(--color-paper);
+  color: var(--color-ink-soft);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.browse-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  background: var(--color-cream);
+}
+
+.browse-pill--active {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(27, 94, 55, 0.25);
+}
+
+/* Secondary filter row */
+.browse-filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.browse-filters-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.browse-filter-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-soft);
+  font-weight: 500;
+}
+
+.browse-filter-item select,
+.browse-filter-item input {
+  padding: 6px 10px;
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.browse-filter-item select:focus,
+.browse-filter-item input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 .listing-card__actions select {
   font-family: var(--font-body);
   font-size: var(--font-size-xs);

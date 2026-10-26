@@ -3,7 +3,7 @@ import { apiRequest } from '../../lib/api';
 import { useLanguage } from '../../context/LanguageContext';
 import './dashboard-ui.css';
 
-export default function MakeOfferModal({ listing, onClose }) {
+export default function MakeOfferModal({ listing, onClose, onSuccess }) {
   const available = Number(listing.availableQuantity ?? listing.quantity);
   const askingPrice = Number(listing.expectedPrice ?? listing.price);
   const [quantity, setQuantity] = useState(String(Math.min(1, available)));
@@ -18,16 +18,20 @@ export default function MakeOfferModal({ listing, onClose }) {
     event.preventDefault();
     setError('');
     setSaving(true);
+    const targetListingId = listing.id || listing.listingId;
     try {
       await apiRequest('/bids', {
         method: 'POST',
         body: JSON.stringify({
-          listingId: listing.id || listing.listingId,
+          listingId: targetListingId,
           quantity: Number(quantity),
           offerPrice: Number(offerPrice),
         }),
       });
       setSuccess(true);
+      if (onSuccess) {
+        onSuccess({ listingId: targetListingId, offerPrice: Number(offerPrice), quantity: Number(quantity) });
+      }
     } catch (requestError) {
       setError(requestError.message);
     } finally {

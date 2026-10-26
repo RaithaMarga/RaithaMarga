@@ -1,6 +1,8 @@
 import { STORAGE_KEYS } from '../data/storageKeys';
 import { findImageCrop } from '../data/crops';
 
+export { isLocalListing } from './listingIds.js';
+
 export function fromApiListing(listing) {
   return {
     ...listing,
@@ -222,10 +224,6 @@ export function getCropAvailability(cropName, listings = null) {
 // farmer saved locally because the backend was unreachable) are unknown to the backend, so
 // "I'm Interested" on them is handled here instead of via POST /deals.
 // ---------------------------------------------------------------------------
-export const isLocalListing = (listingOrId) => {
-  const id = typeof listingOrId === 'object' ? listingOrId?.id : listingOrId;
-  return String(id || '').startsWith('listing-');
-};
 export const isLocalDeal = (dealOrId) => {
   const id = typeof dealOrId === 'object' ? dealOrId?.id : dealOrId;
   return String(id || '').startsWith('deal-local-');

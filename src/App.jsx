@@ -20,6 +20,8 @@ import BrowseProduce from './pages/buyer/BrowseProduce';
 import RecommendedMatches from './pages/buyer/RecommendedMatches';
 import RequestsOrders from './pages/buyer/RequestsOrders';
 import Deals from './pages/buyer/Deals';
+import BuyerCart from './pages/buyer/Cart';
+import MyBids from './pages/buyer/MyBids';
 import BuyerProfile from './pages/buyer/Profile';
 
 import Login from './pages/Login';
@@ -31,6 +33,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminAddFarmer from './pages/admin/AdminAddFarmer';
 import AdminMarketplace from './pages/admin/AdminMarketplace';
 import AdminAudit from './pages/admin/AdminAudit';
+import IncomingBids from './pages/farmer/IncomingBids';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
 // lazy initial state (read from context) is recomputed per listing
@@ -66,6 +69,7 @@ function App() {
               <Route path="listings" element={<MyListings />} />
               <Route path="listings/:id/edit" element={<EditProduceRoute />} />
               <Route path="matches" element={<BuyerMatches />} />
+              <Route path="bids" element={<IncomingBids />} />
               <Route path="deals" element={<MyDeals />} />
               <Route path="account" element={<FarmerAccountDetails />} />
               <Route path="profile" element={<FarmerProfile />} />
@@ -82,6 +86,8 @@ function App() {
             >
               <Route index element={<BuyerOverview />} />
               <Route path="browse" element={<BrowseProduce />} />
+              <Route path="cart" element={<BuyerCart />} />
+              <Route path="bids" element={<MyBids />} />
               <Route path="recommended" element={<RecommendedMatches />} />
               <Route path="requests" element={<RequestsOrders />} />
               <Route path="deals" element={<Deals />} />

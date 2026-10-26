@@ -16,6 +16,7 @@ const FarmerShellInner = () => {
     { to: '/farmer/dashboard/add-produce', label: nav.addProduce || (isKannada ? 'ಬೆಳೆ ಸೇರಿಸಿ' : 'Add Produce'), icon: '\u2795' },
     { to: '/farmer/dashboard/listings', label: nav.myListings || (isKannada ? 'ನನ್ನ ಪಟ್ಟಿಗಳು' : 'My Listings'), icon: '\u2630' },
     { to: '/farmer/dashboard/matches', label: nav.buyerMatches || (isKannada ? 'ಖರೀದಿದಾರ ಹೊಂದಾಣಿಕೆಗಳು' : 'Buyer Matches'), icon: '\u21C6' },
+    { to: '/farmer/dashboard/bids', label: isKannada ? 'ಬಂದಿರುವ ಪ್ರಸ್ತಾವನೆಗಳು' : 'Incoming Bids', icon: '\u2696' },
     { to: '/farmer/dashboard/deals', label: nav.myDeals || (isKannada ? 'ನನ್ನ ಒಪ್ಪಂದಗಳು' : 'My Deals'), icon: '\u2696' },
     { to: '/farmer/dashboard/account', label: nav.account || (isKannada ? 'ಖಾತೆ ವಿವರಗಳು' : 'Account Details'), icon: '\u2713' },
     { to: '/farmer/dashboard/profile', label: nav.editProfile || (isKannada ? 'ಪ್ರೊಫೈಲ್ ತಿದ್ದುಪಡಿ' : 'Edit Profile'), icon: '\u263A' },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuyerData } from '../../context/BuyerDataContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -19,14 +19,13 @@ export default function BuyerCart() {
     changeCartQuantity,
     removeFromCart,
     checkoutCart,
-    expressInterest,
   } = useBuyerData();
+  const reviewHeading = useRef(null);
   const [quantityDrafts, setQuantityDrafts] = useState({});
   const [reviewing, setReviewing] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [success, setSuccess] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
-  const [requestingId, setRequestingId] = useState('');
   const [offeredItems, setOfferedItems] = useState({});
   const [offerListing, setOfferListing] = useState(null);
   const { t, language } = useLanguage();
@@ -40,7 +39,13 @@ export default function BuyerCart() {
     return value === '' || !Number.isFinite(number) || number < 0.01 || number > Number(item.availableQuantity)
       || Math.abs(number * 100 - Math.round(number * 100)) > 0.000001;
   });
-  const busy = checkingOut || Boolean(requestingId);
+  const busy = checkingOut;
+  const checkoutBlocked = busy || invalidQuantity || Boolean(cartError) || cart.some((item) => item.localOnly) || cart.length > MAX_CHECKOUT_LINES;
+  const subtotal = cartSubtotal(cart).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  useEffect(() => {
+    if (reviewing) reviewHeading.current?.focus();
+  }, [reviewing]);
 
   const changeQuantity = (listingId, value) => {
     setCheckoutError('');
@@ -59,25 +64,6 @@ export default function BuyerCart() {
       removeFromCart(listingId);
     } catch (error) {
       setCheckoutError(error.message);
-    }
-  };
-
-  const sendItemRequest = async (item) => {
-    setRequestingId(item.listingId);
-    setCheckoutError('');
-    setSuccess('');
-    try {
-      await expressInterest(item, item.quantity);
-      removeFromCart(item.listingId);
-      setSuccess(
-        isKannada
-          ? `${item.crop} ಗೆ ನೇರ ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ! ಒಪ್ಪಂದ ರಚಿಸಲಾಗಿದೆ.`
-          : `Request sent for ${item.crop}! Deal created with ${item.farmerName}.`
-      );
-    } catch (error) {
-      setCheckoutError(error.message);
-    } finally {
-      setRequestingId('');
     }
   };
 
@@ -101,7 +87,7 @@ export default function BuyerCart() {
   }
 
   return (
-    <div className="dash-page buyer-cart">
+    <div className={`dash-page buyer-cart${cart.length ? " buyer-cart--has-items" : ""}`}>
       <div className="dash-page__header">
         <div>
           <h1 className="dash-page__title">{copy.title}</h1>
@@ -127,7 +113,7 @@ export default function BuyerCart() {
         <>
           <div className="cart-layout">
           <div className="cart-lines" aria-label={copy.title}>
-            <div className="cart-section-heading"><IconBasket /><h2>{reviewing ? copy.reviewTitle : copy.itemsTitle}</h2><span>{cartCount}</span></div>
+            <div className="cart-section-heading"><IconBasket /><h2 ref={reviewHeading} tabIndex={-1}>{reviewing ? copy.reviewTitle : copy.itemsTitle}</h2><span>{cartCount}</span></div>
             {cart.map((item) => (
               <article className="dash-panel cart-line" key={item.listingId}>
                 <div className="cart-line__image"><ListingImage listing={{ ...item, id: item.listingId }} /></div>
@@ -178,18 +164,6 @@ export default function BuyerCart() {
                       {text.makeOffer}
                     </button>
                   )}
-                  {!item.localOnly && (
-                    <button
-                      type="button"
-                      className="btn btn--outline btn--sm"
-                      disabled={busy || invalidQuantity}
-                      onClick={() => sendItemRequest(item)}
-                    >
-                      {requestingId === item.listingId
-                        ? (isKannada ? 'ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ…' : 'Sending…')
-                        : (copy.sendRequest || (isKannada ? 'ವಿನಂತಿ ಕಳುಹಿಸಿ' : 'Send Request'))}
-                    </button>
-                  )}
                   <button type="button" className="btn--text" disabled={busy} aria-label={`${copy.remove} ${item.crop}`} onClick={() => removeLine(item.listingId)}>
                     {copy.remove}
                   </button>
@@ -202,16 +176,18 @@ export default function BuyerCart() {
             <p className="cart-summary__count">{cartCount} {copy.distinctListings}</p>
             <div>
               <span>{copy.subtotal}</span>
-              <strong>₹{cartSubtotal(cart).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              <strong>₹{subtotal}</strong>
             </div>
             <p className="cart-summary__note">{copy.revalidation}</p>
             {reviewing && <p className="cart-summary__review" role="status">{copy.reviewDescription}</p>}
             {cart.some((item) => item.localOnly) && <p className="cart-line__notice">{copy.localOnly}</p>}
             {cart.length > MAX_CHECKOUT_LINES && <p className="cart-line__notice">{copy.checkoutLimit.replace('{count}', String(MAX_CHECKOUT_LINES))}</p>}
+            <div className="cart-checkout-actions">
+              <div className="cart-mobile-total"><span>{copy.subtotal}<small>{copy.noPaymentNow}</small></span><strong>₹{subtotal}</strong></div>
             <button
               type="button"
               className="btn btn--primary cart-checkout"
-              disabled={busy || invalidQuantity || Boolean(cartError) || cart.some((item) => item.localOnly) || cart.length > MAX_CHECKOUT_LINES}
+              disabled={checkoutBlocked}
               onClick={() => {
                 if (reviewing) checkout();
                 else { setReviewing(true); setCheckoutError(''); }
@@ -220,6 +196,8 @@ export default function BuyerCart() {
               <IconBasket />
               <span>{checkingOut ? copy.checkingOut : reviewing ? copy.confirmCheckout : copy.proceedToCheckout}</span>
             </button>
+              {checkoutBlocked && !busy && <span className="cart-checkout-hint">{copy.checkCart}</span>}
+            </div>
             {reviewing && <button type="button" className="btn btn--outline cart-edit" disabled={busy} onClick={() => setReviewing(false)}>{copy.editCart}</button>}
           </section>
           </div>

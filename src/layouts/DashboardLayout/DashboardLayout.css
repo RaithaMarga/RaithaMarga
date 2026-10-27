@@ -335,3 +335,12 @@
   .dashlayout__topbar { padding: var(--space-3) var(--space-4); }
   .dashlayout__role-tag { display: none; }
 }
+@media (max-width: 600px) {
+  .dashlayout__topbar { gap: 8px; flex-wrap: wrap; }
+  .dashlayout__identity { min-width: 0; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .dashlayout__verif { max-width: 140px; overflow-wrap: anywhere; }
+  .dashlayout__menu-toggle, .dashlayout__cart-link, .dashlayout__lang-btn, .dashlayout__topbar-logout { min-height: 44px; }
+  .dashlayout__menu-toggle, .dashlayout__cart-link { min-width: 44px; }
+  .dashlayout__content { padding: 16px; }
+  .dashlayout__sidebar { max-width: calc(100vw - 48px); }
+}

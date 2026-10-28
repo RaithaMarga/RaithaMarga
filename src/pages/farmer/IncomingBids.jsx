@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../lib/api';
 import EmptyState from '../../components/dashboard/EmptyState';
+import BidHistory from '../../components/dashboard/BidHistory';
 import { IconScale } from '../../components/dashboard/icons';
 import '../../components/dashboard/dashboard-ui.css';
 
-export default function IncomingBids() {
+export default function IncomingBids({ admin = false }) {
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,8 +77,8 @@ export default function IncomingBids() {
     <div className="dash-page">
       <div className="dash-page__header">
         <div>
-          <h1 className="dash-page__title">{text.title}</h1>
-          <p className="dash-page__subtitle">{text.subtitle}</p>
+          <h1 className="dash-page__title">{admin ? 'Offers for team-added farmers' : text.title}</h1>
+          <p className="dash-page__subtitle">{admin ? 'These farmers have no login. Enter their reply here after speaking with them; every action is recorded in the audit log.' : text.subtitle}</p>
         </div>
       </div>
 
@@ -187,6 +188,8 @@ export default function IncomingBids() {
                     </button>
                   </div>
                 )}
+
+                <BidHistory bid={bid} />
 
                 <p style={{ color: 'var(--color-ink-faint)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--space-3)' }}>
                   {text.received} {bid.createdAt ? new Date(bid.createdAt).toLocaleDateString('en-IN') : '—'}

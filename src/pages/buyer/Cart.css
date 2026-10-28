@@ -71,3 +71,36 @@
   .buyer-cart .cart-line__actions .btn--text { grid-column: auto; }
   .buyer-cart .cart-line__actions { grid-template-columns: minmax(0, 1fr) auto; }
 }
+
+.buyer-cart .cart-summary__list { list-style: none; display: grid; gap: 10px; padding: 0; margin: 0; }
+.buyer-cart .cart-summary__list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.buyer-cart .cart-summary__list strong { font-size: 18px; }
+.buyer-cart .cart-checkout { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+
+/* "Make an Offer": solid green, white text, soft lift on hover. */
+.buyer-cart .cart-offer-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(135deg, var(--color-primary-light, #2e7d4f), var(--color-primary-dark, #14532d));
+  color: #fff; font: inherit; font-weight: 700; font-size: 15px; letter-spacing: .2px;
+  box-shadow: 0 6px 16px rgba(20, 83, 45, .28);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.buyer-cart .cart-offer-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(20, 83, 45, .35); }
+.buyer-cart .cart-offer-btn:active:not(:disabled) { transform: translateY(0); }
+.buyer-cart .cart-offer-btn:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+
+/* "View deals" / "Track in My Bids" / "Reply in My Bids": readable in every state. */
+.buyer-cart .cart-link-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 46px; padding: 0 22px; border-radius: 999px; text-decoration: none;
+  background: #fff; color: #14532d; border: 2px solid #14532d;
+  font: inherit; font-weight: 700; font-size: 15px;
+  transition: background .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.buyer-cart .cart-link-btn:hover,
+.buyer-cart .cart-link-btn:focus-visible {
+  background: #14532d; color: #fff; transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(20, 83, 45, .28);
+}
+.buyer-cart .cart-link-btn:focus-visible { outline: 3px solid #f5c518; outline-offset: 2px; }

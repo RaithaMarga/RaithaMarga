@@ -33,6 +33,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminAddFarmer from './pages/admin/AdminAddFarmer';
 import AdminMarketplace from './pages/admin/AdminMarketplace';
 import AdminAudit from './pages/admin/AdminAudit';
+import AdminBids from './pages/admin/AdminBids';
 import IncomingBids from './pages/farmer/IncomingBids';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
@@ -108,6 +109,7 @@ function App() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="farmers" element={<AdminAddFarmer />} />
               <Route path="marketplace" element={<AdminMarketplace />} />
+              <Route path="bids" element={<AdminBids />} />
               <Route path="audit" element={<AdminAudit />} />
             </Route>
           </Routes>

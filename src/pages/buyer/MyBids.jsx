@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import BidHistory from '../../components/dashboard/BidHistory';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../lib/api';
@@ -11,7 +12,11 @@ export default function MyBids() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingId, setSavingId] = useState('');
-  const { t } = useLanguage();
+  const [counterBidId, setCounterBidId] = useState(null);
+  const [counterPrice, setCounterPrice] = useState('');
+  const { t, language } = useLanguage();
+  const isKannada = language === 'kn';
+  const tr = (en, kn) => (isKannada ? kn : en);
   const text = t.trading.buyerBids;
 
   const loadBids = useCallback(async () => {
@@ -44,14 +49,16 @@ export default function MyBids() {
     return () => { active = false; };
   }, []);
 
-  const handleAction = async (bidId, action) => {
+  const handleAction = async (bidId, action, extra = {}) => {
     setError('');
     setSavingId(bidId);
     try {
       await apiRequest(`/bids/${bidId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, ...extra }),
       });
+      setCounterBidId(null);
+      setCounterPrice('');
       await loadBids();
     } catch (requestError) {
       setError(requestError.message);
@@ -87,7 +94,7 @@ export default function MyBids() {
           {bids.map((bid) => {
             const status = String(bid.status || '').toLowerCase();
             const info = {
-              offered: { label: text.offerSent, badge: 'gold' },
+              offered: { label: tr('Waiting for farmer', 'ರೈತರ ಉತ್ತರಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ'), badge: 'gold' },
               countered: { label: text.counterReceived, badge: 'gold' },
               accepted: { label: text.agreed, badge: 'success' },
               rejected: { label: text.rejected, badge: 'muted' },
@@ -137,12 +144,48 @@ export default function MyBids() {
                       >
                         {text.rejectCounter}
                       </button>
+                      <button
+                        type="button"
+                        className="btn btn--outline btn--sm"
+                        disabled={savingId === bid.id}
+                        onClick={() => {
+                          setCounterBidId(counterBidId === bid.id ? null : bid.id);
+                          setCounterPrice(String(bid.counterPrice ?? ''));
+                        }}
+                      >
+                        {tr('Counter with my price', 'ನನ್ನ ಬೆಲೆಯಲ್ಲಿ ಪ್ರತಿಪ್ರಸ್ತಾವನೆ')}
+                      </button>
                     </>
+                  )}
+                  {status === 'offered' && (
+                    <span style={{ color: 'var(--color-ink-soft)', fontSize: 'var(--font-size-sm)' }}>
+                      {tr('Your offer is locked until the farmer accepts, rejects or counters.', 'ರೈತರು ಒಪ್ಪುವವರೆಗೆ, ತಿರಸ್ಕರಿಸುವವರೆಗೆ ಅಥವಾ ಪ್ರತಿಪ್ರಸ್ತಾವನೆ ನೀಡುವವರೆಗೆ ನಿಮ್ಮ ಪ್ರಸ್ತಾವನೆ ಬದಲಿಸಲಾಗದು.')}
+                    </span>
                   )}
                   {status === 'accepted' && bid.dealId && (
                     <Link to="/buyer/dashboard/deals" className="btn btn--outline btn--sm">{text.viewDeal}</Link>
                   )}
                 </div>
+
+                {counterBidId === bid.id && status === 'countered' && (
+                  <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', marginTop: 'var(--space-3)', flexWrap: 'wrap' }}>
+                    <div className="dash-field" style={{ flex: '1 1 180px' }}>
+                      <label htmlFor={`buyer-counter-${bid.id}`}>{tr(`Your new price per ${bid.unit || 'kg'} (₹)`, `ನಿಮ್ಮ ಹೊಸ ಬೆಲೆ (₹)`)}</label>
+                      <input id={`buyer-counter-${bid.id}`} type="number" min="0.01" step="0.01" value={counterPrice}
+                        onChange={(event) => setCounterPrice(event.target.value)} />
+                    </div>
+                    <button type="button" className="btn btn--primary btn--sm" disabled={savingId === bid.id}
+                      onClick={() => {
+                        const price = Number(counterPrice);
+                        if (!price || price <= 0) { setError(tr('Enter a valid price.', 'ಸರಿಯಾದ ಬೆಲೆ ನಮೂದಿಸಿ.')); return; }
+                        handleAction(bid.id, 'BUYER_COUNTER', { counterPrice: price });
+                      }}>
+                      {tr('Send my price', 'ನನ್ನ ಬೆಲೆ ಕಳುಹಿಸಿ')}
+                    </button>
+                  </div>
+                )}
+
+                <BidHistory bid={bid} youAre="BUYER" isKannada={isKannada} />
 
                 <p style={{ color: 'var(--color-ink-faint)', fontSize: 'var(--font-size-xs)', marginTop: 'var(--space-3)' }}>
                   {text.submitted} {bid.createdAt ? new Date(bid.createdAt).toLocaleDateString('en-IN') : '—'}

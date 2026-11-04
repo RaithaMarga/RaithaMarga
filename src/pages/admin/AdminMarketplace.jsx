@@ -43,6 +43,50 @@ const NEXT_STATUSES = {
 };
 const LABELS = { CONFIRMED: 'Confirm', IN_PROGRESS: 'Start', COMPLETED: 'Complete', CANCELLED: 'Cancel', FAILED: 'Mark failed' };
 
+const TONES = { PAID: 'success', CONFIRMED: 'success', SETTLED: 'success', READY: 'gold', PENDING: 'gold', NOT_DUE: 'muted' };
+const PAY_LABELS = { PAID: 'Paid', PENDING: 'Pending', CONFIRMED: 'Confirmed', NOT_DUE: 'Not due', READY: 'Ready to settle', SETTLED: 'Settled' };
+const PayBadge = ({ value }) => (
+  <span className={`status-badge status-badge--${TONES[value] || 'muted'}`}>{PAY_LABELS[value] || value || 'Pending'}</span>
+);
+
+// Records that the team has paid the farmer. The server only allows it once payment is verified and delivery confirmed.
+const SettleControl = ({ row, onDone }) => {
+  const [open, setOpen] = useState(false);
+  const [reference, setReference] = useState('');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const submit = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      await adminApi.settleDeal(row.id, { reference: reference.trim(), note: note.trim() || null });
+      setOpen(false);
+      onDone();
+    } catch (err) {
+      setError(err.message || 'Could not record the payout.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (!open) {
+    return <button type="button" className="btn btn--sm btn--primary" onClick={() => setOpen(true)}>Record payout</button>;
+  }
+  return (
+    <div style={{ display: 'grid', gap: 6, minWidth: 200 }}>
+      <input aria-label="Payout reference" placeholder="Payout reference (UTR / txn id)" maxLength={120}
+        value={reference} onChange={(event) => setReference(event.target.value)} />
+      <input aria-label="Note" placeholder="Note (optional)" maxLength={500}
+        value={note} onChange={(event) => setNote(event.target.value)} />
+      {error ? <span role="alert" style={{ color: 'var(--color-danger, #b3261e)' }}>{error}</span> : null}
+      <div className="admin-table__actions">
+        <button type="button" className="btn btn--sm btn--primary" disabled={busy || !reference.trim()} onClick={submit}>Save</button>
+        <button type="button" className="btn btn--sm btn--outline" disabled={busy} onClick={() => setOpen(false)}>Cancel</button>
+      </div>
+    </div>
+  );
+};
+
 const DealsTable = () => {
   const { data, loading, error, reload } = useAdminResource(adminApi.deals);
   const [busy, setBusy] = useState('');
@@ -79,7 +123,7 @@ const DealsTable = () => {
       {rows.length === 0 ? <EmptyState icon="⚖" title="No matching deals" description="Try changing or clearing the deal filters." /> : null}
       {actionError ? <div className="dash-banner dash-banner--error">{actionError}</div> : null}
       {rows.length > 0 ? <table className="admin-table">
-        <thead><tr><th>Crop</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Farmer phone</th><th>Buyer</th><th>Buyer contact</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Crop</th><th>Quantity</th><th>Price</th><th>Farmer</th><th>Farmer phone</th><th>Buyer</th><th>Buyer contact</th><th>Date</th><th>Status</th><th>Payment</th><th>Delivery</th><th>Settlement</th><th>Actions</th></tr></thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
@@ -93,7 +137,17 @@ const DealsTable = () => {
               <td>{formatDateTime(row.createdAt)}</td>
               <td><StatusBadge status={String(row.status).toLowerCase()} /></td>
               <td>
+                <PayBadge value={row.paymentStatus} />
+                <span className="admin-table__sub">₹{Number(row.totalAmount || 0).toLocaleString('en-IN')}</span>
+              </td>
+              <td><PayBadge value={row.deliveryStatus} /></td>
+              <td>
+                <PayBadge value={row.settlementStatus} />
+                {row.settlementReference ? <span className="admin-table__sub">Ref {row.settlementReference}</span> : null}
+              </td>
+              <td>
                 <div className="admin-table__actions">
+                  {row.settlementStatus === 'READY' ? <SettleControl row={row} onDone={reload} /> : null}
                   {(row.managed ? NEXT_STATUSES[row.status] || [] : []).map((next) => (
                     <button key={next} type="button" className="btn btn--sm btn--outline" disabled={busy === row.id} onClick={() => move(row.id, next)}>
                       {LABELS[next]}

@@ -17,6 +17,8 @@ export const adminApi = {
     patch(`/admin/verifications/${role}/${uid}`, { status, note: note || null }),
   users: ({ role, status } = {}) => apiRequest(withQuery('/admin/users', { role, status })),
   updateUserStatus: (uid, status) => patch(`/admin/users/${uid}/status`, { status }),
+  updateUser: (uid, body) => patch(`/admin/users/${encodeURIComponent(uid)}`, body),
+  deleteUser: (uid) => apiRequest(`/admin/users/${encodeURIComponent(uid)}`, { method: 'DELETE' }),
   listings: () => apiRequest('/admin/listings'),
   deals: () => apiRequest('/admin/deals'),
   auditLogs: () => apiRequest('/admin/audit-logs'),
@@ -25,5 +27,8 @@ export const adminApi = {
   createFarmer: (body) => apiRequest('/admin/farmers', { method: 'POST', body: JSON.stringify(body) }),
   removeFarmer: (id) => apiRequest(`/admin/farmers/${encodeURIComponent(id)}/remove`, { method: 'POST' }),
   // Admins can move deals that belong to team-added farmers (those farmers have no login).
+  // Records the manual farmer payout; the server allows it only when payment is verified and delivery confirmed.
+  settleDeal: (id, body) => apiRequest(`/payments/deals/${encodeURIComponent(id)}/settlement`, { method: 'POST', body: JSON.stringify(body) }),
   updateDealStatus: (id, status) => patch(`/deals/${encodeURIComponent(id)}/status`, { status }),
+  verifyPayment: (id, body = {}) => patch(`/deals/${encodeURIComponent(id)}/status`, { paymentStatus: 'PAID', ...body }),
 };

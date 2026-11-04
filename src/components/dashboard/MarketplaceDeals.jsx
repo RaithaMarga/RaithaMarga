@@ -5,17 +5,10 @@ import { useMarketplaceListings } from '../../hooks/useMarketplaceListings';
 import { apiRequest } from '../../lib/api';
 import { fromApiDeal, fromApiListing, isLocalDeal, updateLocalDealStatus } from '../../lib/marketplace';
 import EmptyState from './EmptyState';
+import DealCard from './DealCard';
 import { IconScale } from './icons';
 import './dashboard-ui.css';
-
-const STATUS_LABELS = {
-  interested: 'Interest requested',
-  confirmed: 'Confirmed',
-  in_progress: 'In progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-  failed: 'Failed',
-};
+import './payments.css';
 
 const farmerActions = {
   interested: [['CONFIRMED', 'Confirm deal']],
@@ -128,32 +121,20 @@ export default function MarketplaceDeals({ role }) {
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
-          {visibleDeals.map((deal) => {
-            const action = actionMap[deal.status];
-            return (
-              <article key={deal.id} className="dash-panel">
-                <p style={{ fontFamily: 'monospace', color: 'var(--color-ink-faint)' }}>Deal {deal.id}</p>
-                <h2>{deal.listing?.crop || 'Produce'} · {deal.quantity} {deal.listing?.unit || ''}</h2>
-                <p>Unit price: ₹{deal.price ?? deal.agreedPrice ?? '—'} · Total: ₹{deal.totalAmount.toLocaleString('en-IN')}</p>
-                <p>Status: <strong>{STATUS_LABELS[deal.status] || deal.status}</strong></p>
-                {!deal.listing && <p>Listing reference: {deal.listingId}</p>}
-                {action?.map(([status, label]) => (
-                  <button
-                    key={status}
-                    type="button"
-                    className="btn btn--primary btn--sm"
-                    disabled={savingId === deal.id}
-                    onClick={() => updateStatus(deal.id, status)}
-                  >
-                    {savingId === deal.id ? 'Updating…' : label}
-                  </button>
-                ))}
-              </article>
-            );
-          })}
+          {visibleDeals.map((deal) => (
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              role={role}
+              actions={actionMap[deal.status] || []}
+              busy={savingId === deal.id}
+              canView={!isLocalDeal(deal.id)}
+              onAction={updateStatus}
+            />
+          ))}
         </div>
       )}
-      <p className="dash-page__subtitle">Proof uploads, pickup scheduling, and payment settlement are not supported by the backend yet.</p>
+      <p className="dash-page__subtitle">Proof uploads and pickup scheduling are not supported yet.</p>
     </div>
   );
 }

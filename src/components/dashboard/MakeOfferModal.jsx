@@ -6,7 +6,7 @@ import './dashboard-ui.css';
 export default function MakeOfferModal({ listing, onClose, onSuccess }) {
   const available = Number(listing.availableQuantity ?? listing.quantity);
   const askingPrice = Number(listing.expectedPrice ?? listing.price);
-  const [quantity, setQuantity] = useState(String(Math.min(1, available)));
+  const [quantity, setQuantity] = useState(String(listing.defaultQuantity ?? Math.min(1, available)));
   const [offerPrice, setOfferPrice] = useState(String(askingPrice));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

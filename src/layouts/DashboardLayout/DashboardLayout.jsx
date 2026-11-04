@@ -72,11 +72,6 @@ const DashboardLayout = ({ role, navItems, profileName, verificationStatus, cart
             <span>{isKannada ? 'English' : 'ಕನ್ನಡ'}</span>
           </button>
 
-          <Link to="/" className="dashlayout__exit" onClick={() => setMenuOpen(false)}>
-            <span aria-hidden="true">←</span>
-            <span>{d.backToHome || (isKannada ? 'ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ' : 'Back to homepage')}</span>
-          </Link>
-
           <button
             type="button"
             className="dashlayout__sidebar-btn dashlayout__sidebar-logout"

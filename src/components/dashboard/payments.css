@@ -1,0 +1,26 @@
+.pay-badges { list-style: none; margin: var(--space-3, 12px) 0 0; padding: 0; display: grid; gap: 8px; }
+.pay-badges li { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pay-badges--compact { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.pay-badges--compact li { gap: 8px; }
+.pay-badges__label { color: var(--color-ink-soft, #4a4a3f); font-size: 14px; }
+
+.pay-amounts { display: grid; gap: 10px; margin: 0 0 16px; }
+.pay-amounts div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pay-amounts dt { color: var(--color-ink-soft, #4a4a3f); }
+.pay-amounts dd { margin: 0; font-weight: 700; }
+.pay-amounts .pay-amounts__total { border-top: 1px solid var(--color-border, #e6dfc8); padding-top: 12px; font-size: 1.25rem; }
+
+.pay-now {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 28px; border: 0; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(135deg, #2e7d4f, #14532d); color: #fff; font: inherit; font-weight: 700; font-size: 16px;
+  box-shadow: 0 6px 16px rgba(20, 83, 45, .28);
+}
+.pay-now:hover:not(:disabled) { transform: translateY(-2px); }
+/* Disabled until genuine Razorpay credentials are configured: clearly inactive, still readable. */
+.pay-now:disabled { background: #d9d6c7; color: #55533f; box-shadow: none; cursor: not-allowed; }
+.pay-note { margin: 10px 0 0; color: var(--color-ink-soft, #4a4a3f); font-size: 14px; }
+.pay-note--soon { font-weight: 600; color: #7a5a00; }
+.pay-section { border-top: 1px solid var(--color-border, #e6dfc8); margin-top: 18px; padding-top: 16px; }
+.pay-section h3 { margin: 0 0 8px; font-size: 1rem; }
+.pay-link { color: #14532d; font-weight: 700; text-decoration: underline; }

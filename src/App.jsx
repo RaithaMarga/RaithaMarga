@@ -33,6 +33,8 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminAddFarmer from './pages/admin/AdminAddFarmer';
 import AdminMarketplace from './pages/admin/AdminMarketplace';
 import AdminAudit from './pages/admin/AdminAudit';
+import AdminBids from './pages/admin/AdminBids';
+import DealDetailsPage from './components/dashboard/DealDetailsPage';
 import IncomingBids from './pages/farmer/IncomingBids';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
@@ -71,6 +73,7 @@ function App() {
               <Route path="matches" element={<BuyerMatches />} />
               <Route path="bids" element={<IncomingBids />} />
               <Route path="deals" element={<MyDeals />} />
+              <Route path="deals/:dealId" element={<DealDetailsPage role="farmer" />} />
               <Route path="account" element={<FarmerAccountDetails />} />
               <Route path="profile" element={<FarmerProfile />} />
             </Route>
@@ -91,6 +94,7 @@ function App() {
               <Route path="recommended" element={<RecommendedMatches />} />
               <Route path="requests" element={<RequestsOrders />} />
               <Route path="deals" element={<Deals />} />
+              <Route path="deals/:dealId" element={<DealDetailsPage role="buyer" />} />
               <Route path="profile" element={<BuyerProfile />} />
             </Route>
 
@@ -108,6 +112,7 @@ function App() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="farmers" element={<AdminAddFarmer />} />
               <Route path="marketplace" element={<AdminMarketplace />} />
+              <Route path="bids" element={<AdminBids />} />
               <Route path="audit" element={<AdminAudit />} />
             </Route>
           </Routes>

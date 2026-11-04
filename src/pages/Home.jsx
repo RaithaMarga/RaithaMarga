@@ -1,5 +1,5 @@
 import Navbar from '../components/Navbar/Navbar';
-import Hero from '../components/Hero/Hero';
+import HeroSlider from '../components/HeroSlider/HeroSlider';
 import TrustBar from '../components/TrustBar/TrustBar';
 import CropShowcase from '../components/CropShowcase';
 import HowItWorks from '../components/HowItWorks/HowItWorks';
@@ -15,14 +15,31 @@ const Home = () => {
     <>
       <Navbar />
       <main>
-        <Hero />
+        {/* Animated Hero Banner Slider */}
+        <HeroSlider />
+
+        {/* Trust Badges & Verified Standards */}
         <TrustBar />
+
+        {/* Crops on RaithaMarga Showcase */}
         <CropShowcase />
+
+        {/* How It Works Flow */}
         <HowItWorks />
+
+        {/* Sell On WhatsApp Section (Preserved) */}
         <SellOnWhatsApp />
+
+        {/* Features & Why RaithaMarga */}
         <Features />
+
+        {/* Impact Numbers */}
         <Impact />
+
+        {/* Contact Desk */}
         <ContactSection />
+
+        {/* Final CTA */}
         <FinalCta />
       </main>
       <Footer />

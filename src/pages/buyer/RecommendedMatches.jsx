@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useBuyerData } from '../../context/BuyerDataContext';
 import { apiRequest } from '../../lib/api';
 import EmptyState from '../../components/dashboard/EmptyState';
@@ -11,16 +11,14 @@ import { isLocalListing } from '../../lib/marketplace';
 import { useLanguage } from '../../context/LanguageContext';
 
 const RecommendedMatches = () => {
-  const { requirements, listings, expressInterest, addToCart, hasRequested, dataError, dataLoading } = useBuyerData();
+  const { requirements, listings, addToCart, dataError, dataLoading } = useBuyerData();
   const { t } = useLanguage();
   const trading = t.trading;
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [actionError, setActionError] = useState('');
   const [cartMessage, setCartMessage] = useState('');
   const [offerListing, setOfferListing] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let active = true;
@@ -44,16 +42,6 @@ const RecommendedMatches = () => {
     return () => { active = false; };
   }, [listings, requirements]);
 
-  const handleExpressInterest = async (match) => {
-    setActionError('');
-    try {
-      await expressInterest(match.listing, match.requirement.quantity);
-      navigate('/buyer/dashboard/deals');
-    } catch (requestError) {
-      setActionError(requestError.message);
-    }
-  };
-
   return (
     <div className="dash-page">
       <div className="dash-page__header">
@@ -62,8 +50,8 @@ const RecommendedMatches = () => {
           <p className="dash-page__subtitle">Active listings matched to your published requirements.</p>
         </div>
       </div>
-      {(dataError || error || actionError) && (
-        <div className="dash-banner dash-banner--error" role="alert">{actionError || error || dataError}</div>
+      {(dataError || error) && (
+        <div className="dash-banner dash-banner--error" role="alert">{error || dataError}</div>
       )}
       {cartMessage && <div className="dash-banner dash-banner--success" role="status">{cartMessage}</div>}
       {loading || dataLoading ? (
@@ -80,7 +68,6 @@ const RecommendedMatches = () => {
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
           {matches.map((match) => {
-            const requested = hasRequested(match.listingId);
             return (
               <article key={match.id} className="dash-panel">
                 <ListingImage listing={match.listing} />
@@ -95,22 +82,14 @@ const RecommendedMatches = () => {
                     try {
                       addToCart(match.listing);
                       setCartMessage(trading.addedToCart.replace('{crop}', match.listing.crop));
-                      setActionError('');
                     } catch (requestError) {
-                      setActionError(requestError.message);
+                      setCartMessage(requestError.message);
                     }
                   }}>{trading.addToCart}</button>
                 )}
-                {!match.listing.managed && !isLocalListing(match.listing) && (
-                  <button type="button" className="btn btn--outline btn--sm" onClick={() => setOfferListing(match.listing)}>
+                {!isLocalListing(match.listing) && (
+                  <button type="button" className="btn btn--primary btn--sm" onClick={() => setOfferListing(match.listing)}>
                     {trading.makeOffer}
-                  </button>
-                )}
-                {requested ? (
-                  <button className="btn btn--outline btn--sm" type="button" disabled>Deal already opened</button>
-                ) : (
-                  <button className="btn btn--primary btn--sm" type="button" onClick={() => handleExpressInterest(match)}>
-                    Open Deal
                   </button>
                 )}
               </article>

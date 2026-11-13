@@ -5,3 +5,8 @@ export const STORAGE_KEYS = {
   MARKETPLACE_LISTINGS: 'raithamarga.marketplaceListings',
   BUYER_DEALS: 'raithamarga.buyerDeals',
 };
+
+export function accountStorageKey(key, uid) {
+  if (!uid) throw new Error('A signed-in account is required for profile storage.');
+  return `${key}.${encodeURIComponent(uid)}`;
+}

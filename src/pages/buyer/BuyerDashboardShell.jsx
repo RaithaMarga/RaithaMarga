@@ -33,10 +33,13 @@ const BuyerShellInner = () => {
   );
 };
 
-const BuyerDashboardShell = () => (
-  <BuyerDataProvider>
-    <BuyerShellInner />
-  </BuyerDataProvider>
-);
+const BuyerDashboardShell = () => {
+  const { user } = useAuth();
+  return (
+    <BuyerDataProvider key={user?.uid || 'signed-out'}>
+      <BuyerShellInner />
+    </BuyerDataProvider>
+  );
+};
 
 export default BuyerDashboardShell;

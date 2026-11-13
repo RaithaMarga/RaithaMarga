@@ -29,6 +29,7 @@ The frontend currently supports:
 
 - Firebase Email/Password sign-in and authenticated `/api/me` role/profile checks.
 - Creating and browsing active produce listings; publishing buyer requirements.
+- A site-wide support chat for marketplace availability, indicative quantity-price estimates, and common buying/selling questions.
 - Reading backend-generated matches and opening deals as a buyer.
 - Updating deal status through the backend's allowed transitions.
 

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import logoMark from '../../assets/logo-mark.png';
+import logoMark from '../../assets/raithamarga-new-mark.jpg';
 import './Footer.css';
 
 const Footer = () => {
@@ -26,6 +26,7 @@ const Footer = () => {
             <a href="#trust">{t.nav.trust}</a>
             <a href="#impact">{t.nav.impact}</a>
             <a href="#contact">{t.nav.contact}</a>
+            <Link to="/policies">{t.footer.policies}</Link>
           </div>
           <div className="footer__col">
             <h4 className="footer__heading">{t.footer.forYou}</h4>

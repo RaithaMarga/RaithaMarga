@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    Navbar
    ============================================ */
 .navbar {
@@ -117,6 +117,86 @@
     align-items: center;
     gap: var(--space-4);
   }
+}
+
+/* Exact Amazon Style Header Cart Button */
+.amazon-header-cart {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  text-decoration: none;
+  padding: 4px 10px 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #ffffff;
+  transition: all 0.16s ease;
+  cursor: pointer;
+  position: relative;
+  line-height: 1;
+}
+
+.amazon-header-cart:hover {
+  border-color: #f08804;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.amazon-header-cart__icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 35px;
+}
+
+.amazon-header-cart__count {
+  position: absolute;
+  top: 1px;
+  left: 17px;
+  color: #f08804;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  min-width: 15px;
+}
+
+.amazon-header-cart__svg {
+  color: #ffffff;
+  transition: transform 0.15s ease;
+}
+
+.amazon-header-cart:hover .amazon-header-cart__svg {
+  color: #f08804;
+}
+
+.amazon-header-cart__title {
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding-bottom: 4px;
+}
+
+.amazon-header-cart--mobile {
+  width: 100%;
+  justify-content: center;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  background: rgba(15, 61, 36, 0.2);
+  border: 1px solid rgba(240, 136, 4, 0.4);
+  border-radius: 8px;
+}
+
+.navbar__cart-btn--mobile {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
 }
 
 .navbar__lang-toggle {
@@ -283,4 +363,27 @@
   flex-direction: column;
   gap: var(--space-3);
   margin-top: var(--space-5);
+}
+
+@media (max-width: 640px) {
+  .navbar { padding: var(--space-3) 0; }
+
+  .navbar--scrolled { padding: var(--space-2) 0; }
+
+  .navbar__container { gap: var(--space-2); }
+
+  .navbar__logo { gap: 6px; }
+
+  .navbar__logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .navbar__logo-text { font-size: var(--font-size-lg); }
+
+  .navbar__mobile {
+    max-height: calc(100vh - 60px);
+    max-height: calc(100dvh - 60px);
+    overflow-y: auto;
+  }
 }

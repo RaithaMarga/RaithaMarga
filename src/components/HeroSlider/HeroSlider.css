@@ -70,6 +70,17 @@
       rgba(15, 61, 36, 0.65) 100%
     );
   }
+
+  .hero-slider__bg-slide--farmer { background-position: 72% center; }
+
+  .hero-slider__bg-slide--farmer .hero-slider__overlay {
+    background: linear-gradient(
+      90deg,
+      rgba(15, 61, 36, 0.9) 0%,
+      rgba(15, 61, 36, 0.78) 48%,
+      rgba(15, 61, 36, 0.56) 100%
+    );
+  }
 }
 
 /* Floating ambient particles */
@@ -415,4 +426,94 @@
   width: 38px;
   background: #f0b93e;
   box-shadow: 0 0 10px rgba(240, 185, 62, 0.8);
+}
+
+@media (max-width: 768px) {
+  .hero-slider {
+    min-height: 0;
+    padding-top: 56px;
+    align-items: flex-start;
+  }
+
+  .hero-slider__content-wrap {
+    padding-top: 34px;
+    padding-bottom: 70px;
+  }
+
+  .hero-slider__content { max-width: 100%; }
+
+  .hero-slider__badge-wrap {
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .hero-slider__badge {
+    font-size: 0.72rem;
+    letter-spacing: 0;
+    padding: 6px 10px;
+  }
+
+  .hero-slider__tag {
+    font-size: 0.65rem;
+    padding: 5px 8px;
+  }
+
+  .hero-slider__title {
+    font-size: clamp(1.8rem, 7.5vw, 2.5rem);
+    line-height: 1.14;
+    margin-bottom: 14px;
+  }
+
+  .hero-slider__desc {
+    font-size: 0.94rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .hero-slider__actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .hero-btn,
+  .hero-slider__wa-pill {
+    width: 100%;
+    min-height: 46px;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+
+  .hero-slider__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 12px 10px;
+  }
+
+  .hero-slider__stat-item { min-width: 0; }
+
+  .hero-slider__stat-num {
+    font-size: clamp(0.9rem, 4vw, 1.2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .hero-slider__stat-label {
+    font-size: 0.64rem;
+    line-height: 1.25;
+  }
+
+  .hero-slider__indicators { bottom: 12px; }
+}
+
+@media (max-width: 380px) {
+  .hero-slider__content-wrap { padding-top: 26px; }
+
+  .hero-slider__title { font-size: 1.75rem; }
+
+  .hero-slider__badge-wrap { flex-direction: column; }
 }

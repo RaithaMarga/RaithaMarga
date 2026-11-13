@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/useAuth';
-import logoMark from '../../assets/logo-mark.png';
+import logoMark from '../../assets/raithamarga-new-mark.jpg';
 import './DashboardLayout.css';
 
 const DashboardLayout = ({ role, navItems, profileName, verificationStatus, cartCount = 0 }) => {
@@ -117,12 +117,33 @@ const DashboardLayout = ({ role, navItems, profileName, verificationStatus, cart
             {role === 'Buyer' ? (
               <Link
                 to="/buyer/dashboard/cart"
-                className="dashlayout__cart-link"
+                className="amazon-dash-cart"
                 aria-label={`${cartCount} ${isKannada ? 'ವಸ್ತುಗಳು ಕಾರ್ಟ್‌ನಲ್ಲಿ' : 'items in cart'}`}
-                title={isKannada ? 'ಕಾರ್ಟ್' : 'Cart'}
+                title={isKannada ? 'ಕಾರ್ಟ್ ವೀಕ್ಷಿಸಿ' : 'View Cart'}
               >
-                <span aria-hidden="true">🛒</span>
-                <span className="dashlayout__cart-count">{cartCount}</span>
+                <div className="amazon-dash-cart__icon-wrap">
+                  <span className="amazon-dash-cart__count">{cartCount}</span>
+                  <svg
+                    className="amazon-dash-cart__svg"
+                    viewBox="0 0 38 35"
+                    width="36"
+                    height="33"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M1 2.5h5.5l3.8 20.2h20.4l4.3-14.2H8"
+                      stroke="currentColor"
+                      strokeWidth="2.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="13.5" cy="28.5" r="3" fill="currentColor" />
+                    <circle cx="27.5" cy="28.5" r="3" fill="currentColor" />
+                  </svg>
+                </div>
+                <span className="amazon-dash-cart__label">{isKannada ? 'ಕಾರ್ಟ್' : 'Cart'}</span>
               </Link>
             ) : null}
             {/* Topbar Language Switcher */}

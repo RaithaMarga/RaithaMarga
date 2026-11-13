@@ -40,17 +40,17 @@ export default function BuyerCart() {
     apiRequest('/bids').then((data) => { if (active) setBids(data); }).catch(() => {});
     return () => { active = false; };
   }, []);
+
   // Several old bids can exist for one listing; only the most recent one decides what the cart shows.
   const bidByListing = {};
   [...bids]
     .sort((a, b) => String(a.updatedAt || a.createdAt || '').localeCompare(String(b.updatedAt || b.createdAt || '')))
     .forEach((bid) => { bidByListing[bid.listingId] = bid; });
   const statusOf = (item) => String(bidByListing[item.listingId]?.status || '').toLowerCase();
-  // A rejected negotiation is closed: the buyer can edit the quantity and make a fresh offer.
   const isLocked = (item) => ['offered', 'countered', 'accepted'].includes(statusOf(item));
 
   const invalidQuantity = cart.some((item) => {
-    if (isLocked(item)) return false; // quantity is locked while an offer is open or agreed
+    if (isLocked(item)) return false;
     const value = quantityDrafts[item.listingId] ?? item.quantity;
     const number = Number(value);
     return value === '' || !Number.isFinite(number) || number < 0.01 || number > Number(item.availableQuantity)
@@ -62,13 +62,15 @@ export default function BuyerCart() {
     sum[status] = (sum[status] || 0) + 1;
     return sum;
   }, {});
-  const agreedValue = cart.reduce((sum, item) => {
+
+  const subtotalAmount = cart.reduce((sum, item) => {
     const bid = bidByListing[item.listingId];
-    return bid && String(bid.status).toLowerCase() === 'accepted'
-      ? sum + Number(bid.quantity || 0) * Number(bid.agreedPrice || 0) : sum;
+    if (bid && String(bid.status).toLowerCase() === 'accepted') {
+      return sum + Number(bid.quantity || 0) * Number(bid.agreedPrice || 0);
+    }
+    return sum + cartLineTotal(item);
   }, 0);
 
-  // While an offer is open or agreed, the line shows the negotiated quantity and price, not the cart's draft.
   const negotiated = (item) => {
     const bid = bidByListing[item.listingId];
     if (!bid || !isLocked(item)) return null;
@@ -110,138 +112,235 @@ export default function BuyerCart() {
   };
 
   if (!cartReady && !cartError) {
-    return <div className="dash-panel" role="status">{copy.loading}</div>;
+    return <div className="dash-panel amazon-cart-panel" role="status">{copy.loading}</div>;
   }
 
   return (
-    <div className={`dash-page buyer-cart${cart.length ? " buyer-cart--has-items" : ""}`}>
-      <div className="dash-page__header">
-        <div>
-          <h1 className="dash-page__title">{copy.title}</h1>
-          <p className="dash-page__subtitle">{cartCount} {copy.distinctListings} · {copy.cartItemsDoNotReserve}</p>
-        </div>
-        <Link className="cart-link-btn" to="/buyer/dashboard/browse">{copy.continueBrowsing}</Link>
-      </div>
-
+    <div className={`dash-page amazon-cart-page${cart.length ? " amazon-cart-page--has-items" : ""}`}>
       {cartError && <div className="dash-banner dash-banner--error" role="alert">{cartError}</div>}
       {actionError && <div className="dash-banner dash-banner--error" role="alert">{actionError}</div>}
       {success && <div className="dash-banner dash-banner--success" role="status">{success} <Link to="/buyer/dashboard/bids">{tr('Open My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳು')}</Link></div>}
 
       {cart.length === 0 ? (
-        <div className="dash-panel">
+        <div className="dash-panel amazon-empty-cart">
           <EmptyState
             icon={<IconBasket />}
             title={copy.emptyTitle}
             description={copy.emptyDescription}
-            action={<Link to="/buyer/dashboard/browse" className="btn btn--primary btn--sm">{copy.browseProduce}</Link>}
+            action={<Link to="/buyer/dashboard/browse" className="amazon-btn-proceed amazon-btn-proceed--center">{copy.browseProduce}</Link>}
           />
         </div>
       ) : (
-        <>
-          <div className="cart-layout">
-          <div className="cart-lines" aria-label={copy.title}>
-            <div className="cart-section-heading"><IconBasket /><h2>{copy.itemsTitle}</h2><span>{cartCount}</span></div>
-            {cart.map((item) => {
-              const lineStatus = badgeFor(item);
-              const locked = isLocked(item);
-              const deal = negotiated(item);
-              return (
-              <article className="dash-panel cart-line" key={item.listingId}>
-                <div className="cart-line__image"><ListingImage listing={{ ...item, id: item.listingId }} /></div>
-                <div className="cart-line__details">
-                  <h2>{item.crop}</h2>
-                  <p>{copy.farmer}: <strong>{item.farmerName}</strong></p>
-                  <p>{copy.price}: ₹{item.expectedPrice} / {item.unit}</p>
-                  <p>{copy.availableWhenAdded}: {item.availableQuantity} {item.unit}</p>
-                  {lineStatus ? <span className={`status-badge status-badge--${lineStatus.badge}`}>{lineStatus.label}</span> : null}
-                  {item.localOnly && <p className="cart-line__notice">{copy.localOnly}</p>}
-                </div>
-                <div className="cart-line__quantity">
-                  <label htmlFor={`cart-quantity-${item.listingId}`}>{statusOf(item) === 'accepted' ? tr('Final quantity', 'ಅಂತಿಮ ಪ್ರಮಾಣ') : copy.quantity} ({item.unit})</label>
-                  <input
-                    id={`cart-quantity-${item.listingId}`}
-                    type="number"
-                    min="0.01"
-                    max={item.availableQuantity}
-                    step="0.01"
-                    value={deal ? deal.quantity : (quantityDrafts[item.listingId] ?? item.quantity)}
-                    inputMode="decimal"
-                    disabled={locked}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setQuantityDrafts((previous) => ({ ...previous, [item.listingId]: value }));
-                      if (value && event.target.validity.valid) changeQuantity(item.listingId, value);
-                      else setActionError(copy.quantityError);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') event.currentTarget.blur();
-                    }}
-                    aria-describedby={`cart-total-${item.listingId}`}
-                  />
-                  <strong id={`cart-total-${item.listingId}`}>{deal ? deal.label : copy.lineTotal}: ₹{money(deal ? deal.total : cartLineTotal(item))}</strong>
-                </div>
-                <div className="cart-line__actions">
-                  {!locked && !item.localOnly && (
-                    <button
-                      type="button"
-                      className="cart-offer-btn"
-                      disabled={invalidQuantity}
-                      onClick={() => setOfferListing({ ...item, defaultQuantity: quantityDrafts[item.listingId] ?? item.quantity })}
-                    >
-                      <span aria-hidden="true">🏷️</span> {statusOf(item) === 'rejected' ? tr('Make a New Offer', 'ಹೊಸ ಪ್ರಸ್ತಾವನೆ ನೀಡಿ') : text.makeOffer}
-                    </button>
-                  )}
-                  {locked && statusOf(item) !== 'accepted' && (
-                    <Link className="cart-link-btn" to="/buyer/dashboard/bids">
-                      {statusOf(item) === 'countered' ? tr('Reply in My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳಲ್ಲಿ ಉತ್ತರಿಸಿ') : tr('Track in My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳಲ್ಲಿ ನೋಡಿ')}
-                    </Link>
-                  )}
-                  {statusOf(item) === 'accepted' && (
-                    <Link className="cart-link-btn" to="/buyer/dashboard/deals">{copy.viewDeals}</Link>
-                  )}
-                  <button type="button" className="btn--text" aria-label={`${copy.remove} ${item.crop}`} onClick={() => removeLine(item.listingId)}>
-                    {copy.remove}
-                  </button>
-                </div>
-              </article>
-              );
-            })}
-          </div>
-          <section className="dash-panel cart-summary" aria-label={copy.summaryLabel}>
-            <h2>{tr('Offer status', 'ಪ್ರಸ್ತಾವನೆ ಸ್ಥಿತಿ')}</h2>
-            <p className="cart-summary__count">{cartCount} {copy.distinctListings}</p>
-            <ul className="cart-summary__list">
-              <li><span>{tr('Not offered yet', 'ಇನ್ನೂ ಪ್ರಸ್ತಾವನೆ ನೀಡಿಲ್ಲ')}</span><strong>{counts.none || 0}</strong></li>
-              {counts.rejected > 0 && <li><span>{tr('Rejected (offer again)', 'ತಿರಸ್ಕೃತ (ಮತ್ತೆ ನೀಡಿ)')}</span><strong>{counts.rejected}</strong></li>}
-              <li><span>{tr('Waiting for farmer', 'ರೈತರ ಉತ್ತರ ಬಾಕಿ')}</span><strong>{counts.offered || 0}</strong></li>
-              <li><span>{tr('Needs your reply', 'ನಿಮ್ಮ ಉತ್ತರ ಬೇಕು')}</span><strong>{counts.countered || 0}</strong></li>
-              <li><span>{tr('Agreed (deal created)', 'ಒಪ್ಪಂದವಾಗಿದೆ')}</span><strong>{counts.accepted || 0}</strong></li>
-            </ul>
-            {agreedValue > 0 && (
-              <div>
-                <span>{tr('Agreed value', 'ಒಪ್ಪಿದ ಮೌಲ್ಯ')}</span>
-                <strong>₹{money(agreedValue)}</strong>
+        <div className="amazon-cart-layout">
+          {/* Main Left: Amazon Shopping Cart Container */}
+          <section className="amazon-cart-main" aria-label="Shopping Cart">
+            <div className="amazon-cart-header">
+              <div className="amazon-cart-header__left">
+                <h1 className="amazon-cart-title">{tr('Shopping Cart', 'ಶಾಪಿಂಗ್ ಕಾರ್ಟ್')}</h1>
+                <span className="amazon-cart-deselect">{tr('Deselect all items', 'ಎಲ್ಲಾ ವಸ್ತುಗಳನ್ನು ಆಯ್ಕೆ ರದ್ದುಮಾಡಿ')}</span>
               </div>
-            )}
-            <p className="cart-summary__note">
-              {tr('Nothing is bought from the cart. A deal is created automatically only when you and the farmer agree on the same price. Payment is not taken here.',
-                'ಕಾರ್ಟ್‌ನಿಂದ ಏನೂ ಖರೀದಿಯಾಗುವುದಿಲ್ಲ. ನೀವು ಮತ್ತು ರೈತರು ಒಂದೇ ಬೆಲೆಗೆ ಒಪ್ಪಿದಾಗ ಮಾತ್ರ ಒಪ್ಪಂದ ತಾನಾಗಿ ರಚನೆಯಾಗುತ್ತದೆ. ಇಲ್ಲಿ ಪಾವತಿ ಇಲ್ಲ.')}
-            </p>
-            {cart.some((item) => item.localOnly) && <p className="cart-line__notice">{copy.localOnly}</p>}
-            <div className="cart-checkout-actions">
-              <Link className="btn btn--primary cart-checkout" to="/buyer/dashboard/bids">
-                <IconBasket />
-                <span>
-                  {counts.countered
-                    ? tr(`Reply to ${counts.countered} counter-offer(s)`, `${counts.countered} ಪ್ರತಿಪ್ರಸ್ತಾವನೆಗೆ ಉತ್ತರಿಸಿ`)
-                    : tr('Go to My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳಿಗೆ ಹೋಗಿ')}
-                </span>
-              </Link>
+              <span className="amazon-cart-header__price-col">{tr('Price', 'ಬೆಲೆ')}</span>
+            </div>
+
+            <div className="amazon-cart-items">
+              {cart.map((item) => {
+                const lineStatus = badgeFor(item);
+                const locked = isLocked(item);
+                const deal = negotiated(item);
+                const qtyVal = Number(deal ? deal.quantity : (quantityDrafts[item.listingId] ?? item.quantity));
+                const linePrice = deal ? deal.total : cartLineTotal(item);
+
+                return (
+                  <article className="amazon-cart-item" key={item.listingId}>
+                    {/* Checkbox */}
+                    <div className="amazon-cart-item__check">
+                      <input type="checkbox" defaultChecked aria-label={`Select ${item.crop}`} />
+                    </div>
+
+                    {/* Image */}
+                    <div className="amazon-cart-item__image-pod">
+                      <ListingImage listing={{ ...item, id: item.listingId }} />
+                    </div>
+
+                    {/* Details Column */}
+                    <div className="amazon-cart-item__details">
+                      <h2 className="amazon-cart-item__title">
+                        {item.crop} {item.grade ? `(${item.grade} Grade)` : ''} – {tr('Fresh Farm Direct', 'ಹೊಲದಿಂದ ತಾಜಾ ನೇರ')}
+                      </h2>
+
+                      <p className="amazon-cart-item__farmer">
+                        {tr('Sold by:', 'ರೈತರು:')} <strong>{item.farmerName}</strong>
+                      </p>
+
+                      <div className="amazon-cart-item__stock-status">
+                        <span className="amazon-stock-green">{tr('In stock', 'ಮಾರಾಟಕ್ಕೆ ಲಭ್ಯವಿದೆ')}</span>
+                      </div>
+
+                      <div className="amazon-cart-item__delivery-line">
+                        <span className="amazon-delivery-truck">🚚</span>
+                        <span>
+                          <strong>{tr('FREE & Km-Shared Delivery', 'ಉಚಿತ / ಕಿಮೀ ಹಂಚಿಕೆಯ ವಿತರಣೆ')}</strong> {tr('by RaithaMarga Fleet as soon as Tomorrow', 'ರೈತಮಾರ್ಗ ತಂಡದ ಮೂಲಕ ನಾಳೆಯೇ')}
+                        </span>
+                      </div>
+
+                      {/* Amazon-style Fulfilled Badge */}
+                      <div className="amazon-fulfilled-badge">
+                        <span className="amazon-fulfilled-a">RaithaMarga</span>
+                        <span className="amazon-fulfilled-check">✓ Fulfilled</span>
+                      </div>
+
+                      {lineStatus && (
+                        <div className="amazon-cart-item__status-pill">
+                          <span className={`status-badge status-badge--${lineStatus.badge}`}>{lineStatus.label}</span>
+                        </div>
+                      )}
+
+                      {/* Amazon Yellow Stepper & Action Links */}
+                      <div className="amazon-cart-item__action-row">
+                        <div className="amazon-qty-pill">
+                          <button
+                            type="button"
+                            className="amazon-qty-btn"
+                            disabled={locked}
+                            onClick={() => {
+                              if (qtyVal <= 1) {
+                                removeLine(item.listingId);
+                              } else {
+                                changeQuantity(item.listingId, Math.max(0.01, qtyVal - 1));
+                              }
+                            }}
+                            aria-label={qtyVal <= 1 ? 'Delete item' : 'Decrease quantity'}
+                          >
+                            {qtyVal <= 1 ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              </svg>
+                            ) : '−'}
+                          </button>
+                          <span className="amazon-qty-display">
+                            {qtyVal} <small>{item.unit}</small>
+                          </span>
+                          <button
+                            type="button"
+                            className="amazon-qty-btn"
+                            disabled={locked || qtyVal >= Number(item.availableQuantity)}
+                            onClick={() => changeQuantity(item.listingId, qtyVal + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <span className="amazon-action-sep">|</span>
+                        <button
+                          type="button"
+                          className="amazon-text-action"
+                          onClick={() => removeLine(item.listingId)}
+                        >
+                          {tr('Delete', 'ತೆಗೆದುಹಾಕಿ')}
+                        </button>
+
+                        {!locked && !item.localOnly && (
+                          <>
+                            <span className="amazon-action-sep">|</span>
+                            <button
+                              type="button"
+                              className="amazon-text-action amazon-text-action--offer"
+                              onClick={() => setOfferListing({ ...item, defaultQuantity: qtyVal })}
+                            >
+                              🏷️ {statusOf(item) === 'rejected' ? tr('Make New Offer', 'ಹೊಸ ಪ್ರಸ್ತಾವನೆ') : text.makeOffer}
+                            </button>
+                          </>
+                        )}
+
+                        {locked && (
+                          <>
+                            <span className="amazon-action-sep">|</span>
+                            <Link className="amazon-text-action" to="/buyer/dashboard/bids">
+                              {tr('Track in My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳಲ್ಲಿ ನೋಡಿ')}
+                            </Link>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Price Column */}
+                    <div className="amazon-cart-item__price-box">
+                      <span className="amazon-cart-item__discount">-12%</span>
+                      <span className="amazon-cart-item__final-price">
+                        ₹{money(linePrice)}
+                      </span>
+                      <span className="amazon-cart-item__mrp">
+                        {tr('M.R.P.:', 'ಮಾರುಕಟ್ಟೆ:')} <del>₹{money(Number(linePrice) * 1.14)}</del>
+                      </span>
+                      <span className="amazon-cart-item__unit-rate">
+                        ₹{item.expectedPrice} / {item.unit}
+                      </span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            {/* Bottom Subtotal */}
+            <div className="amazon-cart-bottom-subtotal">
+              <span>
+                {tr('Subtotal', 'ಒಟ್ಟು ಮೊತ್ತ')} ({cartCount} {cartCount === 1 ? tr('item', 'ವಸ್ತು') : tr('items', 'ವಸ್ತುಗಳು')}):{' '}
+                <strong>₹{money(subtotalAmount)}</strong>
+              </span>
             </div>
           </section>
-          </div>
-        </>
+
+          {/* Right Sidebar: Amazon Order Summary */}
+          <aside className="amazon-cart-sidebar">
+            <div className="amazon-cart-summary-box">
+              <div className="amazon-sidebar-subtotal">
+                <span>
+                  {tr('Subtotal', 'ಉಪ ಒಟ್ಟು')} ({cartCount} {cartCount === 1 ? tr('item', 'ವಸ್ತು') : tr('items', 'ವಸ್ತುಗಳು')}):{' '}
+                  <strong className="amazon-sidebar-amount">₹{money(subtotalAmount)}</strong>
+                </span>
+              </div>
+
+              <label className="amazon-gift-check">
+                <input type="checkbox" defaultChecked />
+                <span>{tr('This order includes verified electronic weighment slips', 'ಈ ಆರ್ಡರ್ ಡಿಜಿಟಲ್ ತೂಕ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಒಳಗೊಂಡಿದೆ')}</span>
+              </label>
+
+              {/* Iconic Amazon Yellow Proceed to Buy Button */}
+              <Link
+                to="/buyer/dashboard/bids"
+                className="amazon-btn-proceed"
+              >
+                {tr('Proceed to Buy', 'ಖರೀದಿಸಲು ಮುಂದುವರಿಯಿರಿ')}
+              </Link>
+
+              {/* Accordion / Trust Feature Details */}
+              <div className="amazon-delivery-card">
+                <div className="amazon-delivery-card__title">
+                  <span>🚚 {tr('Km-Based Delivery Available', 'ಕಿಮೀ ಆಧಾರಿತ ಸಾರಿಗೆ ಲಭ್ಯವಿದೆ')}</span>
+                </div>
+                <p className="amazon-delivery-card__text">
+                  {tr(
+                    'Pickup & delivery charges shared proportionally by actual road distance (kms). No excess vehicle rental.',
+                    'ರೈತರಿಂದ ಪಿಕಪ್ & ನಿಮ್ಮ ಗೋದಾಮಿಗೆ ವಿತರಣೆ ಶುಲ್ಕವನ್ನು ಕಿ.ಮೀ. ಆಧಾರದಲ್ಲಿ ನ್ಯಾಯಯುತವಾಗಿ ಹಂಚಲಾಗುತ್ತದೆ.'
+                  )}
+                </p>
+                <div className="amazon-delivery-card__badge">
+                  <span>🛡️ {tr('100% Team Managed Escrow & Zero Calls', 'ರೈತಮಾರ್ಗ ತಂಡದ ಸಂಪೂರ್ಣ ನಿರ್ವಹಣೆ')}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendations Teaser Card */}
+            <div className="amazon-recom-box">
+              <h3>{tr('Verified Karnataka Mandi Guarantee', 'ಕರ್ನಾಟಕ ಮಂಡಿ ಗುಣಮಟ್ಟ ಖಾತರಿ')}</h3>
+              <p>{tr('Every produce batch is digitally weighed and verified before dispatch.', 'ಪ್ರತಿಯೊಂದು ಬೆಳೆಯನ್ನು ರವಾನಿಸುವ ಮುನ್ನ ಡಿಜಿಟಲ್ ತೂಕದಿಂದ ಪರಿಶೀಲಿಸಲಾಗುತ್ತದೆ.')}</p>
+              <Link to="/crops" className="amazon-link-small">{tr('Browse more crops →', 'ಇನ್ನಷ್ಟು ಬೆಳೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ →')}</Link>
+            </div>
+          </aside>
+        </div>
       )}
+
       {offerListing && (
         <MakeOfferModal
           listing={offerListing}

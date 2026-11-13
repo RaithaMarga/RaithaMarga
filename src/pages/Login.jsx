@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/useAuth';
-import logoSeal from '../assets/logo-seal.png';
+import logoSeal from '../assets/raithamarga-new-mark.jpg';
 import fieldBg from '../assets/login-bg-field.jpg';
 import './Login.css';
 
@@ -167,7 +167,7 @@ const Login = () => {
           </h1>
 
           <p className="login-panel__subtitle">
-            {l.panelSubtitle || 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ಸೌಹಾರ್ದಯುತ ವ್ಯವಹಾರ.'}
+            {l.panelSubtitle || 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಪಾರದರ್ಶಕ ವ್ಯವಹಾರ.'}
           </p>
 
           <ul className="login-panel__points">

@@ -5,7 +5,6 @@ import WhatsAppIcon from '../dashboard/WhatsAppIcon';
 import heroImg from '../../assets/hero.png';
 import fieldImg from '../../assets/login-bg-field.jpg';
 import tomatoImg from '../../assets/images/vegetables/tomato.jpg';
-import weightImg from '../../assets/features/weight-proof.jpg';
 import './HeroSlider.css';
 
 const HeroSlider = () => {
@@ -23,8 +22,8 @@ const HeroSlider = () => {
       badgeEn: '🌿 Direct Farm-To-Buyer Agricultural Platform',
       titleKn: 'ಮಣ್ಣಿನಿಂದ ಮಂಡಿಗೆ ನೇರ ಸಂಪರ್ಕ, ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲ',
       titleEn: 'Direct Farm-to-Buyer Marketplace, 0% Middlemen',
-      highlightKn: 'ನ್ಯಾಯಯುತ ಬೆಲೆ ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದ ಭರವಸೆ',
-      highlightEn: 'Fair Mandi Prices & Certified Digital Weights',
+      highlightKn: 'ನ್ಯಾಯಯುತ ಬೆಲೆ, ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು',
+      highlightEn: 'Fair Prices & Verified Buyers',
       descKn: 'ರೈತರಿಗೆ ಬೆವರ ಹನಿಗೆ ತಕ್ಕ ಗೌರವಯುತ ಲಾಭ, ಖರೀದಿದಾರರಿಗೆ ಗದ್ದೆಯಿಂದ ತಾಜಾ ಉತ್ಪನ್ನಗಳು.',
       descEn: 'Empowering Karnataka farmers with direct market access, fair profits, and genuine wholesale buyers.',
       ctaPrimaryKn: '🌾 ರೈತ ಸೈನ್ ಇನ್ / ನೋಂದಣಿ',
@@ -36,15 +35,15 @@ const HeroSlider = () => {
       tag: '0% Brokerage',
       stats: [
         { num: '0%', labelKn: 'ಕಮಿಷನ್ ಕಡಿತ', labelEn: 'Zero Commission' },
-        { num: '100%', labelKn: 'ಡಿಜಿಟಲ್ ತೂಕ ಖಾತರಿ', labelEn: 'Certified Weighing' },
+        { num: 'Verified', labelKn: 'ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು', labelEn: 'Verified Buyers' },
         { num: 'Direct', labelKn: 'ಗದ್ದೆಯಿಂದ ಮಂಡಿಗೆ', labelEn: 'Farm to Buyer' },
       ],
     },
     {
       id: 2,
       image: tomatoImg,
-      badgeKn: '🍅 ತಾಜಾ ಸುಗ್ಗಿ · ಕೋಲಾರ ಮತ್ತು ಕರ್ನಾಟಕದ ಬೆಳೆಗಳು',
-      badgeEn: '🍅 Fresh Harvest · Kolar & Karnataka Produce',
+      badgeKn: '🍅 ಕರ್ನಾಟಕದ ತಾಜಾ ಸ್ಥಳೀಯ ಬೆಳೆಗಳು',
+      badgeEn: '🍅 Fresh Local Harvest from Karnataka',
       titleKn: 'ತಾಜಾ ತರಕಾರಿಗಳು ಮತ್ತು ಹಣ್ಣುಗಳ ನೇರ ಪಟ್ಟಿ',
       titleEn: 'Fresh Produce Directly Listed by Local Farmers',
       highlightKn: 'ಟೊಮೆಟೊ, ಈರುಳ್ಳಿ, ಆಲೂಗಡ್ಡೆ ಮತ್ತು ಹಸಿ ತರಕಾರಿಗಳು',
@@ -62,30 +61,6 @@ const HeroSlider = () => {
         { num: '24+', labelKn: 'ಬೆಳೆಗಳ ವಿಧಗಳು', labelEn: 'Crop Varieties' },
         { num: 'Kolar', labelKn: 'ಪೈಲಟ್ ಜಿಲ್ಲೆ', labelEn: 'Pilot District' },
         { num: 'Daily', labelKn: 'ತಾಜಾ ಕೊಯ್ಲು', labelEn: 'Fresh Harvest' },
-      ],
-    },
-    {
-      id: 3,
-      image: weightImg,
-      badgeKn: '⚖️ 100% ಡಿಜಿಟಲ್ ತೂಕದ ಖಾತರಿ',
-      badgeEn: '⚖️ 100% Certified Digital Weighing Evidence',
-      titleKn: 'ಪ್ರತಿಯೊಂದು ಗ್ರಾಂ ತೂಕಕ್ಕೂ ಪಾರದರ್ಶಕ ಫೋಟೋ ಪುರಾವೆ',
-      titleEn: 'Tamper-Proof Digital Weighing With Scale Slips',
-      highlightKn: 'ಯಾವುದೇ ಮೋಸವಿಲ್ಲ, ಸಂಪೂರ್ಣ ಭರವಸೆ',
-      highlightEn: 'Zero Weighbridge Fraud, Absolute Peace of Mind',
-      descKn: 'ತೂಕದ ಯಂತ್ರದ ಫೋಟೋ ರಸೀದಿ ನೇರವಾಗಿ ನಿಮ್ಮ ಮೊಬೈಲ್‌ಗೆ. ರೈತರು ಮತ್ತು ಖರೀದಿದಾರರಿಗೆ ಸಮಾನ ನಂಬಿಕೆ.',
-      descEn: 'Live digital scale photo attached to every shipment. Guaranteed accuracy for every single kilogram.',
-      ctaPrimaryKn: '🛡️ ಪರಿಶೀಲನಾ ವಿಧಾನ ತಿಳಿಯಿರಿ',
-      ctaPrimaryEn: '🛡️ How Verification Works',
-      ctaPrimaryLink: '#how-it-works',
-      ctaSecondaryKn: '🌾 ಈಗಲೇ ಸೇರಿ',
-      ctaSecondaryEn: '🌾 Join RaithaMarga',
-      ctaSecondaryLink: '/register',
-      tag: 'Certified Weight',
-      stats: [
-        { num: '100%', labelKn: 'ತೂಕದ ಫೋಟೋ ಪುರಾವೆ', labelEn: 'Photo Scale Slip' },
-        { num: '0', labelKn: 'ತೂಕದ ಮೋಸ', labelEn: 'Zero Weighbridge Fraud' },
-        { num: 'Direct', labelKn: 'ಪಾರದರ್ಶಕ ವ್ಯವಹಾರ', labelEn: '100% Transparent' },
       ],
     },
     {
@@ -166,7 +141,7 @@ const HeroSlider = () => {
         {slides.map((slide, idx) => (
           <div
             key={slide.id}
-            className={`hero-slider__bg-slide ${idx === currentSlide ? 'hero-slider__bg-slide--active' : ''}`}
+            className={`hero-slider__bg-slide ${slide.id === 1 ? 'hero-slider__bg-slide--farmer' : ''} ${idx === currentSlide ? 'hero-slider__bg-slide--active' : ''}`}
             style={{ backgroundImage: `url(${slide.image})` }}
           >
             <div className="hero-slider__overlay" />

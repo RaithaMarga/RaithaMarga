@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import Home from './pages/Home';
 import Crops from './pages/Crops';
+import Policies from './pages/Policies';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -36,6 +37,7 @@ import AdminAudit from './pages/admin/AdminAudit';
 import AdminBids from './pages/admin/AdminBids';
 import DealDetailsPage from './components/dashboard/DealDetailsPage';
 import IncomingBids from './pages/farmer/IncomingBids';
+import SupportChatbot from './components/SupportChatbot';
 
 // Forces AddProduce to remount whenever the :id param changes, so its
 // lazy initial state (read from context) is recomputed per listing
@@ -53,6 +55,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/crops" element={<Crops />} />
+            <Route path="/policies" element={<Policies />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/get-started" element={<Register />} />
@@ -116,6 +119,7 @@ function App() {
               <Route path="audit" element={<AdminAudit />} />
             </Route>
           </Routes>
+          <SupportChatbot />
         </BrowserRouter>
       </AuthProvider>
     </LanguageProvider>

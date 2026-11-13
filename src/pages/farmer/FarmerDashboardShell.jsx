@@ -32,10 +32,13 @@ const FarmerShellInner = () => {
   );
 };
 
-const FarmerDashboardShell = () => (
-  <FarmerDataProvider>
-    <FarmerShellInner />
-  </FarmerDataProvider>
-);
+const FarmerDashboardShell = () => {
+  const { user } = useAuth();
+  return (
+    <FarmerDataProvider key={user?.uid || 'signed-out'}>
+      <FarmerShellInner />
+    </FarmerDataProvider>
+  );
+};
 
 export default FarmerDashboardShell;

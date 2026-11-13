@@ -109,8 +109,37 @@ export function getListingImage(listing) {
 
 const TO_KG = { kg: 1, quintal: 100, ton: 1000 };
 
-// Computes aggregate availability for a given crop name.
-// kg / quintal / ton are converted and summed as kg; other units (dozen, crate) are kept separate.
+// Benchmark rates for crops (APMC average reference) when no active farmer has listed yet
+export const CROP_BENCHMARKS = {
+  tomato: 24,
+  onion: 28,
+  potato: 25,
+  'green-chilli': 45,
+  carrot: 35,
+  cabbage: 20,
+  cauliflower: 30,
+  brinjal: 28,
+  okra: 35,
+  cucumber: 22,
+  beans: 42,
+  spinach: 18,
+  mango: 60,
+  banana: 30,
+  apple: 120,
+  orange: 55,
+  papaya: 25,
+  watermelon: 18,
+  grapes: 75,
+  pineapple: 40,
+  guava: 35,
+  pomegranate: 110,
+  jackfruit: 30,
+  lemon: 65,
+};
+
+// Computes aggregate availability and average farmer prices for a given crop name.
+// When multiple farmers list different prices (e.g. Farmer 1: ₹23, Farmer 2: ₹24),
+// computes the average price (₹23.5) and price range to display transparently.
 export function getCropAvailability(cropName, listings = null) {
   if (!cropName) return null;
   const allListings = listings || getStoredMarketplaceListings();
@@ -118,36 +147,93 @@ export function getCropAvailability(cropName, listings = null) {
   const cleanTarget = String(cropName).replace(/\s*\([^)]*\)/g, '').trim().toLowerCase().replace(/[\s_]+/g, ' ');
 
   const matching = allListings.filter((l) => {
-    if (l.status && l.status !== 'active') return false;
     const listingImageCrop = findImageCrop(l.crop);
     const lCrop = String(l.crop || '').replace(/\s*\([^)]*\)/g, '').trim().toLowerCase().replace(/[\s_]+/g, ' ');
     if (targetImageCrop && listingImageCrop) return targetImageCrop.id === listingImageCrop.id;
     return lCrop === cleanTarget || lCrop.replace(/-/g, ' ') === cleanTarget.replace(/-/g, ' ');
   });
 
-  if (!matching.length) return null;
+  const cropKey = targetImageCrop?.id || cleanTarget.replace(/\s+/g, '-');
+  const benchmarkPrice = CROP_BENCHMARKS[cropKey] || 25;
+
+  if (!matching.length) {
+    return {
+      count: 0,
+      activeCount: 0,
+      totals: [],
+      totalQuantity: 0,
+      unit: 'kg',
+      averagePrice: null,
+      minPrice: null,
+      maxPrice: null,
+      hasPriceRange: false,
+      farmerCount: 0,
+      benchmarkPrice,
+      isSoldOut: false,
+      isOpenToList: true,
+      location: '',
+    };
+  }
+
+  // Active listings with available stock
+  const activeMatching = matching.filter(
+    (l) => (!l.status || l.status === 'active') && Number(l.quantity) > 0
+  );
 
   const byUnit = {};
   matching.forEach((item) => {
+    // Only tally quantity for active listings
+    if (item.status && item.status !== 'active') return;
     const qty = Number(item.quantity) || 0;
     const unit = String(item.unit || 'kg').toLowerCase();
     const key = TO_KG[unit] ? 'kg' : unit;
     byUnit[key] = (byUnit[key] || 0) + qty * (TO_KG[unit] || 1);
   });
+
   const totals = Object.entries(byUnit)
     .map(([unit, quantity]) => ({ unit, quantity: Math.round(quantity * 100) / 100 }))
     .filter((t) => t.quantity > 0)
     .sort((a, b) => (a.unit === 'kg' ? -1 : b.unit === 'kg' ? 1 : 0));
-  if (!totals.length) return null;
 
-  const prices = matching.map((m) => Number(m.expectedPrice ?? m.price ?? 0)).filter(Boolean);
+  const totalQuantity = totals.length ? totals[0].quantity : 0;
+
+  // Determine if crop is sold out (was listed by farmers, but total available quantity is now 0)
+  const isSoldOut = matching.length > 0 && totalQuantity <= 0;
+
+  // Compute prices based on active listings, or previous listing prices if sold out
+  const priceSourceListings = activeMatching.length > 0 ? activeMatching : matching;
+  const prices = priceSourceListings
+    .map((m) => Number(m.expectedPrice ?? m.price ?? 0))
+    .filter(Boolean);
+
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const maxPrice = prices.length ? Math.max(...prices) : null;
+  const sumPrice = prices.reduce((acc, p) => acc + p, 0);
+  // User requested: "e.g. tomato one farmer 23 rs, another 24 rs calculate average of it and display in home page"
+  const averagePrice = prices.length
+    ? Math.round((sumPrice / prices.length) * 10) / 10
+    : null;
+
+  const uniqueFarmers = new Set(
+    priceSourceListings
+      .map((m) => m.farmerName || m.farmerId)
+      .filter(Boolean)
+  ).size || priceSourceListings.length;
 
   return {
     count: matching.length,
+    activeCount: activeMatching.length,
     totals,
-    totalQuantity: totals[0].quantity,
-    unit: totals[0].unit,
-    minPrice: prices.length ? Math.min(...prices) : null,
+    totalQuantity,
+    unit: totals.length ? totals[0].unit : 'kg',
+    minPrice,
+    maxPrice,
+    averagePrice,
+    hasPriceRange: minPrice !== null && maxPrice !== null && minPrice !== maxPrice,
+    farmerCount: uniqueFarmers,
+    benchmarkPrice,
+    isSoldOut,
+    isOpenToList: !isSoldOut && totalQuantity <= 0,
     location: matching[0]?.location || matching[0]?.district || '',
   };
 }

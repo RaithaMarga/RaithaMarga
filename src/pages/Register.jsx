@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/useAuth';
-import { STORAGE_KEYS } from '../data/storageKeys';
-import logoSeal from '../assets/logo-seal.png';
+import { accountStorageKey, STORAGE_KEYS } from '../data/storageKeys';
+import logoSeal from '../assets/raithamarga-new-mark.jpg';
 import fieldBg from '../assets/login-bg-field.jpg';
 import './Login.css';
 import './Register.css';
@@ -97,7 +97,7 @@ const Register = () => {
           landAcres: 2,
         };
 
-        await register({
+        const account = await register({
           email: email.trim(),
           password,
           role,
@@ -105,7 +105,7 @@ const Register = () => {
           profile,
         });
 
-        localStorage.setItem(STORAGE_KEYS.FARMER_PROFILE, JSON.stringify({
+        localStorage.setItem(accountStorageKey(STORAGE_KEYS.FARMER_PROFILE, account.uid), JSON.stringify({
           name: profile.fullName,
           phone: '',
           village: profile.village,
@@ -124,7 +124,7 @@ const Register = () => {
           district: 'Kolar',
         };
 
-        await register({
+        const account = await register({
           email: email.trim(),
           password,
           role,
@@ -132,7 +132,7 @@ const Register = () => {
           profile,
         });
 
-        localStorage.setItem(STORAGE_KEYS.BUYER_PROFILE, JSON.stringify({
+        localStorage.setItem(accountStorageKey(STORAGE_KEYS.BUYER_PROFILE, account.uid), JSON.stringify({
           businessName: profile.businessName,
           contactName: profile.fullName,
           phone: '',
@@ -178,7 +178,7 @@ const Register = () => {
           </h1>
 
           <p className="login-panel__subtitle">
-            {r.panelSubtitle || (language === 'kn' ? 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ತೂಕದೊಂದಿಗೆ ಸೌಹಾರ್ದಯುತ ವ್ಯವಹಾರ.' : 'Direct trade, verified digital weights, and transparent market rates without middlemen.')}
+            {r.panelSubtitle || (language === 'kn' ? 'ನೇರ ಸಂಪರ್ಕ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು ಮತ್ತು ಪಾರದರ್ಶಕ ವ್ಯವಹಾರ.' : 'Direct trade, fair prices, and transparent market rates without middlemen.')}
           </p>
 
           <ul className="login-panel__points">

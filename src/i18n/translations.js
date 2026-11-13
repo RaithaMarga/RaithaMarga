@@ -164,6 +164,7 @@ export const translations = {
     footer: {
       tagline: 'Direct from farm to verified buyer — starting with one crop, one district, and proof at every step.',
       platform: 'Platform',
+      policies: 'Policies',
       forYou: 'For You',
       pilot: 'Pilot',
       pilot1: 'One crop, one district',
@@ -642,6 +643,7 @@ export const translations = {
     footer: {
       tagline: 'ಹೊಲದಿಂದ ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರಿಗೆ ನೇರವಾಗಿ — ಒಂದು ಬೆಳೆ, ಒಂದು ಜಿಲ್ಲೆಯಿಂದ ಪ್ರಾರಂಭಿಸಿ, ಪ್ರತಿ ಹಂತದಲ್ಲೂ ಪುರಾವೆಯೊಂದಿಗೆ.',
       platform: 'ವೇದಿಕೆ',
+      policies: 'ನೀತಿಗಳು',
       forYou: 'ನಿಮಗಾಗಿ',
       pilot: 'ಪೈಲಟ್',
       pilot1: 'ಒಂದು ಬೆಳೆ, ಒಂದು ಜಿಲ್ಲೆ',

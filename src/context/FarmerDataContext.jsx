@@ -1,6 +1,6 @@
 import { createContext, useContext, useCallback, useMemo, useEffect, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { STORAGE_KEYS } from '../data/storageKeys';
+import { accountStorageKey, STORAGE_KEYS } from '../data/storageKeys';
 import { useAuth } from './useAuth';
 import { apiRequest } from '../lib/api';
 import {
@@ -35,7 +35,17 @@ export const FarmerDataProvider = ({ children }) => {
   });
   const [listingOwner, setListingOwner] = useState(user?.uid || 'farmer-local');
   const [listingLoadError, setListingLoadError] = useState('');
-  const [profile, setProfile] = useLocalStorage(STORAGE_KEYS.FARMER_PROFILE, emptyProfile);
+  const profileKey = accountStorageKey(STORAGE_KEYS.FARMER_PROFILE, user?.uid);
+  const initialProfile = {
+    ...emptyProfile,
+    name: user?.profile?.fullName || user?.name || '',
+    village: user?.profile?.village || '',
+    taluk: user?.profile?.taluk || '',
+    district: user?.profile?.district || '',
+    state: user?.profile?.state || emptyProfile.state,
+    landSizeAcres: user?.profile?.landAcres ?? '',
+  };
+  const [profile, setProfile] = useLocalStorage(profileKey, initialProfile);
 
   useEffect(() => {
     if (!user || role !== 'farmer') return undefined;
@@ -50,7 +60,7 @@ export const FarmerDataProvider = ({ children }) => {
         try {
           const created = await apiRequest('/listings', {
             method: 'POST',
-            body: JSON.stringify(toApiListing(local, JSON.parse(localStorage.getItem(STORAGE_KEYS.FARMER_PROFILE) || '{}'))),
+            body: JSON.stringify(toApiListing(local, JSON.parse(localStorage.getItem(profileKey) || '{}'))),
           });
           removeStoredMarketplaceListing(local.id);
           saveStoredMarketplaceListing(fromApiListing(created));
@@ -97,7 +107,7 @@ export const FarmerDataProvider = ({ children }) => {
       active = false;
       window.removeEventListener('raithamarga-listings-changed', onListingsChanged);
     };
-  }, [user, role]);
+  }, [user, role, profileKey]);
 
   const isCurrentOwner = (listingOwner === user?.uid || listingOwner === 'farmer-local') && role === 'farmer';
   const listings = useMemo(() => (isCurrentOwner ? listingData : []), [isCurrentOwner, listingData]);

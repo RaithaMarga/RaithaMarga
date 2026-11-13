@@ -16,6 +16,16 @@
   text-align: center;
   padding: 0 var(--space-3);
   border-left: 1px solid rgba(255, 255, 255, 0.14);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.impact__card:hover {
+  transform: translateY(-4px);
+}
+
+.impact__card:hover .impact__value {
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(240, 185, 62, 0.6);
 }
 
 .impact__card:first-child { border-left: none; }

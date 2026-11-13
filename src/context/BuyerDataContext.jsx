@@ -1,6 +1,6 @@
 import { createContext, useContext, useCallback, useMemo, useEffect, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { STORAGE_KEYS } from '../data/storageKeys';
+import { accountStorageKey, STORAGE_KEYS } from '../data/storageKeys';
 import { useAuth } from './useAuth';
 import { apiRequest } from '../lib/api';
 import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings, isLocalListing, isLocalDeal, createLocalDeal, updateLocalDealStatus } from '../lib/marketplace';
@@ -29,7 +29,14 @@ const emptyProfile = {
 
 export const BuyerDataProvider = ({ children }) => {
   const { user, role } = useAuth();
-  const [profile, setProfile] = useLocalStorage(STORAGE_KEYS.BUYER_PROFILE, emptyProfile);
+  const profileKey = accountStorageKey(STORAGE_KEYS.BUYER_PROFILE, user?.uid);
+  const initialProfile = {
+    ...emptyProfile,
+    contactName: user?.profile?.fullName || user?.name || '',
+    businessName: user?.profile?.businessName || '',
+    location: user?.profile?.district || '',
+  };
+  const [profile, setProfile] = useLocalStorage(profileKey, initialProfile);
   const [requirementData, setRequirementData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [listingData, setListingData] = useState([]);
@@ -60,6 +67,29 @@ export const BuyerDataProvider = ({ children }) => {
     writeBuyerCart(buyerUid, items);
     setCartState({ uid: buyerUid, items, error: '' });
   }, [buyerUid, cartError]);
+
+  // Merge any items added prior to signing in (guest cart) into the user's cart
+  useEffect(() => {
+    if (!buyerUid) return;
+    try {
+      const guestItems = readBuyerCart('guest');
+      if (guestItems && guestItems.length > 0) {
+        const userItems = readBuyerCart(buyerUid);
+        const merged = [...userItems];
+        guestItems.forEach((g) => {
+          if (!merged.some((m) => m.listingId === g.listingId)) {
+            merged.push(g);
+          }
+        });
+        writeBuyerCart(buyerUid, merged);
+        try { localStorage.removeItem('raithamarga.buyerCart.guest'); } catch {}
+        setCartState({ uid: buyerUid, items: merged, error: '' });
+        window.dispatchEvent(new Event('raithamarga-cart-changed'));
+      }
+    } catch {
+      // ignore
+    }
+  }, [buyerUid]);
 
   useEffect(() => {
     if (!user || role !== 'buyer') return undefined;

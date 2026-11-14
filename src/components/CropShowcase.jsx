@@ -78,8 +78,8 @@ const CropShowcase = () => {
           </Link>
           <p className="crop-showcase__footer-note">
             {isKannada
-              ? '⚡ ಯಾವುದೇ ಕಮಿಷನ್ ಇಲ್ಲದೆ ನೇರ ರೈತರಿಂದ ಬೃಹತ್ ಪ್ರಮಾಣದಲ್ಲಿ ಲಭ್ಯ.'
-              : '⚡ Available in bulk directly from verified Karnataka farmers with 0% middleman commission.'}
+              ? '⚡ 1% + 1% ವೇದಿಕೆ ಶುಲ್ಕದೊಂದಿಗೆ ನೇರ ರೈತರಿಂದ ಬೃಹತ್ ಪ್ರಮಾಣದಲ್ಲಿ ಲಭ್ಯ.'
+              : '⚡ Available in bulk directly from verified Karnataka farmers with 1% + 1% Platform Fee.'}
           </p>
         </div>
       </div>

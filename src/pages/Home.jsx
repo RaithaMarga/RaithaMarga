@@ -31,7 +31,7 @@ const Home = () => {
         <SellOnWhatsApp />
 
         {/* Features & Why RaithaMarga */}
-        <Features />
+        <div id="verification"><Features /></div>
 
         {/* Impact Numbers */}
         <Impact />

@@ -47,7 +47,8 @@ export function useMarketplaceListings() {
       .then((rows) => {
         if (!active) return;
         setPublicListings(rows.map((row) => ({
-          id: `public-${row.crop}-${row.unit}`,
+          id: row.listingId || row.id || `public-${row.crop}-${row.unit}`,
+          pendingAvailability: !row.listingId && !row.id,
           crop: row.crop,
           unit: row.unit,
           quantity: row.availableQuantity,

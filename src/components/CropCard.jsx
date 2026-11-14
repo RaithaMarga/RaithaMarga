@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CropImage from './CropImage';
 import { getCropAvailability } from '../lib/marketplace';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/useAuth';
-import { readBuyerCart, writeBuyerCart, addCartLine, updateCartLineQuantity, removeCartLine } from '../lib/cart';
+import { useCart } from '../context/CartContext';
+import QuantityInput from './QuantityInput';
 
 const formatQty = (n) => Number(n).toLocaleString('en-IN', { maximumFractionDigits: 1 });
 
 const CropCard = ({ crop, copy, listings }) => {
   const { language } = useLanguage();
   const isKannada = language === 'kn';
-  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState('');
   const availability = getCropAvailability(crop.name, listings);
   const isVegetable = crop.category === 'Vegetable';
   const cropTitle = copy?.names?.[crop.id] ?? crop.name;
@@ -23,113 +25,11 @@ const CropCard = ({ crop, copy, listings }) => {
   const displayPrice = availability?.averagePrice ?? availability?.minPrice;
   const unit = availability?.unit || 'kg';
 
-  // Live cart quantity for this crop
-  const [cartQty, setCartQty] = useState(0);
-
-  useEffect(() => {
-    const syncQty = () => {
-      try {
-        const uid = user?.uid || 'guest';
-        const items = readBuyerCart(uid);
-        const cleanCropName = String(crop.name).toLowerCase().replace(/[\s_]+/g, ' ');
-        const match = items.find((item) => {
-          const itemCrop = String(item.crop || '').toLowerCase().replace(/[\s_]+/g, ' ');
-          return itemCrop === cleanCropName || itemCrop.includes(cleanCropName) || item.listingId === `produce-${crop.id}`;
-        });
-        setCartQty(match ? Number(match.quantity) : 0);
-      } catch {
-        setCartQty(0);
-      }
-    };
-
-    syncQty();
-    window.addEventListener('storage', syncQty);
-    window.addEventListener('raithamarga-cart-changed', syncQty);
-    return () => {
-      window.removeEventListener('storage', syncQty);
-      window.removeEventListener('raithamarga-cart-changed', syncQty);
-    };
-  }, [user?.uid, crop.name, crop.id]);
-
-  const handleAddToCart = () => {
-    try {
-      const uid = user?.uid || 'guest';
-      const cleanTarget = String(crop.name).toLowerCase().replace(/[\s_]+/g, ' ');
-      const matchingListing = listings?.find((l) => {
-        if (l.status && l.status !== 'active') return false;
-        const lCrop = String(l.crop || '').toLowerCase().replace(/[\s_]+/g, ' ');
-        return lCrop === cleanTarget || lCrop.replace(/-/g, ' ') === cleanTarget.replace(/-/g, ' ');
-      });
-
-      const listingToAdd = matchingListing || {
-        id: `produce-${crop.id}`,
-        crop: crop.name,
-        farmerName: availability?.farmerCount ? `${availability.farmerCount} Farmers` : 'Karnataka Farmers',
-        unit,
-        quantity: Math.min(1, availability?.totalQuantity || 100),
-        availableQuantity: availability?.totalQuantity || 100,
-        expectedPrice: Number(displayPrice || availability?.benchmarkPrice || 25),
-        managed: true,
-        localOnly: false,
-      };
-
-      const currentItems = readBuyerCart(uid);
-      const updatedItems = addCartLine(currentItems, listingToAdd);
-      writeBuyerCart(uid, updatedItems);
-      setCartQty(1);
-      window.dispatchEvent(new Event('raithamarga-cart-changed'));
-    } catch (err) {
-      console.warn('Could not add to cart:', err);
-    }
-  };
-
-  const handleIncrement = () => {
-    try {
-      const uid = user?.uid || 'guest';
-      const currentItems = readBuyerCart(uid);
-      const cleanCropName = String(crop.name).toLowerCase().replace(/[\s_]+/g, ' ');
-      const match = currentItems.find((item) => {
-        const itemCrop = String(item.crop || '').toLowerCase().replace(/[\s_]+/g, ' ');
-        return itemCrop === cleanCropName || item.listingId === `produce-${crop.id}`;
-      });
-      if (match) {
-        const nextQty = Number(match.quantity) + 1;
-        const updated = updateCartLineQuantity(currentItems, match.listingId, nextQty);
-        writeBuyerCart(uid, updated);
-        setCartQty(nextQty);
-        window.dispatchEvent(new Event('raithamarga-cart-changed'));
-      }
-    } catch (err) {
-      console.warn('Could not increment:', err);
-    }
-  };
-
-  const handleDecrement = () => {
-    try {
-      const uid = user?.uid || 'guest';
-      const currentItems = readBuyerCart(uid);
-      const cleanCropName = String(crop.name).toLowerCase().replace(/[\s_]+/g, ' ');
-      const match = currentItems.find((item) => {
-        const itemCrop = String(item.crop || '').toLowerCase().replace(/[\s_]+/g, ' ');
-        return itemCrop === cleanCropName || item.listingId === `produce-${crop.id}`;
-      });
-      if (match) {
-        if (Number(match.quantity) <= 1) {
-          const updated = removeCartLine(currentItems, match.listingId);
-          writeBuyerCart(uid, updated);
-          setCartQty(0);
-        } else {
-          const nextQty = Number(match.quantity) - 1;
-          const updated = updateCartLineQuantity(currentItems, match.listingId, nextQty);
-          writeBuyerCart(uid, updated);
-          setCartQty(nextQty);
-        }
-        window.dispatchEvent(new Event('raithamarga-cart-changed'));
-      }
-    } catch (err) {
-      console.warn('Could not decrement:', err);
-    }
-  };
+  const candidates = (listings || []).filter((listing) => {
+    const available = getCropAvailability(crop.name, [listing]);
+    return available?.totalQuantity > 0 && (!listing.status || listing.status === 'active') && Number(listing.quantity) >= 1;
+  }).sort((a, b) => Number(a.expectedPrice) - Number(b.expectedPrice));
+  const listing = candidates[0];
 
   return (
     <article className={`crop-card ${isSoldOut ? 'crop-card--soldout' : ''}`} key={crop.id}>
@@ -169,8 +69,8 @@ const CropCard = ({ crop, copy, listings }) => {
       <div className="crop-card__body">
         <div className="crop-card__header-row">
           <h3 className="crop-card__title">{cropTitle}</h3>
-          <span className="crop-card__commission-badge">
-            {isKannada ? '0% ಕಮಿಷನ್' : '0% Commission'}
+          <span className="crop-card__fee-badge">
+            {isKannada ? '1% + 1% ವೇದಿಕೆ ಶುಲ್ಕ' : '1% + 1% Platform Fee'}
           </span>
         </div>
 
@@ -202,7 +102,7 @@ const CropCard = ({ crop, copy, listings }) => {
                   </span>
                 ) : (
                   <span className="crop-card__avg-note crop-card__avg-note--direct">
-                    <span>✨ {isKannada ? 'ನೇರ ರೈತ ಬೆಲೆ · ಕಮಿಷನ್ ರಹಿತ' : 'Direct farmer price · No middleman'}</span>
+                    <span>✨ {isKannada ? 'ನೇರ ರೈತ ಬೆಲೆ · 1% + 1% ವೇದಿಕೆ ಶುಲ್ಕ' : 'Direct farmer price · No middleman'}</span>
                   </span>
                 )}
               </div>
@@ -243,51 +143,17 @@ const CropCard = ({ crop, copy, listings }) => {
         {/* Amazon-Style Add to Cart Stepper & Action Buttons */}
         <div className="crop-card__actions">
           {hasStock ? (
-            <div className="crop-card__cart-bar">
-              {cartQty > 0 ? (
-                <div className="crop-card__stepper">
-                  <button
-                    type="button"
-                    className="crop-card__stepper-btn"
-                    onClick={handleDecrement}
-                    title={cartQty <= 1 ? (isKannada ? 'ಕಾರ್ಟ್‌ನಿಂದ ತೆಗೆಯಿರಿ' : 'Remove from cart') : (isKannada ? 'ಕಡಿಮೆ ಮಾಡಿ' : 'Decrease')}
-                  >
-                    {cartQty <= 1 ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                      </svg>
-                    ) : '−'}
-                  </button>
-                  <span className="crop-card__stepper-qty">
-                    {cartQty} <small>{unit}</small>
-                  </span>
-                  <button
-                    type="button"
-                    className="crop-card__stepper-btn"
-                    onClick={handleIncrement}
-                    title={isKannada ? 'ಹೆಚ್ಚಿಸಿ' : 'Increase quantity'}
-                  >
-                    +
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="crop-card__add-btn"
-                  onClick={handleAddToCart}
-                >
-                  <span className="crop-card__add-plus">+</span>
-                  <span>{isKannada ? 'ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ' : 'Add to Cart'}</span>
-                </button>
-              )}
-
-              <Link
-                className="crop-card__details-link"
-                to="/buyer/dashboard/cart"
-                title={isKannada ? 'ಕಾರ್ಟ್ ವೀಕ್ಷಿಸಿ' : 'View Cart'}
-              >
-                <span>{isKannada ? 'ವೀಕ್ಷಿಸಿ →' : 'View →'}</span>
-              </Link>
+            <div className="crop-card__cart-bar crop-card__cart-bar--typed">
+              {listing ? <>
+                <p className="crop-card__stock-note">₹{listing.expectedPrice}/{listing.unit || 'kg'} · {listing.quantity} {listing.unit || 'kg'} {isKannada ? 'ಲಭ್ಯ' : 'available'}</p>
+                <QuantityInput value={Math.min(quantity, Number(listing.quantity))} max={listing.quantity} unit={listing.unit || 'kg'} label={`${cropTitle} quantity`} onChange={setQuantity} />
+                <button type="button" className="crop-card__add-btn" onClick={() => {
+                  try { addToCart(listing, Math.min(quantity, Number(listing.quantity))); setMessage('ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ / Added to Cart ✓'); }
+                  catch (error) { setMessage(error.message); }
+                }}>+ ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ / Add to Cart</button>
+                {message && <small role="status">{message}</small>}
+                <Link className="crop-card__details-link" to="/cart">{isKannada ? 'ಕಾರ್ಟ್ ನೋಡಿ →' : 'View Cart →'}</Link>
+              </> : <p>{isKannada ? 'ಪ್ರಸ್ತುತ ಲಭ್ಯತೆ ಪರಿಶೀಲಿಸಿ' : 'Check current availability'}</p>}
             </div>
           ) : isSoldOut ? (
             <Link

@@ -1,65 +1,31 @@
-import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAuth } from '../../context/useAuth';
-import { readBuyerCart } from '../../lib/cart';
+import HomeCart from '../HomeCart';
 import logoMark from '../../assets/raithamarga-new-mark.jpg';
 import './Navbar.css';
 
+
 const Navbar = () => {
   const { t, language, toggleLanguage } = useLanguage();
-  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Sync cart count
-  useEffect(() => {
-    const updateCount = () => {
-      if (!user?.uid) {
-        setCartCount(0);
-        return;
-      }
-      try {
-        const items = readBuyerCart(user.uid);
-        setCartCount(items.length);
-      } catch {
-        setCartCount(0);
-      }
-    };
-
-    updateCount();
-    window.addEventListener('storage', updateCount);
-    window.addEventListener('raithamarga-cart-changed', updateCount);
-    return () => {
-      window.removeEventListener('storage', updateCount);
-      window.removeEventListener('raithamarga-cart-changed', updateCount);
-    };
-  }, [user?.uid]);
-
   const NAV_LINKS = [
-    { href: '#home', label: t.nav.home },
-    { href: '#crops', label: language === 'kn' ? 'ಬೆಳೆಗಳು' : 'Crops' },
-    { href: '#how-it-works', label: t.nav.how },
-    { href: '#features', label: t.nav.features },
-    { href: '#trust', label: t.nav.trust },
-    { href: '#impact', label: t.nav.impact },
-    { href: '#contact', label: t.nav.contact },
+    { href: '/#home', label: language === 'kn' ? 'ಮುಖಪುಟ' : 'Home' },
+    { href: '/#crops', label: language === 'kn' ? 'ಬೆಳೆಗಳು' : 'Crops' },
+    { href: '/#how-it-works', label: language === 'kn' ? 'ಕಾರ್ಯವಿಧಾನ' : 'How it Works' },
+    { href: '/#trust', label: language === 'kn' ? 'ನಂಬಿಕೆ' : 'Trust' },
+    { href: '/#verification', label: language === 'kn' ? 'ಪರಿಶೀಲನೆ' : 'Verification' },
+    { href: '/#impact', label: language === 'kn' ? 'ಪರಿಣಾಮ' : 'Impact' },
+    { href: '/#contact', label: language === 'kn' ? 'ಸಂಪರ್ಕ' : 'Contact' },
   ];
 
   const toggleMenu = () => setIsMenuOpen((v) => !v);
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
+    <header className="navbar">
       <div className="navbar__container container">
-        <a href="#home" className="navbar__logo">
+        <a href="/#home" className="navbar__logo">
           <span className="navbar__logo-mark">
             <img src={logoMark} alt="RaithaMarga" width="40" height="40" />
           </span>
@@ -77,38 +43,6 @@ const Navbar = () => {
         </nav>
 
         <div className="navbar__actions">
-          {/* Exact Amazon Header Cart Button */}
-          <Link
-            to="/buyer/dashboard/cart"
-            className="amazon-header-cart"
-            aria-label={language === 'kn' ? `ಕಾರ್ಟ್ (${cartCount})` : `Cart (${cartCount})`}
-            title={language === 'kn' ? 'ಕಾರ್ಟ್ ವೀಕ್ಷಿಸಿ' : 'View Cart'}
-          >
-            <div className="amazon-header-cart__icon-wrap">
-              <span className="amazon-header-cart__count">{cartCount}</span>
-              <svg
-                className="amazon-header-cart__svg"
-                viewBox="0 0 38 35"
-                width="38"
-                height="35"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M1 2.5h5.5l3.8 20.2h20.4l4.3-14.2H8"
-                  stroke="currentColor"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="13.5" cy="28.5" r="3" fill="currentColor" />
-                <circle cx="27.5" cy="28.5" r="3" fill="currentColor" />
-              </svg>
-            </div>
-            <span className="amazon-header-cart__title">{language === 'kn' ? 'ಕಾರ್ಟ್' : 'Cart'}</span>
-          </Link>
-
           <button
             className="navbar__lang-toggle"
             onClick={toggleLanguage}
@@ -124,6 +58,7 @@ const Navbar = () => {
           </Link>
         </div>
 
+        <HomeCart />
         <button
           className="navbar__hamburger"
           onClick={toggleMenu}
@@ -146,36 +81,6 @@ const Navbar = () => {
             ))}
           </ul>
           <div className="navbar__mobile-actions">
-            <Link
-              to="/buyer/dashboard/cart"
-              className="amazon-header-cart amazon-header-cart--mobile"
-              onClick={closeMenu}
-            >
-              <div className="amazon-header-cart__icon-wrap">
-                <span className="amazon-header-cart__count">{cartCount}</span>
-                <svg
-                  className="amazon-header-cart__svg"
-                  viewBox="0 0 38 35"
-                  width="36"
-                  height="33"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M1 2.5h5.5l3.8 20.2h20.4l4.3-14.2H8"
-                    stroke="currentColor"
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle cx="13.5" cy="28.5" r="3" fill="currentColor" />
-                  <circle cx="27.5" cy="28.5" r="3" fill="currentColor" />
-                </svg>
-              </div>
-              <span className="amazon-header-cart__title">{language === 'kn' ? 'ಕಾರ್ಟ್' : 'Cart'}</span>
-            </Link>
-
             <button className="navbar__lang-toggle navbar__lang-toggle--mobile" onClick={toggleLanguage}>
               {t.nav.langToggle}
             </button>

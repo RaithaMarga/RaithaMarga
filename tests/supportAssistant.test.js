@@ -62,5 +62,5 @@ test('does not invent live weather or crop treatment recommendations', () => {
 
 test('provides safe cart and fee guidance', () => {
   assert.match(getSupportAnswer('Does cart reserve the produce?', listings), /does not reserve stock/i);
-  assert.match(getSupportAnswer('What commission do you charge?', listings), /cannot confirm any fee/i);
+  assert.match(getSupportAnswer('What platform fees do you charge?', listings), /1% \+ 1% Platform Fee/i);
 });

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useBuyerData } from '../../context/BuyerDataContext';
+import QuantityInput from '../../components/QuantityInput';
 import StatusBadge from '../../components/dashboard/StatusBadge';
 import EmptyState from '../../components/dashboard/EmptyState';
 import ListingImage from '../../components/dashboard/ListingImage';
@@ -21,6 +22,7 @@ const BrowseProduce = () => {
   const [sortBy, setSortBy] = useState('default');
   const [detailListing, setDetailListing] = useState(null);
   const [actionError, setActionError] = useState('');
+  const [quantities, setQuantities] = useState({});
   const [cartMessage, setCartMessage] = useState('');
 
   const inCart = (id) => cart.some((item) => item.listingId === id);
@@ -88,7 +90,7 @@ const BrowseProduce = () => {
     setActionError('');
     setCartMessage('');
     try {
-      addToCart(listing);
+      addToCart(listing, quantities[listing.id] || 1);
       setCartMessage(trading.addedToCart.replace('{crop}', listing.crop));
     } catch (error) {
       setActionError(error.message);
@@ -249,6 +251,7 @@ const BrowseProduce = () => {
                   <span>{listing.location || 'Location not set'}</span>
                   {listing.availabilityDate ? <span>Available from {listing.availabilityDate}</span> : null}
                 </div>
+                <QuantityInput value={quantities[listing.id] || 1} max={listing.quantity} unit={listing.unit} label={`${listing.crop} quantity`} onChange={(value) => setQuantities((previous) => ({ ...previous, [listing.id]: value }))} />
                 <div className="listing-card__actions listing-card__actions--two-only">
                   <button type="button" className="btn btn--outline btn--sm" onClick={() => setDetailListing(listing)}>
                     {isKannada ? 'ವಿವರಗಳು' : 'View Details'}

@@ -53,7 +53,7 @@ export function clearCheckoutIdempotencyKey(uid, storage = globalThis.localStora
   storage.removeItem(checkoutAttemptStorageKey(uid));
 }
 
-export function addCartLine(items, listing) {
+export function addCartLine(items, listing, quantity = 1) {
   const id = String(listing?.id || '');
   const stock = Number(listing?.quantity);
   const price = Number(listing?.expectedPrice ?? listing?.price);
@@ -61,7 +61,11 @@ export function addCartLine(items, listing) {
     throw new Error('This produce listing is missing valid stock or price information.');
   }
   const existing = items.find((item) => item.listingId === id);
-  const startingQuantity = Math.min(1, stock);
+  if (existing?.deal) throw new Error('A deal already exists for this cart line. View your deals or remove this line before adding it again.');
+  const startingQuantity = Number(quantity);
+  if (!Number.isFinite(startingQuantity) || startingQuantity < 1 || startingQuantity > stock) {
+    throw new Error(`Enter a quantity from 1 to ${stock} ${listing.unit || 'kg'}.`);
+  }
   if (existing && existing.quantity + startingQuantity > stock) {
     throw new Error('The cart quantity cannot exceed the currently available stock.');
   }
@@ -75,6 +79,8 @@ export function addCartLine(items, listing) {
     availableQuantity: stock,
     managed: Boolean(listing.managed),
     localOnly: isLocalListing(listing),
+    photos: listing.photos || [],
+    pendingAvailability: Boolean(listing.pendingAvailability),
   };
   return existing
     ? items.map((item) => item.listingId === id ? line : item)
@@ -85,8 +91,9 @@ export function updateCartLineQuantity(items, listingId, quantity) {
   const nextQuantity = Number(quantity);
   const line = items.find((item) => item.listingId === listingId);
   if (!line) return items;
-  if (!Number.isFinite(nextQuantity) || nextQuantity <= 0) {
-    throw new Error('Enter a quantity greater than zero.');
+  if (line.deal) throw new Error('This deal quantity is agreed. View your deals for details.');
+  if (!Number.isFinite(nextQuantity) || nextQuantity < 1) {
+    throw new Error('Enter a quantity of at least 1.');
   }
   if (nextQuantity > Number(line.availableQuantity)) {
     throw new Error('Quantity cannot exceed the available stock shown in the cart.');
@@ -106,4 +113,19 @@ export function cartLineTotal(item) {
 
 export function cartSubtotal(items) {
   return Math.round(items.reduce((total, item) => total + Math.round(cartLineTotal(item) * 100), 0)) / 100;
+}
+
+export function cartTotals(items) {
+  const subtotal = cartSubtotal(items);
+  const fee = Math.round(subtotal) / 100;
+  return { subtotal, fee, total: Math.round((subtotal + fee) * 100) / 100, farmerReceives: Math.round((subtotal - fee) * 100) / 100 };
+}
+
+export function mergeGuestCart(saved, guest) {
+  return guest.reduce((items, line) => {
+    const existing = items.find((item) => item.listingId === line.listingId);
+    return [...items.filter((item) => item.listingId !== line.listingId), {
+      ...line, quantity: Math.min(Number(line.availableQuantity), Number(line.quantity) + Number(existing?.quantity || 0)),
+    }];
+  }, saved);
 }

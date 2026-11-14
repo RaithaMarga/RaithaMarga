@@ -6,6 +6,8 @@ import EmptyState from '../../components/dashboard/EmptyState';
 import ListingImage from '../../components/dashboard/ListingImage';
 import MakeOfferModal from '../../components/dashboard/MakeOfferModal';
 import { apiRequest } from '../../lib/api';
+import QuantityInput from '../../components/QuantityInput';
+import CartSummary from '../../components/CartSummary';
 import { cartLineTotal } from '../../lib/cart';
 import '../../components/dashboard/dashboard-ui.css';
 import './Cart.css';
@@ -16,13 +18,17 @@ const money = (value) => Number(value || 0).toLocaleString('en-IN', { minimumFra
 export default function BuyerCart() {
   const {
     cart,
+    requests,
+    dataLoading,
+    acceptCartPrice,
+    resolveCartListings,
     cartCount,
     cartReady,
     cartError,
     changeCartQuantity,
     removeFromCart,
   } = useBuyerData();
-  const [quantityDrafts, setQuantityDrafts] = useState({});
+  const [creatingDeal, setCreatingDeal] = useState(null);
   const [actionError, setActionError] = useState('');
   const [success, setSuccess] = useState('');
   const [bids, setBids] = useState([]);
@@ -40,39 +46,32 @@ export default function BuyerCart() {
     apiRequest('/bids').then((data) => { if (active) setBids(data); }).catch(() => {});
     return () => { active = false; };
   }, []);
-
+  useEffect(() => {
+    if (!dataLoading && cart.some((item) => item.pendingAvailability)) {
+      try { resolveCartListings(); } catch { /* Keep the saved selection visible on storage failure. */ }
+    }
+  }, [cart, dataLoading, resolveCartListings]);
   // Several old bids can exist for one listing; only the most recent one decides what the cart shows.
   const bidByListing = {};
   [...bids]
     .sort((a, b) => String(a.updatedAt || a.createdAt || '').localeCompare(String(b.updatedAt || b.createdAt || '')))
     .forEach((bid) => { bidByListing[bid.listingId] = bid; });
   const statusOf = (item) => String(bidByListing[item.listingId]?.status || '').toLowerCase();
-  const isLocked = (item) => ['offered', 'countered', 'accepted'].includes(statusOf(item));
+  // A rejected negotiation is closed: the buyer can edit the quantity and make a fresh offer.
+  const existingDeal = (item) => {
+    if (!item.deal?.id) return null;
+    const deal = requests.find((entry) => entry.id === item.deal.id) || item.deal;
+    return ['cancelled', 'rejected', 'failed'].includes(deal.status) ? null : deal;
+  };
+  const isLocked = (item) => Boolean(existingDeal(item)) || ['offered', 'countered', 'accepted'].includes(statusOf(item));
 
-  const invalidQuantity = cart.some((item) => {
-    if (isLocked(item)) return false;
-    const value = quantityDrafts[item.listingId] ?? item.quantity;
-    const number = Number(value);
-    return value === '' || !Number.isFinite(number) || number < 0.01 || number > Number(item.availableQuantity)
-      || Math.abs(number * 100 - Math.round(number * 100)) > 0.000001;
-  });
+  const invalidQuantity = cart.some((item) => Number(item.quantity) < 1 || Number(item.quantity) > Number(item.availableQuantity));
 
-  const counts = cart.reduce((sum, item) => {
-    const status = statusOf(item) || 'none';
-    sum[status] = (sum[status] || 0) + 1;
-    return sum;
-  }, {});
-
-  const subtotalAmount = cart.reduce((sum, item) => {
-    const bid = bidByListing[item.listingId];
-    if (bid && String(bid.status).toLowerCase() === 'accepted') {
-      return sum + Number(bid.quantity || 0) * Number(bid.agreedPrice || 0);
-    }
-    return sum + cartLineTotal(item);
-  }, 0);
-
+  // While an offer is open or agreed, the line shows the negotiated quantity and price, not the cart's draft.
   const negotiated = (item) => {
     const bid = bidByListing[item.listingId];
+    const created = existingDeal(item);
+    if (created) return { quantity: created.quantity, total: Number(created.quantity) * Number(created.agreedPrice), label: tr('Final deal value', 'ಅಂತಿಮ ಒಪ್ಪಂದ ಮೌಲ್ಯ') };
     if (!bid || !isLocked(item)) return null;
     const status = statusOf(item);
     const price = status === 'accepted' ? bid.agreedPrice : status === 'countered' ? bid.counterPrice : bid.offerPrice;
@@ -103,6 +102,7 @@ export default function BuyerCart() {
   const badgeFor = (item) => {
     const bid = bidByListing[item.listingId];
     const status = statusOf(item);
+    if (existingDeal(item)) return { badge: 'success', label: tr(`Agreed at ₹${existingDeal(item).agreedPrice} / ${item.unit} · deal created`, `₹${existingDeal(item).agreedPrice} / ${item.unit} ಗೆ ಒಪ್ಪಂದ · ಒಪ್ಪಂದ ರಚಿಸಲಾಗಿದೆ`) };
     if (!bid) return null;
     if (status === 'offered') return { badge: 'gold', label: tr(`Offer sent: ₹${bid.offerPrice} / ${item.unit} · waiting for farmer`, `ಪ್ರಸ್ತಾವನೆ ಕಳುಹಿಸಲಾಗಿದೆ: ₹${bid.offerPrice} / ${item.unit} · ರೈತರ ಉತ್ತರಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ`) };
     if (status === 'countered') return { badge: 'primary', label: tr(`Farmer countered ₹${bid.counterPrice} / ${item.unit} · your reply needed`, `ರೈತರ ಪ್ರತಿಪ್ರಸ್ತಾವನೆ ₹${bid.counterPrice} / ${item.unit} · ನಿಮ್ಮ ಉತ್ತರ ಬೇಕು`) };
@@ -110,6 +110,14 @@ export default function BuyerCart() {
     if (status === 'rejected') return { badge: 'muted', label: tr('Offer rejected · you can send a new offer', 'ಪ್ರಸ್ತಾವನೆ ತಿರಸ್ಕೃತ · ಹೊಸ ಪ್ರಸ್ತಾವನೆ ನೀಡಬಹುದು') };
     return null;
   };
+
+  const summaryItems = cart.map((item) => {
+    const deal = existingDeal(item);
+    const bid = bidByListing[item.listingId];
+    return deal ? { ...item, quantity: deal.quantity, expectedPrice: deal.agreedPrice }
+      : statusOf(item) === 'accepted' ? { ...item, quantity: bid.quantity, expectedPrice: bid.agreedPrice } : item;
+  });
+  const subtotalAmount = summaryItems.reduce((total, item) => total + cartLineTotal(item), 0);
 
   if (!cartReady && !cartError) {
     return <div className="dash-panel amazon-cart-panel" role="status">{copy.loading}</div>;
@@ -137,7 +145,7 @@ export default function BuyerCart() {
             <div className="amazon-cart-header">
               <div className="amazon-cart-header__left">
                 <h1 className="amazon-cart-title">{tr('Shopping Cart', 'ಶಾಪಿಂಗ್ ಕಾರ್ಟ್')}</h1>
-                <span className="amazon-cart-deselect">{tr('Deselect all items', 'ಎಲ್ಲಾ ವಸ್ತುಗಳನ್ನು ಆಯ್ಕೆ ರದ್ದುಮಾಡಿ')}</span>
+<span>{cartCount} {copy.distinctListings} · {copy.cartItemsDoNotReserve}</span>
               </div>
               <span className="amazon-cart-header__price-col">{tr('Price', 'ಬೆಲೆ')}</span>
             </div>
@@ -147,16 +155,11 @@ export default function BuyerCart() {
                 const lineStatus = badgeFor(item);
                 const locked = isLocked(item);
                 const deal = negotiated(item);
-                const qtyVal = Number(deal ? deal.quantity : (quantityDrafts[item.listingId] ?? item.quantity));
+                const qtyVal = Number(deal ? deal.quantity : (item.quantity));
                 const linePrice = deal ? deal.total : cartLineTotal(item);
 
                 return (
                   <article className="amazon-cart-item" key={item.listingId}>
-                    {/* Checkbox */}
-                    <div className="amazon-cart-item__check">
-                      <input type="checkbox" defaultChecked aria-label={`Select ${item.crop}`} />
-                    </div>
-
                     {/* Image */}
                     <div className="amazon-cart-item__image-pod">
                       <ListingImage listing={{ ...item, id: item.listingId }} />
@@ -176,19 +179,6 @@ export default function BuyerCart() {
                         <span className="amazon-stock-green">{tr('In stock', 'ಮಾರಾಟಕ್ಕೆ ಲಭ್ಯವಿದೆ')}</span>
                       </div>
 
-                      <div className="amazon-cart-item__delivery-line">
-                        <span className="amazon-delivery-truck">🚚</span>
-                        <span>
-                          <strong>{tr('FREE & Km-Shared Delivery', 'ಉಚಿತ / ಕಿಮೀ ಹಂಚಿಕೆಯ ವಿತರಣೆ')}</strong> {tr('by RaithaMarga Fleet as soon as Tomorrow', 'ರೈತಮಾರ್ಗ ತಂಡದ ಮೂಲಕ ನಾಳೆಯೇ')}
-                        </span>
-                      </div>
-
-                      {/* Amazon-style Fulfilled Badge */}
-                      <div className="amazon-fulfilled-badge">
-                        <span className="amazon-fulfilled-a">RaithaMarga</span>
-                        <span className="amazon-fulfilled-check">✓ Fulfilled</span>
-                      </div>
-
                       {lineStatus && (
                         <div className="amazon-cart-item__status-pill">
                           <span className={`status-badge status-badge--${lineStatus.badge}`}>{lineStatus.label}</span>
@@ -197,39 +187,7 @@ export default function BuyerCart() {
 
                       {/* Amazon Yellow Stepper & Action Links */}
                       <div className="amazon-cart-item__action-row">
-                        <div className="amazon-qty-pill">
-                          <button
-                            type="button"
-                            className="amazon-qty-btn"
-                            disabled={locked}
-                            onClick={() => {
-                              if (qtyVal <= 1) {
-                                removeLine(item.listingId);
-                              } else {
-                                changeQuantity(item.listingId, Math.max(0.01, qtyVal - 1));
-                              }
-                            }}
-                            aria-label={qtyVal <= 1 ? 'Delete item' : 'Decrease quantity'}
-                          >
-                            {qtyVal <= 1 ? (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                              </svg>
-                            ) : '−'}
-                          </button>
-                          <span className="amazon-qty-display">
-                            {qtyVal} <small>{item.unit}</small>
-                          </span>
-                          <button
-                            type="button"
-                            className="amazon-qty-btn"
-                            disabled={locked || qtyVal >= Number(item.availableQuantity)}
-                            onClick={() => changeQuantity(item.listingId, qtyVal + 1)}
-                            aria-label="Increase quantity"
-                          >
-                            +
-                          </button>
-                        </div>
+                        <QuantityInput value={qtyVal} max={item.availableQuantity} unit={item.unit} label={`${item.crop} quantity`} disabled={locked || creatingDeal === item.listingId} onChange={(value) => changeQuantity(item.listingId, value)} />
 
                         <span className="amazon-action-sep">|</span>
                         <button
@@ -240,7 +198,16 @@ export default function BuyerCart() {
                           {tr('Delete', 'ತೆಗೆದುಹಾಕಿ')}
                         </button>
 
-                        {!locked && !item.localOnly && (
+                        {!locked && !item.localOnly && !item.pendingAvailability && (
+                          <button type="button" className="shopping-primary cart-accept-price" disabled={invalidQuantity || creatingDeal !== null} onClick={async () => {
+                            setCreatingDeal(item.listingId); setActionError('');
+                            try { await acceptCartPrice(item); setSuccess(tr('Price accepted · deal created. View Deals or Track in My Bids.', 'ಬೆಲೆ ಸ್ವೀಕರಿಸಲಾಗಿದೆ · ಒಪ್ಪಂದ ರಚಿಸಲಾಗಿದೆ.')); loadBids(); }
+                            catch (error) { setActionError(error.message); }
+                            finally { setCreatingDeal(null); }
+                          }}>{creatingDeal === item.listingId ? tr('Creating deal…', 'ಒಪ್ಪಂದ ರಚಿಸಲಾಗುತ್ತಿದೆ…') : '✅ ' + tr('Accept Price & Create Deal', 'ಬೆಲೆ ಸ್ವೀಕರಿಸಿ ಮತ್ತು ಒಪ್ಪಂದ ರಚಿಸಿ')}</button>
+                        )}
+                        {item.pendingAvailability && <p role="status">{tr('Your selection is saved. Matching stock at this price is not currently available. Browse current farmer listings before creating a deal.', 'ನಿಮ್ಮ ಆಯ್ಕೆ ಉಳಿಸಲಾಗಿದೆ. ಈ ಬೆಲೆಯಲ್ಲಿ ಪ್ರಸ್ತುತ ಲಭ್ಯತೆ ಪರಿಶೀಲಿಸಿ.')} <Link to="/buyer/dashboard/browse">{tr('Browse Produce', 'ಬೆಳೆಗಳನ್ನು ನೋಡಿ')}</Link></p>}
+                        {!locked && !item.localOnly && !item.pendingAvailability && (
                           <>
                             <span className="amazon-action-sep">|</span>
                             <button
@@ -248,11 +215,12 @@ export default function BuyerCart() {
                               className="amazon-text-action amazon-text-action--offer"
                               onClick={() => setOfferListing({ ...item, defaultQuantity: qtyVal })}
                             >
-                              🏷️ {statusOf(item) === 'rejected' ? tr('Make New Offer', 'ಹೊಸ ಪ್ರಸ್ತಾವನೆ') : text.makeOffer}
+                              💬 {statusOf(item) === 'rejected' ? tr('Make New Offer', 'ಹೊಸ ಪ್ರಸ್ತಾವನೆ') : text.makeOffer}
                             </button>
                           </>
                         )}
 
+                        {(statusOf(item) === 'accepted' || existingDeal(item)) && <Link className="amazon-text-action" to="/buyer/dashboard/deals">{copy.viewDeals}</Link>}
                         {locked && (
                           <>
                             <span className="amazon-action-sep">|</span>
@@ -266,12 +234,8 @@ export default function BuyerCart() {
 
                     {/* Price Column */}
                     <div className="amazon-cart-item__price-box">
-                      <span className="amazon-cart-item__discount">-12%</span>
                       <span className="amazon-cart-item__final-price">
                         ₹{money(linePrice)}
-                      </span>
-                      <span className="amazon-cart-item__mrp">
-                        {tr('M.R.P.:', 'ಮಾರುಕಟ್ಟೆ:')} <del>₹{money(Number(linePrice) * 1.14)}</del>
                       </span>
                       <span className="amazon-cart-item__unit-rate">
                         ₹{item.expectedPrice} / {item.unit}
@@ -294,24 +258,14 @@ export default function BuyerCart() {
           {/* Right Sidebar: Amazon Order Summary */}
           <aside className="amazon-cart-sidebar">
             <div className="amazon-cart-summary-box">
-              <div className="amazon-sidebar-subtotal">
-                <span>
-                  {tr('Subtotal', 'ಉಪ ಒಟ್ಟು')} ({cartCount} {cartCount === 1 ? tr('item', 'ವಸ್ತು') : tr('items', 'ವಸ್ತುಗಳು')}):{' '}
-                  <strong className="amazon-sidebar-amount">₹{money(subtotalAmount)}</strong>
-                </span>
-              </div>
-
-              <label className="amazon-gift-check">
-                <input type="checkbox" defaultChecked />
-                <span>{tr('This order includes verified electronic weighment slips', 'ಈ ಆರ್ಡರ್ ಡಿಜಿಟಲ್ ತೂಕ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಒಳಗೊಂಡಿದೆ')}</span>
-              </label>
-
+              <h2>{tr('Cart Summary', 'ಕಾರ್ಟ್ ಸಾರಾಂಶ')}</h2>
+              <CartSummary items={summaryItems} />
               {/* Iconic Amazon Yellow Proceed to Buy Button */}
               <Link
                 to="/buyer/dashboard/bids"
                 className="amazon-btn-proceed"
               >
-                {tr('Proceed to Buy', 'ಖರೀದಿಸಲು ಮುಂದುವರಿಯಿರಿ')}
+                {tr('Track in My Bids', 'ನನ್ನ ಪ್ರಸ್ತಾವನೆಗಳಲ್ಲಿ ನೋಡಿ')}
               </Link>
 
               {/* Accordion / Trust Feature Details */}

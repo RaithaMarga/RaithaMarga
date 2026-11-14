@@ -121,10 +121,10 @@ export function getSupportAnswer(message, listings = [], { cropTranslations = {}
     );
   }
 
-  if (/\b(fee|fees|commission|charge|charged|cost to use)\b/i.test(query) || /ಶುಲ್ಕ|ಕಮಿಷನ್/.test(query)) {
+  if (/\b(fee|fees|charge|charged|cost to use)\b/i.test(query) || /ಶುಲ್ಕ/.test(query)) {
     return answerInLanguage(
-      'RaithaMarga promotes direct farmer-to-buyer trade. Check the current listing and deal terms before confirming a transaction; the assistant cannot confirm any fee that is not shown in those terms.',
-      'ರೈತಮಾರ್ಗ ರೈತರು ಮತ್ತು ಖರೀದಿದಾರರ ನೇರ ವ್ಯಾಪಾರಕ್ಕೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ವ್ಯವಹಾರ ಖಚಿತಪಡಿಸುವ ಮೊದಲು ಪ್ರಸ್ತುತ ಪಟ್ಟಿ ಮತ್ತು ಒಪ್ಪಂದದ ಷರತ್ತುಗಳನ್ನು ಪರಿಶೀಲಿಸಿ; ಅಲ್ಲಿ ತೋರಿಸದ ಶುಲ್ಕವನ್ನು ಸಹಾಯಕ ಖಚಿತಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.',
+      'RaithaMarga uses a 1% + 1% Platform Fee: buyers pay 1% above the subtotal and farmers receive the subtotal less 1%.',
+      'ರೈತಮಾರ್ಗದಲ್ಲಿ 1% + 1% ವೇದಿಕೆ ಶುಲ್ಕ: ಖರೀದಿದಾರರು 1% ಹೆಚ್ಚಾಗಿ ಪಾವತಿಸುತ್ತಾರೆ ಮತ್ತು ರೈತರಿಗೆ 1% ಕಡಿತದ ನಂತರ ಮೊತ್ತ ಸಿಗುತ್ತದೆ.',
       isKannada,
     );
   }

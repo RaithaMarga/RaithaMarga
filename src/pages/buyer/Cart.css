@@ -539,3 +539,34 @@
     display: none;
   }
 }
+
+/* RaithaMarga cart: real quantities, transparent fees, and green/yellow actions. */
+.amazon-cart-page { background:#f7f9ef; }
+.amazon-cart-item { grid-template-columns:100px minmax(0,1fr) 130px; }
+.amazon-cart-item__image-pod { width:100px; height:100px; }
+.amazon-cart-item__details { min-width:0; }
+.amazon-cart-summary-box { border-top:4px solid #205c35; }
+.amazon-cart-summary-box h2 { color:#205c35; font-size:22px; margin-bottom:20px; }
+.amazon-cart-summary-box .shopping-summary { width:100%; }
+.amazon-cart-summary-box .shopping-summary p { display:flex; justify-content:space-between; gap:12px; }
+.amazon-cart-summary-box .shopping-summary strong { font-size:16px; white-space:nowrap; }
+.amazon-cart-summary-box .shopping-summary__total strong { font-size:20px; }
+.amazon-cart-item__action-row { gap:12px; }
+.amazon-cart-item__action-row .quantity-field { flex:1 1 100%; }
+.amazon-cart-item__action-row .cart-accept-price { width:auto; min-height:46px; }
+.amazon-text-action--offer { background:#fff2b3; border:1px solid #d8b332; border-radius:10px; padding:10px 14px; color:#205c35; }
+@media(max-width:760px) {
+ .amazon-cart-page { padding:16px 12px 40px; }
+ .amazon-cart-main { padding:18px 14px; }
+ .amazon-cart-item { grid-template-columns:72px minmax(0,1fr); gap:12px; }
+ .amazon-cart-item__image-pod { grid-column:1; width:72px; height:80px; }
+ .amazon-cart-item__details { grid-column:2; }
+ .amazon-cart-item__price-box { grid-column:2; }
+ .amazon-cart-item__action-row { flex-direction:column; align-items:stretch; }
+ .amazon-cart-item__action-row .quantity-field { flex:auto; }
+ .amazon-action-sep { display:none; }
+}
+@media(max-width:359px) {
+ .amazon-cart-item { grid-template-columns:minmax(0,1fr); }
+ .amazon-cart-item__details,.amazon-cart-item__price-box { grid-column:1; }
+}

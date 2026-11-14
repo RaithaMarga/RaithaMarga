@@ -2,18 +2,15 @@ import { createContext, useContext, useCallback, useMemo, useEffect, useState } 
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { accountStorageKey, STORAGE_KEYS } from '../data/storageKeys';
 import { useAuth } from './useAuth';
+import { useCart } from './CartContext';
+import { resolveAvailabilityCart } from '../lib/resolveCart';
 import { apiRequest } from '../lib/api';
 import { fromApiDeal, fromApiListing, fromApiRequirement, getStoredMarketplaceListings, mergeListings, isLocalListing, isLocalDeal, createLocalDeal, updateLocalDealStatus } from '../lib/marketplace';
 import { useStoredDeals } from '../hooks/useStoredDeals';
 import {
-  addCartLine as addCartLineToItems,
   clearCheckoutIdempotencyKey,
   getCheckoutIdempotencyKey,
   MAX_CHECKOUT_LINES,
-  readBuyerCart,
-  removeCartLine,
-  updateCartLineQuantity,
-  writeBuyerCart,
 } from '../lib/cart';
 
 const BuyerDataContext = createContext(null);
@@ -44,52 +41,9 @@ export const BuyerDataProvider = ({ children }) => {
   const [storedListings, setStoredListings] = useState(getStoredMarketplaceListings);
   const [dataOwner, setDataOwner] = useState(null);
   const [loadError, setLoadError] = useState('');
-  const [cartState, setCartState] = useState({ uid: null, items: [] });
+  const { cart, cartCount, cartReady, cartError, addToCart, changeCartQuantity, removeFromCart, markCartDeal, replaceCart: persistBuyerCart } = useCart();
   const buyerUid = role === 'buyer' ? user?.uid : null;
-  const cartSnapshot = useMemo(() => {
-    if (!buyerUid) return { uid: null, items: [], error: '' };
-    if (cartState.uid === buyerUid) return cartState;
-    try {
-      return { uid: buyerUid, items: readBuyerCart(buyerUid), error: '' };
-    } catch (error) {
-      return { uid: buyerUid, items: [], error: `Could not load your saved cart: ${error.message}` };
-    }
-  }, [buyerUid, cartState]);
-  const cart = cartSnapshot.items;
-  const cartOwner = cartSnapshot.uid;
-  const cartReady = Boolean(buyerUid && cartOwner === buyerUid);
-  const cartError = cartSnapshot.error;
-
-  const persistBuyerCart = useCallback((items) => {
-    if (!buyerUid || cartError) {
-      throw new Error(cartError || 'A signed-in buyer is required to update the cart.');
-    }
-    writeBuyerCart(buyerUid, items);
-    setCartState({ uid: buyerUid, items, error: '' });
-  }, [buyerUid, cartError]);
-
-  // Merge any items added prior to signing in (guest cart) into the user's cart
-  useEffect(() => {
-    if (!buyerUid) return;
-    try {
-      const guestItems = readBuyerCart('guest');
-      if (guestItems && guestItems.length > 0) {
-        const userItems = readBuyerCart(buyerUid);
-        const merged = [...userItems];
-        guestItems.forEach((g) => {
-          if (!merged.some((m) => m.listingId === g.listingId)) {
-            merged.push(g);
-          }
-        });
-        writeBuyerCart(buyerUid, merged);
-        try { localStorage.removeItem('raithamarga.buyerCart.guest'); } catch {}
-        setCartState({ uid: buyerUid, items: merged, error: '' });
-        window.dispatchEvent(new Event('raithamarga-cart-changed'));
-      }
-    } catch {
-      // ignore
-    }
-  }, [buyerUid]);
+  const cartOwner = buyerUid;
 
   useEffect(() => {
     if (!user || role !== 'buyer') return undefined;
@@ -218,22 +172,26 @@ export const BuyerDataProvider = ({ children }) => {
     return deal;
   }, [user?.uid]);
 
-  const addToCart = useCallback((listing) => {
-    if (!buyerUid || !cartReady || cartOwner !== buyerUid) {
-      throw new Error('Your buyer cart is still loading. Please try again.');
-    }
-    persistBuyerCart(addCartLineToItems(readBuyerCart(buyerUid), listing));
-  }, [buyerUid, cartOwner, cartReady, persistBuyerCart]);
+  const resolveCartListings = useCallback(() => {
+    const resolved = resolveAvailabilityCart(cart, listings);
+    if (JSON.stringify(resolved) !== JSON.stringify(cart)) persistBuyerCart(resolved);
+    return resolved;
+  }, [cart, listings, persistBuyerCart]);
 
-  const changeCartQuantity = useCallback((listingId, quantity) => {
-    if (!buyerUid) throw new Error('A signed-in buyer is required to update the cart.');
-    persistBuyerCart(updateCartLineQuantity(readBuyerCart(buyerUid), listingId, quantity));
-  }, [buyerUid, persistBuyerCart]);
-
-  const removeFromCart = useCallback((listingId) => {
-    if (!buyerUid) throw new Error('A signed-in buyer is required to update the cart.');
-    persistBuyerCart(removeCartLine(readBuyerCart(buyerUid), listingId));
-  }, [buyerUid, persistBuyerCart]);
+  const acceptCartPrice = useCallback(async (item) => {
+    if (item.pendingAvailability) throw new Error('This selection needs current farmer availability. Refresh availability or choose a listing in Browse Produce.');
+    if (item.localOnly) throw new Error('This listing is not available for online deals yet.');
+    const idempotencyKey = getCheckoutIdempotencyKey(`${buyerUid}:line:${item.listingId}`, [item]);
+    const created = await apiRequest('/deals/checkout', {
+      method: 'POST', body: JSON.stringify({ idempotencyKey, items: [{ listingId: item.listingId, quantity: Number(item.quantity), expectedPrice: Number(item.expectedPrice) }] }),
+    });
+    const first = created[0];
+    if (!first?.id) throw new Error('The server did not return a deal. Check My Deals before retrying.');
+    markCartDeal(item.listingId, { id: first.id, quantity: Number(first.quantity ?? item.quantity), agreedPrice: Number(first.price ?? item.expectedPrice), status: String(first.status || '').toLowerCase() });
+    const deals = created.map((entry) => ({ ...fromApiDeal(entry), crop: item.crop, unit: item.unit }));
+    setRequestData((previous) => [...deals, ...previous.filter((entry) => !deals.some((deal) => deal.id === entry.id))]);
+    return deals;
+  }, [buyerUid, markCartDeal]);
 
   const checkoutCart = useCallback(async () => {
     if (!cartReady || cartOwner !== buyerUid || !buyerUid) {
@@ -241,6 +199,7 @@ export const BuyerDataProvider = ({ children }) => {
     }
     if (cartError) throw new Error(cartError);
     if (cart.length === 0) throw new Error('Your cart is empty.');
+    if (cart.some((item) => item.pendingAvailability)) throw new Error('Confirm current farmer availability first.');
     if (cart.some((item) => item.localOnly)) {
       throw new Error('Demo listings saved only in this browser cannot be purchased. Add produce published to the marketplace backend.');
     }
@@ -321,7 +280,7 @@ export const BuyerDataProvider = ({ children }) => {
     requests,
     listings,
     cart: buyerCart,
-    cartCount: buyerCart.length,
+    cartCount,
     cartReady,
     cartError: buyerCartError,
     addToCart,
@@ -329,12 +288,14 @@ export const BuyerDataProvider = ({ children }) => {
     removeFromCart,
     checkoutCart,
     expressInterest,
+    acceptCartPrice,
+    resolveCartListings,
     cancelRequest,
     hasRequested,
     dataError,
     dataLoading,
     stats,
-  }), [profile, setProfile, saveProfile, requirements, addRequirement, requests, listings, buyerCart, cartReady, buyerCartError, addToCart, changeCartQuantity, removeFromCart, checkoutCart, expressInterest, cancelRequest, hasRequested, dataError, dataLoading, stats]);
+  }), [profile, setProfile, saveProfile, requirements, addRequirement, requests, listings, buyerCart, cartCount, cartReady, buyerCartError, addToCart, changeCartQuantity, removeFromCart, checkoutCart, expressInterest, acceptCartPrice, resolveCartListings, cancelRequest, hasRequested, dataError, dataLoading, stats]);
 
   return <BuyerDataContext.Provider value={value}>{children}</BuyerDataContext.Provider>;
 };

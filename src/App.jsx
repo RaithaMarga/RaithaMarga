@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import Home from './pages/Home';
+import GuestCart from './pages/GuestCart';
+import { CartProvider } from './context/CartContext';
 import Crops from './pages/Crops';
 import Policies from './pages/Policies';
 import { LanguageProvider } from './context/LanguageContext';
@@ -52,10 +54,12 @@ function App() {
     <LanguageProvider>
       <AuthProvider>
         <BrowserRouter>
+          <CartProvider>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/crops" element={<Crops />} />
             <Route path="/policies" element={<Policies />} />
+            <Route path="/cart" element={<GuestCart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/get-started" element={<Register />} />
@@ -120,6 +124,7 @@ function App() {
             </Route>
           </Routes>
           <SupportChatbot />
+        </CartProvider>
         </BrowserRouter>
       </AuthProvider>
     </LanguageProvider>

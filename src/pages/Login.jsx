@@ -67,7 +67,7 @@ const Login = () => {
     try {
       const signedInUser = await login({ email, role, password, rememberMe });
       const destinations = { admin: '/admin/dashboard', buyer: '/buyer/dashboard' };
-      navigate(destinations[signedInUser.role] || '/farmer/dashboard');
+      navigate(signedInUser.role === 'buyer' && searchParams.get('next') === 'cart' ? '/buyer/dashboard/cart' : destinations[signedInUser.role] || '/farmer/dashboard');
     } catch (error) {
       setErrors((prev) => ({ ...prev, form: error.message }));
     } finally {

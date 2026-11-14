@@ -32,9 +32,9 @@ const HeroSlider = () => {
       ctaSecondaryKn: '🏢 ಖರೀದಿದಾರ ಸೈನ್ ಇನ್',
       ctaSecondaryEn: '🏢 Buy Fresh Produce',
       ctaSecondaryLink: '/login?role=buyer',
-      tag: '0% Brokerage',
+      tag: '1% + 1% Platform Fee',
       stats: [
-        { num: '0%', labelKn: 'ಕಮಿಷನ್ ಕಡಿತ', labelEn: 'Zero Commission' },
+        { num: '1% + 1%', labelKn: 'ವೇದಿಕೆ ಶುಲ್ಕ', labelEn: 'Platform Fee' },
         { num: 'Verified', labelKn: 'ಪರಿಶೀಲಿತ ಖರೀದಿದಾರರು', labelEn: 'Verified Buyers' },
         { num: 'Direct', labelKn: 'ಗದ್ದೆಯಿಂದ ಮಂಡಿಗೆ', labelEn: 'Farm to Buyer' },
       ],
